@@ -16,6 +16,7 @@ from .api.files import FilesAPI
 from .api.models import ModelsAPI
 from .api.transcriptions import TranscriptionsAPI
 from .api.webhooks import SonioxWebhooksAPI
+from .realtime import AsyncRealtimeAPI, RealtimeAPI
 
 
 class _BaseSonioxClient:
@@ -112,6 +113,10 @@ class SonioxClient(_BaseSonioxClient):
             webhook_header=self.webhook_signature_header,
         )
 
+    @cached_property
+    def realtime(self) -> RealtimeAPI:
+        return RealtimeAPI(self)
+
 
 class AsyncSonioxClient(_BaseSonioxClient):
     def __init__(
@@ -182,3 +187,7 @@ class AsyncSonioxClient(_BaseSonioxClient):
             webhook_secret=self.webhook_secret,
             webhook_header=self.webhook_signature_header,
         )
+
+    @cached_property
+    def realtime(self) -> AsyncRealtimeAPI:
+        return AsyncRealtimeAPI(self)

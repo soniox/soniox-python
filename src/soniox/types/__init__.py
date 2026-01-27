@@ -31,6 +31,7 @@ from .webhooks import (
     WebhookAuthConfig,
     WebhookEvent,
 )
+from .realtime import RealtimeEvent, RealtimeSttConfig, RealtimeToken
 
 __all__ = [
     # api.py
@@ -58,6 +59,10 @@ __all__ = [
     "TranslationType",
     "TemporaryApiKeyUsageType",
     "UploadFilePayload",
+    # realtime.py
+    "RealtimeEvent",
+    "RealtimeSttConfig",
+    "RealtimeToken",
     # webhooks.py
     "Headers",
     "WebhookAuthConfig",

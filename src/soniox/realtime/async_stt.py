@@ -1,60 +1,60 @@
 from __future__ import annotations
 
 import json
-from collections.abc import Iterator, Mapping
+from collections.abc import AsyncIterator, Mapping
 from typing import TYPE_CHECKING, Any
 
+from websockets import connect as async_ws_connect
 from websockets.exceptions import ConnectionClosed
-from websockets.sync.client import connect as sync_ws_connect
 
 from ..types.realtime import RealtimeEvent, RealtimeSttConfig
 
 if TYPE_CHECKING:
-    from ..client import SonioxClient
+    from ..client import AsyncSonioxClient
 
 
-class RealtimeSTTSession:
+class AsyncRealtimeSTTSession:
     def __init__(self, url: str, payload: Mapping[str, Any]) -> None:
         self._url = url
         self._payload = payload
         self._ws = None
 
-    def __enter__(self) -> RealtimeSTTSession:
-        self._ws = sync_ws_connect(self._url)
-        self._ws.send(json.dumps(self._payload))
+    async def __aenter__(self) -> AsyncRealtimeSTTSession:
+        self._ws = await async_ws_connect(self._url)
+        await self._ws.send(json.dumps(self._payload))
         return self
 
-    def __exit__(self) -> None:
-        self.close()
+    async def __aexit__(self) -> None:
+        await self.close()
 
-    def close(self) -> None:
+    async def close(self) -> None:
         if not self._ws:
             return
         try:
-            self._ws.send(b"")
+            await self._ws.send(b"")
         except ConnectionClosed:
             pass
         finally:
-            self._ws.close()
+            await self._ws.close()
             self._ws = None
 
-    def send_audio_chunk(self, chunk: bytes) -> None:
+    async def send_audio_chunk(self, chunk: bytes) -> None:
         if not self._ws:
             raise RuntimeError("Realtime session is not connected")
-        self._ws.send(chunk)
+        await self._ws.send(chunk)
 
-    def receive_event(self) -> RealtimeEvent | None:
+    async def receive_event(self) -> RealtimeEvent | None:
         if not self._ws:
             raise RuntimeError("Realtime session is not connected")
         try:
-            raw = self._ws.recv()
+            raw = await self._ws.recv()
         except ConnectionClosed:
             return None
         return RealtimeEvent.parse_raw(raw)
 
-    def receive_events(self) -> Iterator[RealtimeEvent]:
+    async def receive_events(self) -> AsyncIterator[RealtimeEvent]:
         while True:
-            event = self.receive_event()
+            event = await self.receive_event()
             if event is None:
                 break
             yield event
@@ -62,8 +62,8 @@ class RealtimeSTTSession:
                 break
 
 
-class RealtimeSTTClient:
-    def __init__(self, client: SonioxClient) -> None:
+class AsyncRealtimeSTTClient:
+    def __init__(self, client: AsyncSonioxClient) -> None:
         self._client = client
 
     def _resolve_key(self, api_key: str | None, temporary_api_key: str | None) -> str:
@@ -81,11 +81,11 @@ class RealtimeSTTClient:
         api_key: str | None = None,
         temporary_api_key: str | None = None,
         **config_kwargs: Any,
-    ) -> RealtimeSTTSession:
+    ) -> AsyncRealtimeSTTSession:
         if config is None:
             if model is None:
                 raise ValueError("`model` must be provided when config is not supplied")
             config = RealtimeSttConfig(model=model, audio_format=audio_format, **config_kwargs)
 
         payload = config.build_payload(self._resolve_key(api_key, temporary_api_key))
-        return RealtimeSTTSession(self._client.websocket_base_url, payload)
+        return AsyncRealtimeSTTSession(self._client.websocket_base_url, payload)
