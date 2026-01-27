@@ -5,6 +5,7 @@ import time
 from pathlib import Path
 from typing import TYPE_CHECKING, Any, BinaryIO
 
+from ..errors import SonioxValidationError
 from ..types import (
     CreateTranscriptionPayload,
     GetTranscriptionsPayload,
@@ -136,7 +137,7 @@ class AsyncTranscriptionsAPI:
     ) -> Transcription:
         if file is not None:
             if audio_url or file_id:
-                raise ValueError("file cannot be combined with audio_url or file_id")
+                raise SonioxValidationError("file cannot be combined with audio_url or file_id")
             return await self.transcribe_from_file(
                 model=model,
                 file=file,
@@ -146,14 +147,14 @@ class AsyncTranscriptionsAPI:
             )
         if file_id is not None:
             if audio_url:
-                raise ValueError("file_id cannot be combined with audio_url")
+                raise SonioxValidationError("file_id cannot be combined with audio_url")
             return await self.transcribe_from_file_id(
                 model=model,
                 file_id=file_id,
                 **payload_kwargs,
             )
         if not audio_url:
-            raise ValueError("Either audio_url, file_id, or file must be provided")
+            raise SonioxValidationError("Either audio_url, file_id, or file must be provided")
         return await self.transcribe_from_url(
             model=model,
             audio_url=audio_url,

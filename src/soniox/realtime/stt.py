@@ -7,6 +7,7 @@ from typing import TYPE_CHECKING, Any
 from websockets.exceptions import ConnectionClosed
 from websockets.sync.client import connect as sync_ws_connect
 
+from ..errors import SonioxRealtimeError, SonioxValidationError
 from ..types.realtime import RealtimeEvent, RealtimeSttConfig
 
 if TYPE_CHECKING:
@@ -40,17 +41,17 @@ class RealtimeSTTSession:
 
     def send_audio_chunk(self, chunk: bytes) -> None:
         if not self._ws:
-            raise RuntimeError("Realtime session is not connected")
+            raise SonioxRealtimeError("Realtime session is not connected")
         self._ws.send(chunk)
 
     def receive_event(self) -> RealtimeEvent | None:
         if not self._ws:
-            raise RuntimeError("Realtime session is not connected")
+            raise SonioxRealtimeError("Realtime session is not connected")
         try:
             raw = self._ws.recv()
         except ConnectionClosed:
             return None
-        return RealtimeEvent.parse_raw(raw)
+        return RealtimeEvent.validate_event(raw)
 
     def receive_events(self) -> Iterator[RealtimeEvent]:
         while True:
@@ -69,7 +70,7 @@ class RealtimeSTTClient:
     def _resolve_key(self, api_key: str | None, temporary_api_key: str | None) -> str:
         key = temporary_api_key or api_key or self._client.api_key
         if not key:
-            raise ValueError("API key is required to start a realtime session")
+            raise SonioxValidationError("API key is required to start a realtime session")
         return key
 
     def connect(
@@ -84,7 +85,7 @@ class RealtimeSTTClient:
     ) -> RealtimeSTTSession:
         if config is None:
             if model is None:
-                raise ValueError("`model` must be provided when config is not supplied")
+                raise SonioxValidationError("`model` must be provided when config is not supplied")
             config = RealtimeSttConfig(model=model, audio_format=audio_format, **config_kwargs)
 
         payload = config.build_payload(self._resolve_key(api_key, temporary_api_key))

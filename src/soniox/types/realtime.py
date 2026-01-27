@@ -4,7 +4,7 @@ import json
 from collections.abc import Mapping
 from typing import Any
 
-from pydantic import BaseModel, ConfigDict, Field
+from pydantic import BaseModel, ConfigDict
 
 from .api import StructuredContext, TranslationConfig
 
@@ -26,7 +26,7 @@ class RealtimeToken(BaseModel):
 class RealtimeEvent(BaseModel):
     model_config = ConfigDict(extra="allow")
 
-    tokens: list[RealtimeToken] = Field(default_factory=list)
+    tokens: list[RealtimeToken] = []
     final_audio_proc_ms: int | None = None
     total_audio_proc_ms: int | None = None
     finished: bool = False
@@ -34,8 +34,8 @@ class RealtimeEvent(BaseModel):
     error_message: str | None = None
 
     @classmethod
-    def parse_raw(cls, raw: str | bytes) -> RealtimeEvent:
-        payload = raw.decode("utf-8") if isinstance(raw, (bytes, bytearray)) else raw
+    def validate_event(cls, raw: str | bytes) -> RealtimeEvent:
+        payload = raw.decode("utf-8") if isinstance(raw, bytes | bytearray) else raw
         return cls.model_validate(json.loads(payload))
 
 

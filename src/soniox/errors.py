@@ -106,3 +106,7 @@ class SonioxServerError(SonioxAPIError):
 
 class InvalidWebhookSignatureError(SonioxError):
     """Raised when a webhook signature cannot be validated."""
+
+
+class SonioxRealtimeError(SonioxError):
+    """Errors raised by realtime workflows."""
