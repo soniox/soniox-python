@@ -1,0 +1,53 @@
+[build-system]
+requires = ["hatchling>=1.10.0"]
+build-backend = "hatchling.build"
+
+[project]
+name = "soniox-python-sdk"
+version = "0.1.0"
+dependencies = ["httpx>0.25.0", "websockets>11.0", "pydantic>2"]
+requires-python = ">=3.10"
+authors = [{ name = "Soniox", email = "support@soniox.com" }]
+maintainers = [{ name = "Soniox", email = "support@soniox.com" }]
+description = "Python SDK for Soniox API (STT, REST)"
+readme = "README.md"
+license = "MIT"
+license-files = ["LICENSE"]
+keywords = ["soniox", "speech-to-text", "stt", "ai", "sdk"]
+classifiers = [
+    "Programming Language :: Python :: 3",
+    "License :: OSI Approved :: MIT License",
+    "Operating System :: OS Independent",
+]
+
+[project.urls]
+Homepage = "https://example.com"
+Documentation = "https://readthedocs.org"
+Repository = "https://github.com/me/spam.git"
+"Bug Tracker" = "https://github.com/me/spam/issues"
+Changelog = "https://github.com/me/spam/blob/master/CHANGELOG.md"
+
+[project.optional-dependencies]
+dev = ["ruff>=0.0.0", "pyright>=1.1.0"]
+
+[tool.hatch.build.targets.wheel]
+packages = ["src/soniox"]
+
+[tool.ruff]
+line-length = 100
+target-version = "py310"
+select = ["E", "W", "F", "I", "C", "B", "UP"]
+ignore = ["E501", "B008", "C901"]
+exclude = ["build", "dist", ".venv", "tests"]
+
+[tool.ruff.per-file-ignores]
+"__init__.py" = ["F401"]
+
+[tool.pyright]
+include = ["src"]
+venvPath = "."
+venv = ".venv"
+exclude = ["build", "dist", ".venv"]
+typeCheckingMode = "strict"
+reportMissingImports = true
+pythonVersion = "3.10"
