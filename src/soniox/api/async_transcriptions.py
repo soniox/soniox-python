@@ -33,6 +33,16 @@ class AsyncTranscriptionsAPI:
         response = await self._client.request("GET", "/transcriptions", params=params)
         return await parse_async_response(response, GetTranscriptionsResponse)
 
+    async def delete_all(self, *, limit: int = 1000) -> None:
+        cursor: str | None = None
+        while True:
+            page = await self.list(limit=limit, cursor=cursor)
+            for transcription in page.transcriptions:
+                await self.delete(transcription.id)
+            if not page.next_page_cursor:
+                break
+            cursor = page.next_page_cursor
+
     async def create(self, payload: CreateTranscriptionPayload) -> Transcription:
         response = await self._client.request(
             "POST", "/transcriptions", json=payload.model_dump(exclude_none=True)

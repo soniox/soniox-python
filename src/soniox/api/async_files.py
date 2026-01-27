@@ -61,3 +61,13 @@ class AsyncFilesAPI:
         finally:
             if close_after:
                 file_obj.close()
+
+    async def delete_all(self, *, limit: int = 1000) -> None:
+        cursor: str | None = None
+        while True:
+            page = await self.list(limit=limit, cursor=cursor)
+            for file in page.files:
+                await self.delete(file.id)
+            if not page.next_page_cursor:
+                break
+            cursor = page.next_page_cursor

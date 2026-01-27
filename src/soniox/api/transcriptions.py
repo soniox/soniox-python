@@ -28,6 +28,16 @@ class TranscriptionsAPI:
         response = self._client.request("GET", "/transcriptions", params=params)
         return parse_response(response, GetTranscriptionsResponse)
 
+    def delete_all(self, *, limit: int = 1000) -> None:
+        cursor: str | None = None
+        while True:
+            page = self.list(limit=limit, cursor=cursor)
+            for transcription in page.transcriptions:
+                self.delete(transcription.id)
+            if not page.next_page_cursor:
+                break
+            cursor = page.next_page_cursor
+
     def create(self, payload: CreateTranscriptionPayload) -> Transcription:
         response = self._client.request(
             "POST", "/transcriptions", json=payload.model_dump(exclude_none=True)
