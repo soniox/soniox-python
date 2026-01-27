@@ -7,14 +7,14 @@ from typing import BinaryIO, TypeVar
 import httpx
 from pydantic import BaseModel
 
-from ..errors import ApiErrorException
+from ..errors import SonioxAPIError
 
 ModelT = TypeVar("ModelT", bound=BaseModel)
 
 
 def ensure_success(response: httpx.Response) -> None:
     if response.is_error:
-        raise ApiErrorException.from_response(response)
+        raise SonioxAPIError.from_response(response)
 
 
 def parse_response(response: httpx.Response, model: type[ModelT]) -> ModelT:
