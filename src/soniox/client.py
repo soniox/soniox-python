@@ -41,7 +41,7 @@ class SonioxClient(_BaseSonioxClient):
         self,
         api_key: str,
         api_base_url: str = "https://api.soniox.com/v1",
-        websocket_base_url: str = "wss://realtime.soniox.com/v1",
+        websocket_base_url: str = "wss://stt-rt.soniox.com/transcribe-websocket",
         timeout_sec: float = 30.0,
         **client_kwargs: Any,
     ) -> None:
@@ -96,7 +96,7 @@ class AsyncSonioxClient(_BaseSonioxClient):
         self,
         api_key: str,
         api_base_url: str = "https://api.soniox.com/v1",
-        websocket_base_url: str = "wss://realtime.soniox.com/v1",
+        websocket_base_url: str = "wss://stt-rt.soniox.com/transcribe-websocket",
         timeout_sec: float = 30.0,
         **client_kwargs: Any,
     ) -> None:

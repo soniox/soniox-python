@@ -2,7 +2,31 @@ from __future__ import annotations
 
 import io
 from pathlib import Path
-from typing import BinaryIO
+from typing import BinaryIO, TypeVar
+
+import httpx
+from pydantic import BaseModel
+
+from ..errors import ApiErrorException
+
+ModelT = TypeVar("ModelT", bound=BaseModel)
+
+
+def ensure_success(response: httpx.Response) -> None:
+    if response.is_error:
+        raise ApiErrorException.from_response(response)
+
+
+def parse_response(response: httpx.Response, model: type[ModelT]) -> ModelT:
+    ensure_success(response)
+    payload = response.json()
+    return model.model_validate(payload)
+
+
+async def parse_async_response(response: httpx.Response, model: type[ModelT]) -> ModelT:
+    ensure_success(response)
+    payload = response.json()
+    return model.model_validate(payload)
 
 
 def normalize_file(

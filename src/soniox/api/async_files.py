@@ -9,8 +9,7 @@ from ..types import (
     GetFilesResponse,
     UploadFilePayload,
 )
-from ._helpers import parse_async_response
-from ._utils import normalize_file
+from ._utils import ensure_success, normalize_file, parse_async_response
 
 if TYPE_CHECKING:
     from ..client import AsyncSonioxClient
@@ -20,7 +19,7 @@ class AsyncFilesAPI:
     def __init__(self, client: AsyncSonioxClient) -> None:
         self._client = client
 
-    async def list_files(
+    async def list(
         self,
         limit: int = 1000,
         cursor: str | None = None,
@@ -30,15 +29,15 @@ class AsyncFilesAPI:
         response = await self._client.request("GET", "/files", params=params)
         return await parse_async_response(response, GetFilesResponse)
 
-    async def get_file(self, file_id: str) -> File:
+    async def get(self, file_id: str) -> File:
         response = await self._client.request("GET", f"/files/{file_id}")
         return await parse_async_response(response, File)
 
-    async def delete_file(self, file_id: str) -> None:
+    async def delete(self, file_id: str) -> None:
         response = await self._client.request("DELETE", f"/files/{file_id}")
-        response.raise_for_status()
+        ensure_success(response)
 
-    async def upload_file(
+    async def upload(
         self,
         file: BinaryIO | bytes | Path,
         *,

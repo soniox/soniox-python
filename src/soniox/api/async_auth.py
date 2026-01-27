@@ -3,7 +3,7 @@ from __future__ import annotations
 from typing import TYPE_CHECKING
 
 from ..types import CreateTemporaryApiKeyPayload, CreateTemporaryApiKeyResponse
-from ._helpers import parse_async_response
+from ._utils import parse_async_response
 
 if TYPE_CHECKING:
     from ..client import AsyncSonioxClient
