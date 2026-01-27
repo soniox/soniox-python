@@ -102,3 +102,7 @@ class SonioxRateLimitError(SonioxAPIError):
 
 class SonioxServerError(SonioxAPIError):
     """5xx responses."""
+
+
+class InvalidWebhookSignatureError(SonioxError):
+    """Raised when a webhook signature cannot be validated."""

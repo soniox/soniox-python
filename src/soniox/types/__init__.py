@@ -26,8 +26,14 @@ from .api import (
     TranslationType,
     UploadFilePayload,
 )
+from .webhooks import (
+    Headers,
+    WebhookAuthConfig,
+    WebhookEvent,
+)
 
 __all__ = [
+    # api.py
     "ApiError",
     "ApiErrorValidationError",
     "CreateTemporaryApiKeyPayload",
@@ -52,4 +58,8 @@ __all__ = [
     "TranslationType",
     "TemporaryApiKeyUsageType",
     "UploadFilePayload",
+    # webhooks.py
+    "Headers",
+    "WebhookAuthConfig",
+    "WebhookEvent",
 ]
