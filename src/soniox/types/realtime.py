@@ -1,7 +1,8 @@
 from __future__ import annotations
 
 import json
-from collections.abc import Mapping
+from collections.abc import Callable, Mapping
+from enum import Enum
 from typing import Any
 
 from pydantic import BaseModel, ConfigDict
@@ -83,3 +84,15 @@ class RealtimeSttConfig(BaseModel):
         if self.client_reference_id is not None:
             payload["client_reference_id"] = self.client_reference_id
         return payload
+
+
+class RealtimeSessionEvent(Enum):
+    OPEN = "open"
+    CLOSE = "close"
+    MESSAGE = "message"
+    ERROR = "error"
+
+
+RealtimeEventCallback = Callable[[RealtimeEvent], None]
+RealtimeSessionCallback = Callable[[RealtimeSessionEvent, Any], None]
+RealtimeErrorCallback = Callable[[Exception, Any], None]
