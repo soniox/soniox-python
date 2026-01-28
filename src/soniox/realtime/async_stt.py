@@ -2,7 +2,7 @@ from __future__ import annotations
 
 import json
 from collections.abc import AsyncIterator, Callable, Mapping
-from typing import TYPE_CHECKING, Any
+from typing import TYPE_CHECKING, Any, Awaitable
 
 from websockets import connect as async_ws_connect
 from websockets.exceptions import ConnectionClosed
@@ -88,6 +88,10 @@ class AsyncRealtimeSTTSession:
             yield event
             if event.finished or event.error_code:
                 break
+
+    async def handle_events(self, handler: Callable[[RealtimeEvent], Awaitable[None]]) -> None:
+        async for event in self.receive_events():
+            await handler(event)
 
     def on_event(self, event_type: RealtimeSessionEvent, callback: Callable[..., None]) -> None:
         self._listeners.setdefault(event_type, []).append(callback)

@@ -93,6 +93,10 @@ class RealtimeSTTSession:
             if event.finished or event.error_code:
                 break
 
+    def handle_events(self, handler: Callable[[RealtimeEvent], None]) -> None:
+        for event in self.receive_events():
+            handler(event)
+
     def on_event(self, event_type: RealtimeSessionEvent, callback: Callable[..., None]) -> None:
         self._listeners.setdefault(event_type, []).append(callback)
 
