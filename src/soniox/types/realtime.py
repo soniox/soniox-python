@@ -93,6 +93,12 @@ class RealtimeSessionEvent(Enum):
     ERROR = "error"
 
 
+class RealtimeControlType(str, Enum):
+    FINISH = "finish"
+    KEEP_ALIVE = "keep_alive"
+    FINALIZE = "finalize"
+
+
 RealtimeEventCallback = Callable[[RealtimeEvent], None]
 RealtimeSessionCallback = Callable[[RealtimeSessionEvent, Any], None]
 RealtimeErrorCallback = Callable[[Exception, Any], None]

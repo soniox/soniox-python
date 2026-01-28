@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import json
 from collections.abc import AsyncIterator, Awaitable, Callable, Mapping
+from types import TracebackType
 from typing import TYPE_CHECKING, Any
 
 from websockets import connect as async_ws_connect
@@ -9,6 +10,7 @@ from websockets.exceptions import ConnectionClosed
 
 from ..errors import SonioxRealtimeError, SonioxValidationError
 from ..types.realtime import (
+    RealtimeControlType,
     RealtimeErrorCallback,
     RealtimeEvent,
     RealtimeEventCallback,
@@ -34,7 +36,13 @@ class AsyncRealtimeSTTSession:
         self._emit(RealtimeSessionEvent.OPEN)
         return self
 
-    async def __aexit__(self) -> None:
+    async def __aexit__(
+        self,
+        _exc_type: type[BaseException] | None,
+        _exc_value: BaseException | None,
+        _traceback: TracebackType | None,
+    ) -> None:
+        _ = (_exc_type, _exc_value, _traceback)  # To make linter happy.
         await self.close()
 
     async def close(self) -> None:
@@ -68,6 +76,49 @@ class AsyncRealtimeSTTSession:
 
         async for chunk in chunks:
             await self.send_audio_chunk(bytes(chunk))
+        await self.send_finish()
+
+    async def _signal_end_of_audio(self) -> None:
+        if not self._ws:
+            return
+        try:
+            await self._ws.send("")
+        except ConnectionClosed:
+            pass
+
+    async def send_control_request(
+        self,
+        control_type: RealtimeControlType,
+        *,
+        control_payload: Mapping[str, Any] | None = None,
+    ) -> None:
+        if not self._ws:
+            raise SonioxRealtimeError("Realtime session is not connected")
+        payload = {"type": control_type}
+        if control_payload:
+            payload.update(control_payload)
+        try:
+            await self._ws.send(json.dumps({"control": payload}))
+        except Exception as exc:
+            self._emit_error(exc)
+            raise
+
+    async def send_control_message(
+        self,
+        control_type: RealtimeControlType,
+    ) -> None:
+        if not self._ws:
+            raise SonioxRealtimeError("Realtime session is not connected")
+        try:
+            if control_type == RealtimeControlType.FINISH:
+                await self._ws.send(json.dumps(b""))
+            elif control_type == RealtimeControlType.KEEP_ALIVE:
+                await self._ws.send(json.dumps({"type": "keepalive"}))
+            elif control_type == RealtimeControlType.FINALIZE:
+                await self._ws.send(json.dumps({"type": "finalize"}))
+        except Exception as exc:
+            self._emit_error(exc)
+            raise
 
     async def receive_event(self) -> RealtimeEvent | None:
         if not self._ws:
@@ -134,6 +185,15 @@ class AsyncRealtimeSTTSession:
 
     def _emit_error(self, exc: Exception) -> None:
         self._emit(RealtimeSessionEvent.ERROR, exc)
+
+    async def send_finish(self) -> None:
+        await self.send_control_request(RealtimeControlType.FINISH)
+
+    async def send_keep_alive(self) -> None:
+        await self.send_control_request(RealtimeControlType.KEEP_ALIVE)
+
+    async def send_finalize(self) -> None:
+        await self.send_control_request(RealtimeControlType.FINALIZE)
 
 
 class AsyncRealtimeSTTClient:

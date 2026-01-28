@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import json
 from collections.abc import Callable, Iterator, Mapping
+from types import TracebackType
 from typing import TYPE_CHECKING, Any
 
 from websockets.exceptions import ConnectionClosed
@@ -9,6 +10,7 @@ from websockets.sync.client import connect as sync_ws_connect
 
 from ..errors import SonioxRealtimeError, SonioxValidationError
 from ..types.realtime import (
+    RealtimeControlType,
     RealtimeErrorCallback,
     RealtimeEvent,
     RealtimeEventCallback,
@@ -38,7 +40,13 @@ class RealtimeSTTSession:
         self._emit(RealtimeSessionEvent.OPEN)
         return self
 
-    def __exit__(self) -> None:
+    async def __exit__(
+        self,
+        _exc_type: type[BaseException] | None,
+        _exc_value: BaseException | None,
+        _traceback: TracebackType | None,
+    ) -> None:
+        _ = (_exc_type, _exc_value, _traceback)  # To make linter happy.
         self.close()
 
     def close(self) -> None:
@@ -72,6 +80,33 @@ class RealtimeSTTSession:
 
         for chunk in chunks:
             self.send_audio_chunk(bytes(chunk))
+        self.send_finish()
+
+    def send_control_message(
+        self,
+        control_type: RealtimeControlType,
+    ) -> None:
+        if not self._ws:
+            raise SonioxRealtimeError("Realtime session is not connected")
+        try:
+            if control_type == RealtimeControlType.FINISH:
+                self._ws.send(json.dumps(b""))
+            elif control_type == RealtimeControlType.KEEP_ALIVE:
+                self._ws.send(json.dumps({"type": "keepalive"}))
+            elif control_type == RealtimeControlType.FINALIZE:
+                self._ws.send(json.dumps({"type": "finalize"}))
+        except Exception as exc:
+            self._emit_error(exc)
+            raise
+
+    def send_finish(self) -> None:
+        self.send_control_message(RealtimeControlType.FINISH)
+
+    def send_keep_alive(self) -> None:
+        self.send_control_message(RealtimeControlType.KEEP_ALIVE)
+
+    def send_finalize(self) -> None:
+        self.send_control_message(RealtimeControlType.FINALIZE)
 
     def receive_event(self) -> RealtimeEvent | None:
         if not self._ws:
