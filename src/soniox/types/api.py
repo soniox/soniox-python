@@ -27,7 +27,7 @@ class ApiError(BaseModel):
 
 
 class GetFilesPayload(BaseModel):
-    limit: int = Field(1000, ge=1, le=1000)
+    limit: int = Field(default=1000, ge=1, le=1000)
     cursor: str | None = None
 
 
@@ -45,11 +45,11 @@ class GetFilesResponse(BaseModel):
 
 
 class UploadFilePayload(BaseModel):
-    client_reference_id: str | None = Field(None, max_length=256)
+    client_reference_id: str | None = Field(default=None, max_length=256)
 
 
 class GetTranscriptionsPayload(BaseModel):
-    limit: int = Field(1000, ge=1, le=1000)
+    limit: int = Field(default=1000, ge=1, le=1000)
     cursor: str | None = None
 
 
@@ -90,7 +90,7 @@ class CreateTranscriptionPayload(BaseModel):
     webhook_url: str | None = None
     webhook_auth_header_name: str | None = None
     webhook_auth_header_value: str | None = None
-    client_reference_id: str | None = Field(None, max_length=256)
+    client_reference_id: str | None = Field(default=None, max_length=256)
 
     @model_validator(mode="after")
     def _validate_audio_source(self) -> Self:
@@ -104,7 +104,7 @@ class CreateTranscriptionPayload(BaseModel):
 class CreateTemporaryApiKeyPayload(BaseModel):
     usage_type: TemporaryApiKeyUsageType
     expires_in_seconds: int = Field(..., ge=1, le=3600)
-    client_reference_id: str | None = Field(None, max_length=256)
+    client_reference_id: str | None = Field(default=None, max_length=256)
 
 
 class CreateTemporaryApiKeyResponse(BaseModel):
