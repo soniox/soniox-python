@@ -1,11 +1,14 @@
 from __future__ import annotations
 
+import os
 from collections.abc import Mapping
 from functools import cached_property
 from types import TracebackType
 from typing import TYPE_CHECKING, Any
 
 import httpx
+
+from soniox.errors import SonioxValidationError
 
 if TYPE_CHECKING:
     from .api.async_auth import AsyncAuthAPI
@@ -22,19 +25,27 @@ if TYPE_CHECKING:
 
 
 class _BaseSonioxClient:
+    DEFAULT_API_BASE_URL = "https://api.soniox.com/v1"
+    DEFAULT_WEBSOCKET_BASE_URL = "wss://stt-rt.soniox.com/transcribe-websocket"
+    DEFAULT_TIMEOUT_SEC = 30.0
+
     def __init__(
         self,
-        api_key: str,
-        api_base_url: str,
-        websocket_base_url: str,
-        timeout_sec: float,
+        *,
+        api_key: str | None = None,
+        api_base_url: str | None = None,
+        websocket_base_url: str | None = None,
+        timeout_sec: float | None = None,
         webhook_secret: str | None = None,
         webhook_signature_header: str | None = None,
     ) -> None:
+        api_key = api_key or os.environ.get("SONIOX_API_KEY")
+        if not api_key:
+            raise SonioxValidationError("Please provide api_key")
         self.api_key = api_key
-        self.api_base_url = api_base_url
-        self.websocket_base_url = websocket_base_url
-        self.timeout_sec = timeout_sec
+        self.api_base_url = api_base_url or self.DEFAULT_API_BASE_URL
+        self.websocket_base_url = websocket_base_url or self.DEFAULT_WEBSOCKET_BASE_URL
+        self.timeout_sec = timeout_sec if timeout_sec is not None else self.DEFAULT_TIMEOUT_SEC
         self.webhook_secret = webhook_secret
         self.webhook_signature_header = webhook_signature_header
 
@@ -47,19 +58,20 @@ class _BaseSonioxClient:
 class SonioxClient(_BaseSonioxClient):
     def __init__(
         self,
-        api_key: str,
-        api_base_url: str = "https://api.soniox.com/v1",
-        websocket_base_url: str = "wss://stt-rt.soniox.com/transcribe-websocket",
-        timeout_sec: float = 30.0,
+        *,
+        api_key: str | None = None,
+        api_base_url: str | None = None,
+        websocket_base_url: str | None = None,
+        timeout_sec: float | None = None,
         webhook_secret: str | None = None,
         webhook_signature_header: str | None = None,
         **client_kwargs: Any,
     ) -> None:
         super().__init__(
-            api_key,
-            api_base_url,
-            websocket_base_url,
-            timeout_sec,
+            api_key=api_key,
+            api_base_url=api_base_url,
+            websocket_base_url=websocket_base_url,
+            timeout_sec=timeout_sec,
             webhook_secret=webhook_secret,
             webhook_signature_header=webhook_signature_header,
         )
@@ -150,19 +162,19 @@ class SonioxClient(_BaseSonioxClient):
 class AsyncSonioxClient(_BaseSonioxClient):
     def __init__(
         self,
-        api_key: str,
-        api_base_url: str = "https://api.soniox.com/v1",
-        websocket_base_url: str = "wss://stt-rt.soniox.com/transcribe-websocket",
-        timeout_sec: float = 30.0,
+        api_key: str | None = None,
+        api_base_url: str | None = None,
+        websocket_base_url: str | None = None,
+        timeout_sec: float | None = None,
         webhook_secret: str | None = None,
         webhook_signature_header: str | None = None,
         **client_kwargs: Any,
     ) -> None:
         super().__init__(
-            api_key,
-            api_base_url,
-            websocket_base_url,
-            timeout_sec,
+            api_key=api_key,
+            api_base_url=api_base_url,
+            websocket_base_url=websocket_base_url,
+            timeout_sec=timeout_sec,
             webhook_secret=webhook_secret,
             webhook_signature_header=webhook_signature_header,
         )
