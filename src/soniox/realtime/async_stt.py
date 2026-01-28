@@ -1,8 +1,8 @@
 from __future__ import annotations
 
 import json
-from collections.abc import AsyncIterator, Callable, Mapping
-from typing import TYPE_CHECKING, Any, Awaitable
+from collections.abc import AsyncIterator, Awaitable, Callable, Mapping
+from typing import TYPE_CHECKING, Any
 
 from websockets import connect as async_ws_connect
 from websockets.exceptions import ConnectionClosed

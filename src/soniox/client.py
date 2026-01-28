@@ -2,6 +2,7 @@ from __future__ import annotations
 
 from collections.abc import Mapping
 from functools import cached_property
+from types import TracebackType
 from typing import TYPE_CHECKING, Any
 
 import httpx
@@ -40,7 +41,6 @@ class _BaseSonioxClient:
     def _default_headers(self) -> Mapping[str, str]:
         return {
             "Authorization": f"Bearer {self.api_key}",
-            "Content-Type": "application/json",
         }
 
 
@@ -130,6 +130,22 @@ class SonioxClient(_BaseSonioxClient):
 
         return RealtimeAPI(self)
 
+    def close(self) -> None:
+        """Close the underlying HTTP transport."""
+        self._http_client.close()
+
+    def __enter__(self) -> SonioxClient:
+        return self
+
+    def __exit__(
+        self,
+        _exc_type: type[BaseException] | None,
+        _exc_value: BaseException | None,
+        _traceback: TracebackType | None,
+    ) -> None:
+        _ = (_exc_type, _exc_value, _traceback)  # To make linter happy.
+        self.close()
+
 
 class AsyncSonioxClient(_BaseSonioxClient):
     def __init__(
@@ -216,3 +232,19 @@ class AsyncSonioxClient(_BaseSonioxClient):
         from .realtime import AsyncRealtimeAPI
 
         return AsyncRealtimeAPI(self)
+
+    async def aclose(self) -> None:
+        """Close any outstanding async HTTP connections."""
+        await self._http_client.aclose()
+
+    async def __aenter__(self) -> AsyncSonioxClient:
+        return self
+
+    async def __aexit__(
+        self,
+        _exc_type: type[BaseException] | None,
+        _exc_value: BaseException | None,
+        _traceback: TracebackType | None,
+    ) -> None:
+        _ = (_exc_type, _exc_value, _traceback)  # To make linter happy.
+        await self.aclose()
