@@ -1,9 +1,9 @@
 from __future__ import annotations
 
 import json
-from collections.abc import AsyncIterator, Awaitable, Callable, Mapping
+from collections.abc import AsyncIterator, Awaitable, Callable
 from types import TracebackType
-from typing import TYPE_CHECKING, Any
+from typing import TYPE_CHECKING
 
 from websockets import connect as async_ws_connect
 from websockets.exceptions import ConnectionClosed
@@ -24,7 +24,7 @@ if TYPE_CHECKING:
 
 
 class AsyncRealtimeSTTSession:
-    def __init__(self, url: str, payload: Mapping[str, Any]) -> None:
+    def __init__(self, url: str, payload: RealtimeSttConfig) -> None:
         self._url = url
         self._payload = payload
         self._ws = None
@@ -85,23 +85,6 @@ class AsyncRealtimeSTTSession:
             await self._ws.send("")
         except ConnectionClosed:
             pass
-
-    async def send_control_request(
-        self,
-        control_type: RealtimeControlType,
-        *,
-        control_payload: Mapping[str, Any] | None = None,
-    ) -> None:
-        if not self._ws:
-            raise SonioxRealtimeError("Realtime session is not connected")
-        payload = {"type": control_type}
-        if control_payload:
-            payload.update(control_payload)
-        try:
-            await self._ws.send(json.dumps({"control": payload}))
-        except Exception as exc:
-            self._emit_error(exc)
-            raise
 
     async def send_control_message(
         self,
@@ -171,7 +154,9 @@ class AsyncRealtimeSTTSession:
 
         self.on_event(RealtimeSessionEvent.ERROR, _wrapper)
 
-    def _emit(self, event_type: RealtimeSessionEvent, payload: Any | None = None) -> None:
+    def _emit(
+        self, event_type: RealtimeSessionEvent, payload: RealtimeEvent | Exception | None = None
+    ) -> None:
         for callback in self._listeners.get(event_type, []):
             try:
                 if event_type is RealtimeSessionEvent.MESSAGE:
@@ -187,39 +172,31 @@ class AsyncRealtimeSTTSession:
         self._emit(RealtimeSessionEvent.ERROR, exc)
 
     async def send_finish(self) -> None:
-        await self.send_control_request(RealtimeControlType.FINISH)
+        await self.send_control_message(RealtimeControlType.FINISH)
 
     async def send_keep_alive(self) -> None:
-        await self.send_control_request(RealtimeControlType.KEEP_ALIVE)
+        await self.send_control_message(RealtimeControlType.KEEP_ALIVE)
 
     async def send_finalize(self) -> None:
-        await self.send_control_request(RealtimeControlType.FINALIZE)
+        await self.send_control_message(RealtimeControlType.FINALIZE)
 
 
 class AsyncRealtimeSTTClient:
     def __init__(self, client: AsyncSonioxClient) -> None:
         self._client = client
 
-    def _resolve_key(self, api_key: str | None, temporary_api_key: str | None) -> str:
-        key = temporary_api_key or api_key or self._client.api_key
-        if not key:
-            raise SonioxValidationError("API key is required to start a realtime session")
-        return key
-
     def connect(
         self,
         *,
-        config: RealtimeSttConfig | None = None,
-        model: str | None = None,
-        audio_format: str = "auto",
+        config: RealtimeSttConfig,
         api_key: str | None = None,
-        temporary_api_key: str | None = None,
-        **config_kwargs: Any,
     ) -> AsyncRealtimeSTTSession:
-        if config is None:
-            if model is None:
-                raise SonioxValidationError("`model` must be provided when config is not supplied")
-            config = RealtimeSttConfig(model=model, audio_format=audio_format, **config_kwargs)
+        key = api_key or self._client.api_key
+        if not key:
+            raise SonioxValidationError("API key is required to start a realtime session")
 
-        payload = config.build_payload(self._resolve_key(api_key, temporary_api_key))
-        return AsyncRealtimeSTTSession(self._client.websocket_base_url, payload)
+        payload = config.build_payload(key)
+        return AsyncRealtimeSTTSession(
+            self._client.websocket_base_url,
+            payload,
+        )
