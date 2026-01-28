@@ -2,21 +2,22 @@ from __future__ import annotations
 
 from collections.abc import Mapping
 from functools import cached_property
-from typing import Any
+from typing import TYPE_CHECKING, Any
 
 import httpx
 
-from .api.async_auth import AsyncAuthAPI
-from .api.async_files import AsyncFilesAPI
-from .api.async_models import AsyncModelsAPI
-from .api.async_transcriptions import AsyncTranscriptionsAPI
-from .api.async_webhooks import AsyncSonioxWebhooksAPI
-from .api.auth import AuthAPI
-from .api.files import FilesAPI
-from .api.models import ModelsAPI
-from .api.transcriptions import TranscriptionsAPI
-from .api.webhooks import SonioxWebhooksAPI
-from .realtime import AsyncRealtimeAPI, RealtimeAPI
+if TYPE_CHECKING:
+    from .api.async_auth import AsyncAuthAPI
+    from .api.async_files import AsyncFilesAPI
+    from .api.async_models import AsyncModelsAPI
+    from .api.async_transcriptions import AsyncTranscriptionsAPI
+    from .api.async_webhooks import AsyncSonioxWebhooksAPI
+    from .api.auth import AuthAPI
+    from .api.files import FilesAPI
+    from .api.models import ModelsAPI
+    from .api.transcriptions import TranscriptionsAPI
+    from .api.webhooks import SonioxWebhooksAPI
+    from .realtime import AsyncRealtimeAPI, RealtimeAPI
 
 
 class _BaseSonioxClient:
@@ -92,22 +93,32 @@ class SonioxClient(_BaseSonioxClient):
 
     @cached_property
     def files(self) -> FilesAPI:
+        from .api.files import FilesAPI
+
         return FilesAPI(self)
 
     @cached_property
     def transcriptions(self) -> TranscriptionsAPI:
+        from .api.transcriptions import TranscriptionsAPI
+
         return TranscriptionsAPI(self)
 
     @cached_property
     def models(self) -> ModelsAPI:
+        from .api.models import ModelsAPI
+
         return ModelsAPI(self)
 
     @cached_property
     def auth(self) -> AuthAPI:
+        from .api.auth import AuthAPI
+
         return AuthAPI(self)
 
     @cached_property
     def webhooks(self) -> SonioxWebhooksAPI:
+        from .api.webhooks import SonioxWebhooksAPI
+
         return SonioxWebhooksAPI(
             webhook_secret=self.webhook_secret,
             webhook_header=self.webhook_signature_header,
@@ -115,6 +126,8 @@ class SonioxClient(_BaseSonioxClient):
 
     @cached_property
     def realtime(self) -> RealtimeAPI:
+        from .realtime import RealtimeAPI
+
         return RealtimeAPI(self)
 
 
@@ -167,22 +180,32 @@ class AsyncSonioxClient(_BaseSonioxClient):
 
     @cached_property
     def files(self) -> AsyncFilesAPI:
+        from .api.async_files import AsyncFilesAPI
+
         return AsyncFilesAPI(self)
 
     @cached_property
     def transcriptions(self) -> AsyncTranscriptionsAPI:
+        from .api.async_transcriptions import AsyncTranscriptionsAPI
+
         return AsyncTranscriptionsAPI(self)
 
     @cached_property
     def models(self) -> AsyncModelsAPI:
+        from .api.async_models import AsyncModelsAPI
+
         return AsyncModelsAPI(self)
 
     @cached_property
     def auth(self) -> AsyncAuthAPI:
+        from .api.async_auth import AsyncAuthAPI
+
         return AsyncAuthAPI(self)
 
     @cached_property
     def webhooks(self) -> AsyncSonioxWebhooksAPI:
+        from .api.async_webhooks import AsyncSonioxWebhooksAPI
+
         return AsyncSonioxWebhooksAPI(
             webhook_secret=self.webhook_secret,
             webhook_header=self.webhook_signature_header,
@@ -190,4 +213,6 @@ class AsyncSonioxClient(_BaseSonioxClient):
 
     @cached_property
     def realtime(self) -> AsyncRealtimeAPI:
+        from .realtime import AsyncRealtimeAPI
+
         return AsyncRealtimeAPI(self)

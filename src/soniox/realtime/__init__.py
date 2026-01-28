@@ -1,17 +1,19 @@
 from __future__ import annotations
 
+from functools import cached_property
 from typing import TYPE_CHECKING
 
 from ..types import CreateTemporaryApiKeyPayload
 from ..types.realtime import RealtimeEvent, RealtimeSttConfig, RealtimeToken
-from .async_stt import (
-    AsyncRealtimeSTTClient,
-    AsyncRealtimeSTTSession,
-)
 from .stt import RealtimeSTTClient, RealtimeSTTSession
 
 if TYPE_CHECKING:
     from ..client import AsyncSonioxClient, SonioxClient
+    from .async_stt import (
+        AsyncRealtimeSTTClient,
+        AsyncRealtimeSTTSession,
+    )
+    from .stt import RealtimeSTTClient, RealtimeSTTSession
 
 __all__ = [
     "RealtimeAPI",
@@ -29,10 +31,12 @@ __all__ = [
 class AsyncRealtimeAPI:
     def __init__(self, client: AsyncSonioxClient) -> None:
         self._client = client
-        self._stt = AsyncRealtimeSTTClient(client)
 
-    @property
+    @cached_property
     def stt(self) -> AsyncRealtimeSTTClient:
+        from .async_stt import AsyncRealtimeSTTClient
+
+        self._stt = AsyncRealtimeSTTClient(self._client)
         return self._stt
 
     async def get_temporary_api_key(self, payload: CreateTemporaryApiKeyPayload):
@@ -42,10 +46,12 @@ class AsyncRealtimeAPI:
 class RealtimeAPI:
     def __init__(self, client: SonioxClient) -> None:
         self._client = client
-        self._stt = RealtimeSTTClient(client)
 
     @property
     def stt(self) -> RealtimeSTTClient:
+        from .stt import RealtimeSTTClient
+
+        self._stt = RealtimeSTTClient(self._client)
         return self._stt
 
     def get_temporary_api_key(self, payload: CreateTemporaryApiKeyPayload):
