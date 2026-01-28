@@ -11,6 +11,7 @@ from ..types import (
     GetTranscriptionsResponse,
     Transcription,
     TranscriptionTranscript,
+    WebhookAuthConfig,
 )
 from ._utils import ensure_success, parse_response
 
@@ -165,3 +166,61 @@ class TranscriptionsAPI:
             audio_url=audio_url,
             **payload_kwargs,
         )
+
+    def transcribe_file_with_webhook(
+        self,
+        *,
+        model: str,
+        file: BinaryIO | bytes | Path,
+        webhook_url: str,
+        filename: str | None = None,
+        client_reference_id: str | None = None,
+        webhook_auth: WebhookAuthConfig | None = None,
+        **payload_kwargs: Any,
+    ) -> Transcription:
+        """Upload a file, configure the webhook, and start transcription."""
+        webhook_fields = self._client.webhooks.webhook_payload(webhook_url, auth=webhook_auth)
+        uploaded = self._client.files.upload(
+            file,
+            filename=filename,
+            client_reference_id=client_reference_id,
+        )
+        payload_data = {**payload_kwargs, **webhook_fields}
+        payload = CreateTranscriptionPayload(
+            model=model,
+            file_id=uploaded.id,
+            client_reference_id=client_reference_id,
+            **payload_data,
+        )
+        return self.create(payload)
+
+    def transcribe_and_wait(
+        self,
+        *,
+        model: str,
+        audio_url: str | None = None,
+        file_id: str | None = None,
+        file: BinaryIO | bytes | Path | None = None,
+        filename: str | None = None,
+        client_reference_id: str | None = None,
+        wait: bool = True,
+        wait_interval_sec: float = 5.0,
+        wait_timeout_sec: float | None = None,
+        **payload_kwargs: Any,
+    ) -> Transcription:
+        transcription = self.transcribe(
+            model=model,
+            audio_url=audio_url,
+            file_id=file_id,
+            file=file,
+            filename=filename,
+            client_reference_id=client_reference_id,
+            **payload_kwargs,
+        )
+        if wait:
+            return self.wait(
+                transcription.id,
+                interval_sec=wait_interval_sec,
+                timeout_sec=wait_timeout_sec,
+            )
+        return transcription
