@@ -2,7 +2,11 @@ from __future__ import annotations
 
 from typing import TYPE_CHECKING
 
-from ..types import CreateTemporaryApiKeyPayload, CreateTemporaryApiKeyResponse
+from ..types import (
+    CreateTemporaryApiKeyPayload,
+    CreateTemporaryApiKeyResponse,
+    TemporaryApiKeyUsageType,
+)
 from ._utils import parse_response
 
 if TYPE_CHECKING:
@@ -14,8 +18,17 @@ class AuthAPI:
         self._client = client
 
     def create_temporary_api_key(
-        self, payload: CreateTemporaryApiKeyPayload
+        self,
+        *,
+        usage_type: TemporaryApiKeyUsageType = "transcribe_websocket",
+        expires_in_seconds: int = 5 * 60,
+        client_reference_id: str | None = None,
     ) -> CreateTemporaryApiKeyResponse:
+        payload = CreateTemporaryApiKeyPayload(
+            usage_type=usage_type,
+            expires_in_seconds=expires_in_seconds,
+            client_reference_id=client_reference_id,
+        )
         response = self._client.request(
             "POST", "/auth/temporary-api-key", json=payload.model_dump(exclude_none=True)
         )
