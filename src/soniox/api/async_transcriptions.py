@@ -5,8 +5,7 @@ import time
 from pathlib import Path
 from typing import TYPE_CHECKING, Any, BinaryIO
 
-from ..errors import SonioxValidationError
-from ..errors import SonioxNotFoundError
+from ..errors import SonioxNotFoundError, SonioxValidationError
 from ..types import (
     CreateTranscriptionPayload,
     GetTranscriptionsPayload,
@@ -19,6 +18,9 @@ from ._utils import ensure_success, parse_async_response
 
 if TYPE_CHECKING:
     from ..client import AsyncSonioxClient
+
+
+DEFAULT_MODEL = "stt-async-v3"
 
 
 class AsyncTranscriptionsAPI:
@@ -102,7 +104,7 @@ class AsyncTranscriptionsAPI:
     async def transcribe_from_url(
         self,
         *,
-        model: str,
+        model: str = DEFAULT_MODEL,
         audio_url: str,
         **payload_kwargs: Any,
     ) -> Transcription:
@@ -116,7 +118,7 @@ class AsyncTranscriptionsAPI:
     async def transcribe_from_file_id(
         self,
         *,
-        model: str,
+        model: str = DEFAULT_MODEL,
         file_id: str,
         **payload_kwargs: Any,
     ) -> Transcription:
@@ -130,7 +132,7 @@ class AsyncTranscriptionsAPI:
     async def transcribe_from_file(
         self,
         *,
-        model: str,
+        model: str = DEFAULT_MODEL,
         file: BinaryIO | bytes | Path,
         filename: str | None = None,
         client_reference_id: str | None = None,
@@ -151,7 +153,7 @@ class AsyncTranscriptionsAPI:
     async def transcribe(
         self,
         *,
-        model: str,
+        model: str = DEFAULT_MODEL,
         audio_url: str | None = None,
         file_id: str | None = None,
         file: BinaryIO | bytes | Path | None = None,
@@ -214,7 +216,7 @@ class AsyncTranscriptionsAPI:
     async def transcribe_and_wait(
         self,
         *,
-        model: str,
+        model: str = DEFAULT_MODEL,
         audio_url: str | None = None,
         file_id: str | None = None,
         file: BinaryIO | bytes | Path | None = None,
