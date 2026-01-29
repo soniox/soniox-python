@@ -222,15 +222,12 @@ class AsyncTranscriptionsAPI:
         file: BinaryIO | bytes | Path | None = None,
         filename: str | None = None,
         client_reference_id: str | None = None,
-        wait: bool = True,
         delete_after: bool = False,
+        return_tokens: bool = False,
         wait_interval_sec: float = 5.0,
         wait_timeout_sec: float | None = None,
         **payload_kwargs: Any,
-    ) -> Transcription:
-        if delete_after and not wait:
-            raise SonioxValidationError("delete_after requires wait=True")
-
+    ) -> Transcription | TranscriptionTranscript:
         transcription = await self.transcribe(
             model=model,
             audio_url=audio_url,
@@ -240,15 +237,17 @@ class AsyncTranscriptionsAPI:
             client_reference_id=client_reference_id,
             **payload_kwargs,
         )
-        if wait:
-            transcription = await self.wait(
-                transcription.id,
-                interval_sec=wait_interval_sec,
-                timeout_sec=wait_timeout_sec,
-            )
+        transcription = await self.wait(
+            transcription.id,
+            interval_sec=wait_interval_sec,
+            timeout_sec=wait_timeout_sec,
+        )
+        result: Transcription | TranscriptionTranscript = transcription
+        if return_tokens:
+            result = await self.get_transcript(transcription.id)
         if delete_after:
             file_id_to_delete = transcription.file_id
             await self.delete(transcription.id)
             if file_id_to_delete:
                 await self._client.files.delete(file_id_to_delete)
-        return transcription
+        return result
