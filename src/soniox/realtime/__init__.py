@@ -3,7 +3,7 @@ from __future__ import annotations
 from functools import cached_property
 from typing import TYPE_CHECKING
 
-from ..types.realtime import RealtimeEvent, RealtimeSttConfig, RealtimeToken
+from ..types.realtime import RealtimeEvent, RealtimeSttConfig
 from .stt import RealtimeSTTClient, RealtimeSTTSession
 
 if TYPE_CHECKING:
@@ -20,7 +20,6 @@ __all__ = [
     "RealtimeSTTClient",
     "RealtimeSTTSession",
     "RealtimeSttConfig",
-    "RealtimeToken",
     "AsyncRealtimeAPI",
     "AsyncRealtimeSTTClient",
     "AsyncRealtimeSTTSession",
@@ -43,7 +42,7 @@ class RealtimeAPI:
     def __init__(self, client: SonioxClient) -> None:
         self._client = client
 
-    @property
+    @cached_property
     def stt(self) -> RealtimeSTTClient:
         from .stt import RealtimeSTTClient
 

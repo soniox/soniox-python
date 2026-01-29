@@ -8,26 +8,13 @@ from typing import Any
 from pydantic import BaseModel, ConfigDict
 
 from .api import StructuredContext, TranslationConfig
-
-
-class RealtimeToken(BaseModel):
-    model_config = ConfigDict(extra="allow")
-
-    text: str
-    start_ms: int | None = None
-    end_ms: int | None = None
-    confidence: float | None = None
-    is_final: bool | None = None
-    speaker: str | None = None
-    translation_status: str | None = None
-    language: str | None = None
-    source_language: str | None = None
+from .common import Token
 
 
 class RealtimeEvent(BaseModel):
     model_config = ConfigDict(extra="allow")
 
-    tokens: list[RealtimeToken] = []
+    tokens: list[Token] = []
     final_audio_proc_ms: int | None = None
     total_audio_proc_ms: int | None = None
     finished: bool = False

@@ -20,13 +20,13 @@ from .api import (
     Transcription,
     TranscriptionStatus,
     TranscriptionTranscript,
-    TranscriptionTranscriptToken,
     TranslationConfig,
     TranslationTarget,
     TranslationType,
     UploadFilePayload,
 )
-from .realtime import RealtimeEvent, RealtimeSttConfig, RealtimeToken
+from .common import Token
+from .realtime import RealtimeEvent, RealtimeSttConfig
 from .webhooks import (
     Headers,
     WebhookAuthConfig,
@@ -34,6 +34,8 @@ from .webhooks import (
 )
 
 __all__ = [
+    # common.py
+    "Token",
     # api.py
     "ApiError",
     "ApiErrorValidationError",
@@ -53,7 +55,6 @@ __all__ = [
     "Transcription",
     "TranscriptionStatus",
     "TranscriptionTranscript",
-    "TranscriptionTranscriptToken",
     "TranslationConfig",
     "TranslationTarget",
     "TranslationType",
@@ -62,7 +63,6 @@ __all__ = [
     # realtime.py
     "RealtimeEvent",
     "RealtimeSttConfig",
-    "RealtimeToken",
     # webhooks.py
     "Headers",
     "WebhookAuthConfig",

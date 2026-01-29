@@ -6,6 +6,8 @@ from typing import Literal
 from pydantic import BaseModel, Field, model_validator
 from typing_extensions import Self
 
+from .common import Token
+
 TranscriptionStatus = Literal["queued", "processing", "completed", "error"]
 TranscriptionMode = Literal["real_time", "async"]
 TranslationType = Literal["one_way", "two_way"]
@@ -141,17 +143,10 @@ class GetModelsResponse(BaseModel):
     models: list[Model]
 
 
-class TranscriptionTranscriptToken(BaseModel):
-    text: str
-    start_ms: int
-    end_ms: int
-    confidence: float
-
-
 class TranscriptionTranscript(BaseModel):
     id: str
     text: str
-    tokens: list[TranscriptionTranscriptToken]
+    tokens: list[Token]
 
 
 class Transcription(BaseModel):
