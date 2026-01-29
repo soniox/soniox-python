@@ -66,7 +66,7 @@ class RealtimeSTTSession:
             self._emit_error(exc)
             raise
 
-    def stream_audio(
+    def send_audio(
         self,
         chunks: bytes | bytearray | memoryview | Iterator[bytes | bytearray | memoryview],
     ) -> None:

@@ -66,7 +66,7 @@ class AsyncRealtimeSTTSession:
             self._emit_error(exc)
             raise
 
-    async def stream_audio(
+    async def send_audio(
         self,
         chunks: bytes | bytearray | memoryview | AsyncIterator[bytes | bytearray | memoryview],
     ) -> None:
