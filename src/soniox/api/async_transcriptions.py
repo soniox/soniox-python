@@ -6,6 +6,7 @@ from pathlib import Path
 from typing import TYPE_CHECKING, Any, BinaryIO
 
 from ..errors import SonioxValidationError
+from ..errors import SonioxNotFoundError
 from ..types import (
     CreateTranscriptionPayload,
     GetTranscriptionsPayload,
@@ -54,9 +55,21 @@ class AsyncTranscriptionsAPI:
         response = await self._client.request("GET", f"/transcriptions/{transcription_id}")
         return await parse_async_response(response, Transcription)
 
+    async def get_or_none(self, transcription_id: str) -> Transcription | None:
+        try:
+            return await self.get(transcription_id)
+        except SonioxNotFoundError:
+            return None
+
     async def delete(self, transcription_id: str) -> None:
         response = await self._client.request("DELETE", f"/transcriptions/{transcription_id}")
         ensure_success(response)
+
+    async def delete_if_exists(self, transcription_id: str) -> None:
+        try:
+            await self.delete(transcription_id)
+        except SonioxNotFoundError:
+            return
 
     async def destroy(self, transcription_id: str) -> None:
         transcription = await self.get(transcription_id)

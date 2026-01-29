@@ -5,6 +5,7 @@ from pathlib import Path
 from typing import TYPE_CHECKING, Any, BinaryIO
 
 from ..errors import SonioxValidationError
+from ..errors import SonioxNotFoundError
 from ..types import (
     CreateTranscriptionPayload,
     GetTranscriptionsPayload,
@@ -49,9 +50,21 @@ class TranscriptionsAPI:
         response = self._client.request("GET", f"/transcriptions/{transcription_id}")
         return parse_response(response, Transcription)
 
+    def get_or_none(self, transcription_id: str) -> Transcription | None:
+        try:
+            return self.get(transcription_id)
+        except SonioxNotFoundError:
+            return None
+
     def delete(self, transcription_id: str) -> None:
         response = self._client.request("DELETE", f"/transcriptions/{transcription_id}")
         ensure_success(response)
+
+    def delete_if_exists(self, transcription_id: str) -> None:
+        try:
+            self.delete(transcription_id)
+        except SonioxNotFoundError:
+            return
 
     def destroy(self, transcription_id: str) -> None:
         """Delete transcription and the uploaded file that kicked it off."""
