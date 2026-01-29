@@ -49,7 +49,7 @@ class AsyncRealtimeSTTSession:
         if not self._ws:
             return
         try:
-            await self._ws.send(b"")
+            await self._ws.send("")
         except ConnectionClosed:
             pass
         finally:
@@ -94,7 +94,7 @@ class AsyncRealtimeSTTSession:
             raise SonioxRealtimeError("Realtime session is not connected")
         try:
             if control_type == RealtimeControlType.FINISH:
-                await self._ws.send(b"")
+                await self._ws.send("")
             elif control_type == RealtimeControlType.KEEP_ALIVE:
                 await self._ws.send(json.dumps({"type": "keepalive"}))
             elif control_type == RealtimeControlType.FINALIZE:
@@ -112,6 +112,13 @@ class AsyncRealtimeSTTSession:
             return None
         event = RealtimeEvent.validate_event(raw)
         self._emit(RealtimeSessionEvent.MESSAGE, event)
+        if event.error_code:
+            error = SonioxRealtimeError(
+                f"Realtime error {event.error_code}: {event.error_message or 'unknown'}"
+            )
+            self._emit(RealtimeSessionEvent.ERROR, error)
+            if not self._listeners.get(RealtimeSessionEvent.ERROR):
+                raise error
         return event
 
     async def receive_events(self) -> AsyncIterator[RealtimeEvent]:
