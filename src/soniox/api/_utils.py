@@ -30,7 +30,7 @@ async def parse_async_response(response: httpx.Response, model: type[ModelT]) ->
 
 
 def normalize_file(
-    file: BinaryIO | bytes | Path,
+    file: BinaryIO | bytes | Path | str,
     filename: str | None = None,
 ) -> tuple[BinaryIO, str, bool]:
     """Return (file-like, filename, should_close) tuple for upload."""
@@ -43,6 +43,9 @@ def normalize_file(
         file_obj = file.open("rb")
         effective_name = filename or file.name
         return file_obj, effective_name, True
+
+    if isinstance(file, str):
+        return normalize_file(Path(file), filename=filename)
 
     if isinstance(file, io.IOBase):
         effective_name = filename or getattr(file, "name", "upload.bin")

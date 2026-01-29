@@ -35,7 +35,7 @@ class FilesAPI:
 
     def upload(
         self,
-        file: BinaryIO | bytes | Path,
+        file: BinaryIO | bytes | Path | str,
         *,
         filename: str | None = None,
         client_reference_id: str | None = None,
