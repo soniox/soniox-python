@@ -44,7 +44,13 @@ class SonioxAPIError(SonioxError):
     def __str__(self) -> str:
         base = self.api_error.message if self.api_error else super().__str__()
         status = f" (HTTP {self.status_code})" if self.status_code else ""
-        return f"{base}{status}"
+        validation = ""
+        if self.api_error and self.api_error.validation_errors:
+            validation_errors = ", ".join(
+                f"{err.location}: {err.message}" for err in self.api_error.validation_errors
+            )
+            validation = f" Validation errors: {validation_errors}"
+        return f"{base}{status}{validation}"
 
     @classmethod
     def from_response(cls, response: httpx.Response) -> SonioxAPIError:
