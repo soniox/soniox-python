@@ -32,11 +32,11 @@ class RealtimeSTTSession:
 
     def __enter__(self) -> RealtimeSTTSession:
         self._ws = sync_ws_connect(self._url)
-        self._ws.send(json.dumps(self._payload))
+        self._ws.send(json.dumps(self._payload.model_dump(exclude_none=True)))
         self._emit(RealtimeSessionEvent.OPEN)
         return self
 
-    async def __exit__(
+    def __exit__(
         self,
         _exc_type: type[BaseException] | None,
         _exc_value: BaseException | None,
@@ -86,7 +86,7 @@ class RealtimeSTTSession:
             raise SonioxRealtimeError("Realtime session is not connected")
         try:
             if control_type == RealtimeControlType.FINISH:
-                self._ws.send(json.dumps(b""))
+                self._ws.send(b"")
             elif control_type == RealtimeControlType.KEEP_ALIVE:
                 self._ws.send(json.dumps({"type": "keepalive"}))
             elif control_type == RealtimeControlType.FINALIZE:
