@@ -3,6 +3,7 @@ from __future__ import annotations
 from pathlib import Path
 from typing import TYPE_CHECKING, BinaryIO
 
+from ..errors import SonioxNotFoundError
 from ..types import (
     File,
     GetFilesPayload,
@@ -33,9 +34,21 @@ class AsyncFilesAPI:
         response = await self._client.request("GET", f"/files/{file_id}")
         return await parse_async_response(response, File)
 
+    async def get_or_none(self, file_id: str) -> File | None:
+        try:
+            return await self.get(file_id)
+        except SonioxNotFoundError:
+            return None
+
     async def delete(self, file_id: str) -> None:
         response = await self._client.request("DELETE", f"/files/{file_id}")
         ensure_success(response)
+
+    async def delete_if_exists(self, file_id: str) -> None:
+        try:
+            await self.delete(file_id)
+        except SonioxNotFoundError:
+            return
 
     async def upload(
         self,

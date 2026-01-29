@@ -3,6 +3,7 @@ from __future__ import annotations
 from pathlib import Path
 from typing import TYPE_CHECKING, BinaryIO
 
+from ..errors import SonioxNotFoundError
 from ..types import (
     File,
     GetFilesPayload,
@@ -29,9 +30,21 @@ class FilesAPI:
         response = self._client.request("GET", f"/files/{file_id}")
         return parse_response(response, File)
 
+    def get_or_none(self, file_id: str) -> File | None:
+        try:
+            return self.get(file_id)
+        except SonioxNotFoundError:
+            return None
+
     def delete(self, file_id: str) -> None:
         response = self._client.request("DELETE", f"/files/{file_id}")
         ensure_success(response)
+
+    def delete_if_exists(self, file_id: str) -> None:
+        try:
+            self.delete(file_id)
+        except SonioxNotFoundError:
+            return
 
     def upload(
         self,
