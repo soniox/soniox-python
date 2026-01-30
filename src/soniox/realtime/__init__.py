@@ -13,6 +13,7 @@ if TYPE_CHECKING:
         AsyncRealtimeSTTSession,
     )
     from .stt import RealtimeSTTClient, RealtimeSTTSession
+    from .stt_base import BaseRealtimeSTTSession
 
 __all__ = [
     "RealtimeAPI",
@@ -23,6 +24,7 @@ __all__ = [
     "AsyncRealtimeAPI",
     "AsyncRealtimeSTTClient",
     "AsyncRealtimeSTTSession",
+    "BaseRealtimeSTTSession",
 ]
 
 

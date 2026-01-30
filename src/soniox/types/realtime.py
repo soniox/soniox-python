@@ -3,6 +3,7 @@ from __future__ import annotations
 import json
 from collections.abc import Callable
 from enum import Enum
+from typing import Literal, TypeVar
 
 from pydantic import BaseModel, ConfigDict
 
@@ -45,18 +46,48 @@ class RealtimeSttConfig(BaseModel):
         return self.model_copy(update={"api_key": api_key})
 
 
-class RealtimeSessionEvent(Enum):
-    OPEN = "open"
-    CLOSE = "close"
-    MESSAGE = "message"
-    ERROR = "error"
-    FINISHED = "finished"
-
-
 class RealtimeControlType(str, Enum):
     FINISH = "finish"
     KEEP_ALIVE = "keep_alive"
     FINALIZE = "finalize"
 
 
-RealtimeEventCallback = Callable[[RealtimeEvent], None]
+class RealtimeSessionOpenPayload(BaseModel):
+    type: Literal["open"] = "open"
+    model_config = ConfigDict(arbitrary_types_allowed=True)
+
+
+class RealtimeSessionClosePayload(BaseModel):
+    type: Literal["close"] = "close"
+    model_config = ConfigDict(arbitrary_types_allowed=True)
+
+
+class RealtimeSessionMessagePayload(BaseModel):
+    type: Literal["message"] = "message"
+    event: RealtimeEvent
+    model_config = ConfigDict(arbitrary_types_allowed=True)
+
+
+class RealtimeSessionFinishedPayload(BaseModel):
+    type: Literal["finished"] = "finished"
+    event: RealtimeEvent
+    model_config = ConfigDict(arbitrary_types_allowed=True)
+
+
+class RealtimeSessionErrorPayload(BaseModel):
+    type: Literal["error"] = "error"
+    error: Exception
+    model_config = ConfigDict(arbitrary_types_allowed=True)
+
+
+RealtimeSessionEventPayload = (
+    RealtimeSessionOpenPayload
+    | RealtimeSessionClosePayload
+    | RealtimeSessionMessagePayload
+    | RealtimeSessionFinishedPayload
+    | RealtimeSessionErrorPayload
+)
+
+# Callback types
+RealtimeEventCallback = Callable[[RealtimeSessionEventPayload], None]
+PayloadT = TypeVar("PayloadT", bound=RealtimeSessionEventPayload)
