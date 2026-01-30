@@ -57,7 +57,7 @@ class AsyncRealtimeSTTSession:
             self._ws = None
         self._emit(RealtimeSessionEvent.CLOSE)
 
-    async def send_audio_chunk(self, chunk: bytes) -> None:
+    async def send_byte_chunk(self, chunk: bytes) -> None:
         if not self._ws:
             raise SonioxRealtimeError("Realtime session is not connected")
         try:
@@ -66,25 +66,17 @@ class AsyncRealtimeSTTSession:
             self._emit_error(exc)
             raise
 
-    async def send_audio(
+    async def send_bytes(
         self,
-        chunks: bytes | bytearray | memoryview | AsyncIterator[bytes | bytearray | memoryview],
+        chunks: bytes | AsyncIterator[bytes],
     ) -> None:
-        if isinstance(chunks, bytes | bytearray | memoryview):
-            await self.send_audio_chunk(bytes(chunks))
+        if isinstance(chunks, bytes):
+            await self.send_byte_chunk(bytes(chunks))
             return
 
         async for chunk in chunks:
-            await self.send_audio_chunk(bytes(chunk))
+            await self.send_byte_chunk(bytes(chunk))
         await self.send_finish()
-
-    async def _signal_end_of_audio(self) -> None:
-        if not self._ws:
-            return
-        try:
-            await self._ws.send("")
-        except ConnectionClosed:
-            pass
 
     async def send_control_message(
         self,

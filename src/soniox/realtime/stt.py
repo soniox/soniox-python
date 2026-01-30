@@ -30,6 +30,8 @@ class RealtimeSTTSession:
         self._ws = None
         self._listeners: dict[RealtimeSessionEvent, list[Callable[..., None]]] = {}
 
+        # context manager
+
     def __enter__(self) -> RealtimeSTTSession:
         self._ws = sync_ws_connect(self._url)
         self._ws.send(json.dumps(self._payload.model_dump(exclude_none=True)))
@@ -45,6 +47,8 @@ class RealtimeSTTSession:
         _ = (_exc_type, _exc_value, _traceback)  # To make linter happy.
         self.close()
 
+        # session methods
+
     def close(self) -> None:
         if not self._ws:
             return
@@ -57,7 +61,9 @@ class RealtimeSTTSession:
             self._ws = None
         self._emit(RealtimeSessionEvent.CLOSE)
 
-    def send_audio_chunk(self, chunk: bytes) -> None:
+    # session methods what we send to soniox
+
+    def send_byte_chunk(self, chunk: bytes) -> None:
         if not self._ws:
             raise SonioxRealtimeError("Realtime session is not connected")
         try:
@@ -66,16 +72,16 @@ class RealtimeSTTSession:
             self._emit_error(exc)
             raise
 
-    def send_audio(
+    def send_bytes(
         self,
-        chunks: bytes | bytearray | memoryview | Iterator[bytes | bytearray | memoryview],
+        chunks: bytes | Iterator[bytes],
     ) -> None:
-        if isinstance(chunks, bytes | bytearray | memoryview):
-            self.send_audio_chunk(bytes(chunks))
+        if isinstance(chunks, bytes):
+            self.send_byte_chunk(bytes(chunks))
             return
 
         for chunk in chunks:
-            self.send_audio_chunk(bytes(chunk))
+            self.send_byte_chunk(bytes(chunk))
         self.send_finish()
 
     def send_control_message(
@@ -103,6 +109,8 @@ class RealtimeSTTSession:
 
     def send_finalize(self) -> None:
         self.send_control_message(RealtimeControlType.FINALIZE)
+
+        # session events (what soniox sends us)
 
     def receive_event(self) -> RealtimeEvent | None:
         if not self._ws:
@@ -134,6 +142,8 @@ class RealtimeSTTSession:
     def handle_events(self, handler: Callable[[RealtimeEvent], None]) -> None:
         for event in self.receive_events():
             handler(event)
+
+    # callbacks
 
     def on_event(self, event_type: RealtimeSessionEvent, callback: Callable[..., None]) -> None:
         self._listeners.setdefault(event_type, []).append(callback)
