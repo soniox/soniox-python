@@ -123,7 +123,7 @@ class AsyncFilesAPI:
             if close_after:
                 file_obj.close()
 
-    async def delete_all(self, *, limit: int = 1000) -> None:
+    async def delete_all(self, *, limit: int = 100) -> None:
         """
         Delete all files.
 

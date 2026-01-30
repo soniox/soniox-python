@@ -103,6 +103,20 @@ class CreateTranscriptionPayload(BaseModel):
         return self
 
 
+class CreateTranscriptionConfig(BaseModel):
+    model: str | None = None
+    language_hints: list[str] | None = None
+    language_hints_strict: bool | None = None
+    enable_speaker_diarization: bool | None = None
+    enable_language_identification: bool | None = None
+    translation: TranslationConfig | None = None
+    context: StructuredContext | str | None = None
+    webhook_url: str | None = None
+    webhook_auth_header_name: str | None = None
+    webhook_auth_header_value: str | None = None
+    client_reference_id: str | None = Field(default=None, max_length=256)
+
+
 class CreateTemporaryApiKeyPayload(BaseModel):
     usage_type: TemporaryApiKeyUsageType
     expires_in_seconds: int = Field(..., ge=1, le=3600)

@@ -8,6 +8,10 @@ import httpx
 from pydantic import BaseModel
 
 from ..errors import SonioxAPIError
+from ..types import (
+    CreateTranscriptionConfig,
+    CreateTranscriptionPayload,
+)
 
 ModelT = TypeVar("ModelT", bound=BaseModel)
 
@@ -52,3 +56,27 @@ def normalize_file(
         return file, effective_name, False
 
     raise TypeError("file must be bytes, Path, or file-like stream.")
+
+
+def build_create_payload(
+    *,
+    model: str,
+    file_id: str | None,
+    audio_url: str | None,
+    client_reference_id: str | None,
+    config: CreateTranscriptionConfig | None,
+) -> CreateTranscriptionPayload:
+    config_data = config.model_dump(exclude_none=True) if config else {}
+    model_override = config_data.pop("model", None)
+    client_ref_override = config_data.pop("client_reference_id", None)
+    payload_model = model_override if model_override is not None else model
+    payload_client_reference_id = (
+        client_reference_id if client_reference_id is not None else client_ref_override
+    )
+    return CreateTranscriptionPayload(
+        model=payload_model,
+        file_id=file_id,
+        audio_url=audio_url,
+        client_reference_id=payload_client_reference_id,
+        **config_data,
+    )

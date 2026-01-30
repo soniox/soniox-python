@@ -3,18 +3,18 @@ from __future__ import annotations
 import asyncio
 import time
 from pathlib import Path
-from typing import TYPE_CHECKING, Any, BinaryIO
+from typing import TYPE_CHECKING, BinaryIO
 
 from ..errors import SonioxNotFoundError, SonioxValidationError
 from ..types import (
-    CreateTranscriptionPayload,
+    CreateTranscriptionConfig,
     GetTranscriptionsPayload,
     GetTranscriptionsResponse,
     Transcription,
     TranscriptionTranscript,
     WebhookAuthConfig,
 )
-from ._utils import ensure_success, parse_async_response
+from ._utils import build_create_payload, ensure_success, parse_async_response
 
 if TYPE_CHECKING:
     from ..client import AsyncSonioxClient
@@ -63,7 +63,15 @@ class AsyncTranscriptionsAPI:
                 break
             cursor = page.next_page_cursor
 
-    async def create(self, payload: CreateTranscriptionPayload) -> Transcription:
+    async def create(
+        self,
+        *,
+        model: str = DEFAULT_MODEL,
+        file_id: str | None = None,
+        audio_url: str | None = None,
+        client_reference_id: str | None = None,
+        config: CreateTranscriptionConfig | None = None,
+    ) -> Transcription:
         """
         Create a transcription.
 
@@ -72,6 +80,15 @@ class AsyncTranscriptionsAPI:
         Raises:
             - SonioxAPIError
         """
+        if file_id is not None and audio_url is not None:
+            raise SonioxValidationError("Provide either file_id or audio_url, not both")
+        payload = build_create_payload(
+            model=model,
+            file_id=file_id,
+            audio_url=audio_url,
+            client_reference_id=client_reference_id,
+            config=config,
+        )
         response = await self._client.request(
             "POST", "/transcriptions", json=payload.model_dump(exclude_none=True)
         )
@@ -183,7 +200,8 @@ class AsyncTranscriptionsAPI:
         *,
         model: str = DEFAULT_MODEL,
         audio_url: str,
-        **payload_kwargs: Any,
+        client_reference_id: str | None = None,
+        config: CreateTranscriptionConfig | None = None,
     ) -> Transcription:
         """
         Create a transcription from an audio URL.
@@ -191,19 +209,20 @@ class AsyncTranscriptionsAPI:
         Raises:
             - SonioxAPIError
         """
-        payload = CreateTranscriptionPayload(
+        return await self.create(
             model=model,
             audio_url=audio_url,
-            **payload_kwargs,
+            client_reference_id=client_reference_id,
+            config=config,
         )
-        return await self.create(payload)
 
     async def transcribe_from_file_id(
         self,
         *,
         model: str = DEFAULT_MODEL,
         file_id: str,
-        **payload_kwargs: Any,
+        client_reference_id: str | None = None,
+        config: CreateTranscriptionConfig | None = None,
     ) -> Transcription:
         """
         Create a transcription from an existing uploaded file.
@@ -211,12 +230,12 @@ class AsyncTranscriptionsAPI:
         Raises:
             - SonioxAPIError
         """
-        payload = CreateTranscriptionPayload(
+        return await self.create(
             model=model,
             file_id=file_id,
-            **payload_kwargs,
+            client_reference_id=client_reference_id,
+            config=config,
         )
-        return await self.create(payload)
 
     async def transcribe_from_file(
         self,
@@ -225,7 +244,7 @@ class AsyncTranscriptionsAPI:
         file: BinaryIO | bytes | Path | str,
         filename: str | None = None,
         client_reference_id: str | None = None,
-        **payload_kwargs: Any,
+        config: CreateTranscriptionConfig | None = None,
     ) -> Transcription:
         """
         Upload a file and create a transcription from it.
@@ -242,7 +261,7 @@ class AsyncTranscriptionsAPI:
             model=model,
             file_id=uploaded.id,
             client_reference_id=client_reference_id,
-            **payload_kwargs,
+            config=config,
         )
 
     async def transcribe(
@@ -254,7 +273,7 @@ class AsyncTranscriptionsAPI:
         file: BinaryIO | bytes | Path | str | None = None,
         filename: str | None = None,
         client_reference_id: str | None = None,
-        **payload_kwargs: Any,
+        config: CreateTranscriptionConfig | None = None,
     ) -> Transcription:
         """
         Create a transcription from a file, file ID, or audio URL.
@@ -273,7 +292,7 @@ class AsyncTranscriptionsAPI:
                 file=file,
                 filename=filename,
                 client_reference_id=client_reference_id,
-                **payload_kwargs,
+                config=config,
             )
         if file_id is not None:
             if audio_url:
@@ -281,14 +300,16 @@ class AsyncTranscriptionsAPI:
             return await self.transcribe_from_file_id(
                 model=model,
                 file_id=file_id,
-                **payload_kwargs,
+                client_reference_id=client_reference_id,
+                config=config,
             )
         if not audio_url:
             raise SonioxValidationError("Either audio_url, file_id, or file must be provided")
         return await self.transcribe_from_url(
             model=model,
             audio_url=audio_url,
-            **payload_kwargs,
+            client_reference_id=client_reference_id,
+            config=config,
         )
 
     async def transcribe_file_with_webhook(
@@ -300,7 +321,7 @@ class AsyncTranscriptionsAPI:
         filename: str | None = None,
         client_reference_id: str | None = None,
         webhook_auth: WebhookAuthConfig | None = None,
-        **payload_kwargs: Any,
+        config: CreateTranscriptionConfig | None = None,
     ) -> Transcription:
         """
         Upload a file, configure a webhook, and start transcription.
@@ -314,14 +335,15 @@ class AsyncTranscriptionsAPI:
             filename=filename,
             client_reference_id=client_reference_id,
         )
-        payload_data = {**payload_kwargs, **webhook_fields}
-        payload = CreateTranscriptionPayload(
+        config_data = config.model_dump(exclude_none=True) if config else {}
+        config_data = {**config_data, **webhook_fields}
+        webhook_config = CreateTranscriptionConfig(**config_data) if config_data else None
+        return await self.create(
             model=model,
             file_id=uploaded.id,
             client_reference_id=client_reference_id,
-            **payload_data,
+            config=webhook_config,
         )
-        return await self.create(payload)
 
     async def transcribe_and_wait(
         self,
@@ -335,7 +357,7 @@ class AsyncTranscriptionsAPI:
         delete_after: bool = False,
         wait_interval_sec: float = 5.0,
         wait_timeout_sec: float | None = None,
-        **payload_kwargs: Any,
+        config: CreateTranscriptionConfig | None = None,
     ) -> Transcription:
         """
         Create a transcription and wait for completion.
@@ -355,7 +377,7 @@ class AsyncTranscriptionsAPI:
             file=file,
             filename=filename,
             client_reference_id=client_reference_id,
-            **payload_kwargs,
+            config=config,
         )
         transcription = await self.wait(
             transcription.id,
@@ -383,7 +405,7 @@ class AsyncTranscriptionsAPI:
         delete_after: bool = False,
         wait_interval_sec: float = 5.0,
         wait_timeout_sec: float | None = None,
-        **payload_kwargs: Any,
+        config: CreateTranscriptionConfig | None = None,
     ) -> TranscriptionTranscript:
         """
         Create a transcription, wait for completion, and return the transcript.
@@ -405,7 +427,7 @@ class AsyncTranscriptionsAPI:
             delete_after=False,  # handle deletion manually after fetching transcript
             wait_interval_sec=wait_interval_sec,
             wait_timeout_sec=wait_timeout_sec,
-            **payload_kwargs,
+            config=config,
         )
 
         result = await self.get_transcript(transcription.id)
