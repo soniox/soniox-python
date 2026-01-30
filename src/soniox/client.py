@@ -23,12 +23,12 @@ if TYPE_CHECKING:
     from .api.webhooks import SonioxWebhooksAPI
     from .realtime import AsyncRealtimeAPI, RealtimeAPI
 
+_DEFAULT_API_BASE_URL = "https://api.soniox.com/v1"
+_DEFAULT_WEBSOCKET_BASE_URL = "wss://stt-rt.soniox.com/transcribe-websocket"
+_DEFAULT_TIMEOUT_SEC = 30.0
+
 
 class _BaseSonioxClient:
-    DEFAULT_API_BASE_URL = "https://api.soniox.com/v1"
-    DEFAULT_WEBSOCKET_BASE_URL = "wss://stt-rt.soniox.com/transcribe-websocket"
-    DEFAULT_TIMEOUT_SEC = 30.0
-
     def __init__(
         self,
         *,
@@ -43,9 +43,9 @@ class _BaseSonioxClient:
         if not api_key:
             raise SonioxValidationError("Please provide api_key")
         self.api_key = api_key
-        self.api_base_url = api_base_url or self.DEFAULT_API_BASE_URL
-        self.websocket_base_url = websocket_base_url or self.DEFAULT_WEBSOCKET_BASE_URL
-        self.timeout_sec = timeout_sec if timeout_sec is not None else self.DEFAULT_TIMEOUT_SEC
+        self.api_base_url = api_base_url or _DEFAULT_API_BASE_URL
+        self.websocket_base_url = websocket_base_url or _DEFAULT_WEBSOCKET_BASE_URL
+        self.timeout_sec = timeout_sec if timeout_sec is not None else _DEFAULT_TIMEOUT_SEC
         self.webhook_secret = webhook_secret
         self.webhook_signature_header = webhook_signature_header
 

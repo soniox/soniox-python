@@ -5,6 +5,7 @@ from collections.abc import AsyncIterator, Awaitable, Callable
 from types import TracebackType
 from typing import TYPE_CHECKING
 
+from websockets import ClientConnection
 from websockets import connect as async_ws_connect
 from websockets.exceptions import ConnectionClosed
 
@@ -25,15 +26,17 @@ if TYPE_CHECKING:
 
 class AsyncRealtimeSTTSession:
     def __init__(self, url: str, payload: RealtimeSttConfig) -> None:
-        self._url = url
-        self._payload = payload
-        self._ws = None
+        self._url: str = url
+        self._payload: RealtimeSttConfig = payload
+        self._ws: ClientConnection | None = None
         self._listeners: dict[RealtimeSessionEvent, list[Callable[..., None]]] = {}
+        self._open_event_emitted: bool = False
 
     async def __aenter__(self) -> AsyncRealtimeSTTSession:
         self._ws = await async_ws_connect(self._url)
         await self._ws.send(json.dumps(self._payload.model_dump(exclude_none=True)))
         self._emit(RealtimeSessionEvent.OPEN)
+        self._open_event_emitted = True
         return self
 
     async def __aexit__(
@@ -140,6 +143,8 @@ class AsyncRealtimeSTTSession:
             callback(event_type, session)
 
         self.on_event(RealtimeSessionEvent.OPEN, _wrapper)
+        if self._open_event_emitted:
+            callback(RealtimeSessionEvent.OPEN, self)
 
     def on_close(self, callback: RealtimeSessionCallback) -> None:
         def _wrapper(event_type: RealtimeSessionEvent, session: AsyncRealtimeSTTSession) -> None:
@@ -169,6 +174,10 @@ class AsyncRealtimeSTTSession:
 
     def _emit_error(self, exc: Exception) -> None:
         self._emit(RealtimeSessionEvent.ERROR, exc)
+
+    @property
+    def client_reference_id(self) -> str | None:
+        return self._payload.client_reference_id
 
     async def send_finish(self) -> None:
         await self.send_control_message(RealtimeControlType.FINISH)

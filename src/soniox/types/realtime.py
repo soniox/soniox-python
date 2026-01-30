@@ -1,14 +1,21 @@
 from __future__ import annotations
 
 import json
-from collections.abc import Callable, Mapping
+from collections.abc import Callable
 from enum import Enum
-from typing import Any
+from typing import TYPE_CHECKING
 
 from pydantic import BaseModel, ConfigDict
 
 from .api import StructuredContext, TranslationConfig
 from .common import Token
+
+if TYPE_CHECKING:
+    from ..realtime.async_stt import AsyncRealtimeSTTSession
+    from ..realtime.stt import RealtimeSTTSession
+
+
+RealtimeSessionType = RealtimeSTTSession | AsyncRealtimeSTTSession if TYPE_CHECKING else object
 
 
 class RealtimeEvent(BaseModel):
@@ -35,7 +42,7 @@ class RealtimeSttConfig(BaseModel):
     sample_rate: int | None = None
     language_hints: list[str] | None = None
     language_hints_strict: bool | None = None
-    context: StructuredContext | Mapping[str, Any] | None = None
+    context: StructuredContext | None = None
     enable_speaker_diarization: bool | None = None
     enable_language_identification: bool | None = None
     enable_endpoint_detection: bool | None = None
@@ -60,5 +67,5 @@ class RealtimeControlType(str, Enum):
 
 
 RealtimeEventCallback = Callable[[RealtimeEvent], None]
-RealtimeSessionCallback = Callable[[RealtimeSessionEvent, Any], None]
-RealtimeErrorCallback = Callable[[Exception, Any], None]
+RealtimeSessionCallback = Callable[[RealtimeSessionEvent, RealtimeSessionType], None]
+RealtimeErrorCallback = Callable[[Exception, RealtimeSessionType], None]

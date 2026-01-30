@@ -29,6 +29,7 @@ class RealtimeSTTSession:
         self._payload = payload
         self._ws = None
         self._listeners: dict[RealtimeSessionEvent, list[Callable[..., None]]] = {}
+        self._open_event_emitted = False
 
         # context manager
 
@@ -36,6 +37,7 @@ class RealtimeSTTSession:
         self._ws = sync_ws_connect(self._url)
         self._ws.send(json.dumps(self._payload.model_dump(exclude_none=True)))
         self._emit(RealtimeSessionEvent.OPEN)
+        self._open_event_emitted = True
         return self
 
     def __exit__(
@@ -159,6 +161,8 @@ class RealtimeSTTSession:
             callback(event_type, session)
 
         self.on_event(RealtimeSessionEvent.OPEN, _wrapper)
+        if self._open_event_emitted:
+            callback(RealtimeSessionEvent.OPEN, self)
 
     def on_close(self, callback: RealtimeSessionCallback) -> None:
         def _wrapper(event_type: RealtimeSessionEvent, session: RealtimeSTTSession) -> None:
@@ -171,6 +175,10 @@ class RealtimeSTTSession:
             callback(exc, session)
 
         self.on_event(RealtimeSessionEvent.ERROR, _wrapper)
+
+    @property
+    def client_reference_id(self) -> str | None:
+        return self._payload.client_reference_id
 
     def _emit(
         self, event_type: RealtimeSessionEvent, payload: RealtimeEvent | Exception | None = None
