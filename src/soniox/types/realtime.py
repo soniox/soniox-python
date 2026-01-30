@@ -50,6 +50,7 @@ class RealtimeSessionEvent(Enum):
     CLOSE = "close"
     MESSAGE = "message"
     ERROR = "error"
+    FINISHED = "finished"
 
 
 class RealtimeControlType(str, Enum):
