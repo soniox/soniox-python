@@ -14,5 +14,13 @@ class AsyncModelsAPI:
         self._client = client
 
     async def list(self) -> GetModelsResponse:
+        """
+        List available models.
+
+        Performs a GET request to ``/models``.
+
+        Raises:
+            - SonioxAPIError
+        """
         response = await self._client.request("GET", "/models")
         return await parse_async_response(response, GetModelsResponse)

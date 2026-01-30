@@ -20,27 +20,67 @@ class FilesAPI:
     def __init__(self, client: SonioxClient) -> None:
         self._client = client
 
-    def list(self, limit: int = 1000, cursor: str | None = None) -> GetFilesResponse:
+    def list(self, limit: int = 100, cursor: str | None = None) -> GetFilesResponse:
+        """
+        List uploaded files.
+
+        Performs a GET request to ``/files`` with optional pagination.
+
+        Raises:
+            - SonioxAPIError
+        """
         payload = GetFilesPayload(limit=limit, cursor=cursor)
         params = payload.model_dump(exclude_none=True)
         response = self._client.request("GET", "/files", params=params)
         return parse_response(response, GetFilesResponse)
 
     def get(self, file_id: str) -> File:
+        """
+        Retrieve a file by ID.
+
+        Performs a GET request to ``/files/{file_id}``.
+
+        Raises:
+            - SonioxAPIError
+        """
         response = self._client.request("GET", f"/files/{file_id}")
         return parse_response(response, File)
 
     def get_or_none(self, file_id: str) -> File | None:
+        """
+        Retrieve a file by ID.
+
+        Returns ``None`` if the file does not exist.
+
+        Raises:
+            - SonioxAPIError
+        """
         try:
             return self.get(file_id)
         except SonioxNotFoundError:
             return None
 
     def delete(self, file_id: str) -> None:
+        """
+        Delete a file by ID.
+
+        Performs a DELETE request to ``/files/{file_id}``.
+
+        Raises:
+            - SonioxAPIError
+        """
         response = self._client.request("DELETE", f"/files/{file_id}")
         ensure_success(response)
 
     def delete_if_exists(self, file_id: str) -> None:
+        """
+        Delete a file by ID if it exists.
+
+        Ignores missing files.
+
+        Raises:
+            - SonioxAPIError
+        """
         try:
             self.delete(file_id)
         except SonioxNotFoundError:
@@ -53,6 +93,14 @@ class FilesAPI:
         filename: str | None = None,
         client_reference_id: str | None = None,
     ) -> File:
+        """
+        Upload a file.
+
+        Performs a multipart POST request to ``/files``.
+
+        Raises:
+            - SonioxAPIError
+        """
         file_obj, effective_filename, close_after = normalize_file(file, filename=filename)
         payload = UploadFilePayload(client_reference_id=client_reference_id)
         data = payload.model_dump(exclude_none=True)
@@ -71,7 +119,15 @@ class FilesAPI:
             if close_after:
                 file_obj.close()
 
-    def delete_all(self, *, limit: int = 1000) -> None:
+    def delete_all(self, *, limit: int = 100) -> None:
+        """
+        Delete all files.
+
+        Iterates through all pages and deletes each file.
+
+        Raises:
+            - SonioxAPIError
+        """
         cursor: str | None = None
         while True:
             page = self.list(limit=limit, cursor=cursor)

@@ -49,6 +49,12 @@ class SonioxWebhooksAPI:
         *,
         auth: WebhookAuthConfig | None = None,
     ) -> None:
+        """
+        Verify a webhook signature from headers.
+
+        Raises:
+            - InvalidWebhookSignatureError
+        """
         auth_config = auth or _resolve_webhook_auth(
             self._webhook_header,
             self._webhook_secret,
@@ -68,6 +74,14 @@ class SonioxWebhooksAPI:
         *,
         auth: WebhookAuthConfig | None = None,
     ) -> WebhookEvent:
+        """
+        Validate and parse a webhook payload.
+
+        Returns a WebhookEvent.
+
+        Raises:
+            - InvalidWebhookSignatureError
+        """
         self.verify_signature(headers, auth=auth)
         body = payload.decode("utf-8") if isinstance(payload, bytes | bytearray) else payload
         return WebhookEvent.model_validate(json.loads(body))
@@ -78,7 +92,9 @@ class SonioxWebhooksAPI:
         *,
         auth: WebhookAuthConfig | None = None,
     ) -> dict[str, str]:
-        """Return webhook fields to include when creating a transcription."""
+        """
+        Return fields for webhook configuration when creating a transcription.
+        """
         payload = {"webhook_url": webhook_url}
         auth_config = auth or _resolve_webhook_auth(
             self._webhook_header,

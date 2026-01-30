@@ -24,6 +24,14 @@ class AsyncAuthAPI:
         expires_in_seconds: int = 5 * 60,
         client_reference_id: str | None = None,
     ) -> CreateTemporaryApiKeyResponse:
+        """
+        Create a temporary API key.
+
+        Performs a POST request to ``/auth/temporary-api-key``.
+
+        Raises:
+            - SonioxAPIError
+        """
         payload = CreateTemporaryApiKeyPayload(
             usage_type=usage_type,
             expires_in_seconds=expires_in_seconds,

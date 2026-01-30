@@ -14,5 +14,13 @@ class ModelsAPI:
         self._client = client
 
     def list(self) -> GetModelsResponse:
+        """
+        List available models.
+
+        Performs a GET request to ``/models``.
+
+        Raises:
+            - SonioxAPIError
+        """
         response = self._client.request("GET", "/models")
         return parse_response(response, GetModelsResponse)
