@@ -80,7 +80,7 @@ class TranslationConfig(BaseModel):
 
 
 class CreateTranscriptionPayload(BaseModel):
-    model: str
+    model: str = "stt-async-v3"
     audio_url: str | None = None
     file_id: str | None = None
     language_hints: list[str] | None = None
