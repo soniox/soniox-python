@@ -7,8 +7,8 @@ class Token(BaseModel):
     model_config = ConfigDict(extra="allow")
 
     text: str
-    start_ms: float | None = None
-    end_ms: float | None = None
+    start_ms: int | None = None
+    end_ms: int | None = None
     confidence: float | None = None
     is_final: bool | None = None
     speaker: str | None = None
