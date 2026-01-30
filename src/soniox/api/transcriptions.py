@@ -325,15 +325,15 @@ class TranscriptionsAPI:
         filename: str | None = None,
         client_reference_id: str | None = None,
         delete_after: bool = False,
-        return_tokens: bool = False,
         wait_interval_sec: float = 5.0,
         wait_timeout_sec: float | None = None,
         **payload_kwargs: Any,
-    ) -> Transcription | TranscriptionTranscript:
+    ) -> Transcription:
         """
         Create a transcription and wait for completion.
 
-        Optionally returns the transcript and/or deletes resources after completion.
+        Returns a Transcription object after it is completed. Optionally deletes
+        the transcription and the uploaded file after completion.
 
         Raises:
             - SonioxAPIError
@@ -354,12 +354,58 @@ class TranscriptionsAPI:
             interval_sec=wait_interval_sec,
             timeout_sec=wait_timeout_sec,
         )
-        result: Transcription | TranscriptionTranscript = transcription
-        if return_tokens:
-            result = self.get_transcript(transcription.id)
+
         if delete_after:
             file_id_to_delete = transcription.file_id
             self.delete(transcription.id)
             if file_id_to_delete:
                 self._client.files.delete(file_id_to_delete)
+
+        return transcription
+
+    def transcribe_and_wait_with_tokens(
+        self,
+        *,
+        model: str = DEFAULT_MODEL,
+        audio_url: str | None = None,
+        file_id: str | None = None,
+        file: BinaryIO | bytes | Path | str | None = None,
+        filename: str | None = None,
+        client_reference_id: str | None = None,
+        delete_after: bool = False,
+        wait_interval_sec: float = 5.0,
+        wait_timeout_sec: float | None = None,
+        **payload_kwargs: Any,
+    ) -> TranscriptionTranscript:
+        """
+        Create a transcription, wait for completion, and return the transcript.
+
+        Optionally deletes the transcription and uploaded file after completion.
+
+        Raises:
+            - SonioxAPIError
+            - SonioxValidationError
+            - TimeoutError
+        """
+        transcription = self.transcribe_and_wait(
+            model=model,
+            audio_url=audio_url,
+            file_id=file_id,
+            file=file,
+            filename=filename,
+            client_reference_id=client_reference_id,
+            delete_after=False,  # handle deletion manually after fetching transcript
+            wait_interval_sec=wait_interval_sec,
+            wait_timeout_sec=wait_timeout_sec,
+            **payload_kwargs,
+        )
+
+        result = self.get_transcript(transcription.id)
+
+        if delete_after:
+            file_id_to_delete = transcription.file_id
+            self.delete(transcription.id)
+            if file_id_to_delete:
+                self._client.files.delete(file_id_to_delete)
+
         return result
