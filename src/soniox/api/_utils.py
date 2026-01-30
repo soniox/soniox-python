@@ -73,10 +73,11 @@ def build_create_payload(
     payload_client_reference_id = (
         client_reference_id if client_reference_id is not None else client_ref_override
     )
-    return CreateTranscriptionPayload(
-        model=payload_model,
-        file_id=file_id,
-        audio_url=audio_url,
-        client_reference_id=payload_client_reference_id,
-        **config_data,
-    )
+    payload_data: dict[str, object | None] = {
+        "model": payload_model,
+        "file_id": file_id,
+        "audio_url": audio_url,
+        "client_reference_id": payload_client_reference_id,
+    }
+    payload_data.update(config_data)
+    return CreateTranscriptionPayload.model_validate(payload_data)

@@ -328,8 +328,10 @@ class TranscriptionsAPI:
             client_reference_id=client_reference_id,
         )
         config_data = config.model_dump(exclude_none=True) if config else {}
-        config_data = {**config_data, **webhook_fields}
-        webhook_config = CreateTranscriptionConfig(**config_data) if config_data else None
+        config_data.update(webhook_fields)
+        webhook_config = (
+            CreateTranscriptionConfig.model_validate(config_data) if config_data else None
+        )
         return self.create(
             model=model,
             file_id=uploaded.id,
