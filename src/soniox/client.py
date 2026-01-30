@@ -91,7 +91,6 @@ class SonioxClient(_BaseSonioxClient):
         json: Any | None = None,
         data: Mapping[str, Any] | None = None,
         files: Mapping[str, Any] | None = None,
-        timeout_sec: float = 30.0,
     ) -> httpx.Response:
         return self._http_client.request(
             method,
@@ -100,7 +99,6 @@ class SonioxClient(_BaseSonioxClient):
             json=json,
             data=data,
             files=files,
-            timeout=timeout_sec,
         )
 
     @cached_property
@@ -194,7 +192,6 @@ class AsyncSonioxClient(_BaseSonioxClient):
         json: Any | None = None,
         data: Mapping[str, Any] | None = None,
         files: Mapping[str, Any] | None = None,
-        timeout: float | httpx.Timeout | None = None,
     ) -> httpx.Response:
         return await self._http_client.request(
             method,
@@ -203,7 +200,6 @@ class AsyncSonioxClient(_BaseSonioxClient):
             json=json,
             data=data,
             files=files,
-            timeout=timeout,
         )
 
     @cached_property

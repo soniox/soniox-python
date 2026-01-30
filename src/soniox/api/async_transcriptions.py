@@ -190,7 +190,7 @@ class AsyncTranscriptionsAPI:
     async def transcribe_file_with_webhook(
         self,
         *,
-        model: str,
+        model: str = DEFAULT_MODEL,
         file: BinaryIO | bytes | Path | str,
         webhook_url: str,
         filename: str | None = None,
