@@ -3,19 +3,11 @@ from __future__ import annotations
 import json
 from collections.abc import Callable
 from enum import Enum
-from typing import TYPE_CHECKING
 
 from pydantic import BaseModel, ConfigDict
 
 from .api import StructuredContext, TranslationConfig
 from .common import Token
-
-if TYPE_CHECKING:
-    from ..realtime.async_stt import AsyncRealtimeSTTSession
-    from ..realtime.stt import RealtimeSTTSession
-
-
-RealtimeSessionType = RealtimeSTTSession | AsyncRealtimeSTTSession if TYPE_CHECKING else object
 
 
 class RealtimeEvent(BaseModel):
@@ -67,5 +59,3 @@ class RealtimeControlType(str, Enum):
 
 
 RealtimeEventCallback = Callable[[RealtimeEvent], None]
-RealtimeSessionCallback = Callable[[RealtimeSessionEvent, RealtimeSessionType], None]
-RealtimeErrorCallback = Callable[[Exception, RealtimeSessionType], None]

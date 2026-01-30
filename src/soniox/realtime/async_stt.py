@@ -3,8 +3,9 @@ from __future__ import annotations
 import json
 from collections.abc import AsyncIterator, Awaitable, Callable
 from types import TracebackType
-from typing import TYPE_CHECKING
+from typing import TYPE_CHECKING, Annotated, Literal
 
+from pydantic import BaseModel, ConfigDict, Field
 from websockets import ClientConnection
 from websockets import connect as async_ws_connect
 from websockets.exceptions import ConnectionClosed
@@ -12,13 +13,47 @@ from websockets.exceptions import ConnectionClosed
 from ..errors import SonioxRealtimeError, SonioxValidationError
 from ..types.realtime import (
     RealtimeControlType,
-    RealtimeErrorCallback,
     RealtimeEvent,
-    RealtimeEventCallback,
-    RealtimeSessionCallback,
     RealtimeSessionEvent,
     RealtimeSttConfig,
 )
+
+
+class RealtimeSessionPayload(BaseModel):
+    model_config = ConfigDict(arbitrary_types_allowed=True)
+    session: AsyncRealtimeSTTSession
+
+
+class RealtimeSessionOpenPayload(RealtimeSessionPayload):
+    type: Literal["open"] = "open"
+
+
+class RealtimeSessionClosePayload(RealtimeSessionPayload):
+    type: Literal["close"] = "close"
+
+
+class RealtimeSessionMessagePayload(RealtimeSessionPayload):
+    type: Literal["message"] = "message"
+    event: RealtimeEvent
+
+
+class RealtimeSessionErrorPayload(RealtimeSessionPayload):
+    type: Literal["error"] = "error"
+    error: Exception
+
+
+RealtimeSessionEventPayload = Annotated[
+    RealtimeSessionOpenPayload
+    | RealtimeSessionClosePayload
+    | RealtimeSessionMessagePayload
+    | RealtimeSessionErrorPayload,
+    Field(discriminator="type"),
+]
+
+
+RealtimePayloadCallback = Callable[[RealtimeSessionEventPayload], None]
+RealtimeSessionCallback = Callable[[RealtimeSessionEvent, "AsyncRealtimeSTTSession"], None]
+RealtimeErrorCallback = Callable[[Exception, "AsyncRealtimeSTTSession"], None]
 
 if TYPE_CHECKING:
     from ..client import AsyncSonioxClient
@@ -29,7 +64,7 @@ class AsyncRealtimeSTTSession:
         self._url: str = url
         self._payload: RealtimeSttConfig = payload
         self._ws: ClientConnection | None = None
-        self._listeners: dict[RealtimeSessionEvent, list[Callable[..., None]]] = {}
+        self._listeners: dict[RealtimeSessionEvent, list[RealtimePayloadCallback]] = {}
         self._open_event_emitted: bool = False
 
     async def __aenter__(self) -> AsyncRealtimeSTTSession:
@@ -129,48 +164,65 @@ class AsyncRealtimeSTTSession:
         async for event in self.receive_events():
             await handler(event)
 
-    def on_event(self, event_type: RealtimeSessionEvent, callback: Callable[..., None]) -> None:
+    def on_event(
+        self,
+        event_type: RealtimeSessionEvent,
+        callback: RealtimePayloadCallback,
+    ) -> None:
         self._listeners.setdefault(event_type, []).append(callback)
 
-    def on_message(self, callback: RealtimeEventCallback) -> None:
-        def _wrapper(event: RealtimeEvent, _: AsyncRealtimeSTTSession) -> None:
-            callback(event)
+    def on_message(self, callback: Callable[[RealtimeSessionMessagePayload], None]) -> None:
+        def _wrapper(payload: RealtimeSessionEventPayload) -> None:
+            if payload.type == "message":
+                callback(payload)
 
         self.on_event(RealtimeSessionEvent.MESSAGE, _wrapper)
 
-    def on_open(self, callback: RealtimeSessionCallback) -> None:
-        def _wrapper(event_type: RealtimeSessionEvent, session: AsyncRealtimeSTTSession) -> None:
-            callback(event_type, session)
+    def on_open(self, callback: Callable[[RealtimeSessionOpenPayload], None]) -> None:
+        def _wrapper(payload: RealtimeSessionEventPayload) -> None:
+            if payload.type == "open":
+                callback(payload)
 
         self.on_event(RealtimeSessionEvent.OPEN, _wrapper)
         if self._open_event_emitted:
-            callback(RealtimeSessionEvent.OPEN, self)
+            callback(RealtimeSessionOpenPayload(session=self))
 
-    def on_close(self, callback: RealtimeSessionCallback) -> None:
-        def _wrapper(event_type: RealtimeSessionEvent, session: AsyncRealtimeSTTSession) -> None:
-            callback(event_type, session)
+    def on_close(self, callback: Callable[[RealtimeSessionClosePayload], None]) -> None:
+        def _wrapper(payload: RealtimeSessionEventPayload) -> None:
+            if payload.type == "close":
+                callback(payload)
 
         self.on_event(RealtimeSessionEvent.CLOSE, _wrapper)
 
-    def on_error(self, callback: RealtimeErrorCallback) -> None:
-        def _wrapper(exc: Exception, session: AsyncRealtimeSTTSession) -> None:
-            callback(exc, session)
+    def on_error(self, callback: Callable[[RealtimeSessionErrorPayload], None]) -> None:
+        def _wrapper(payload: RealtimeSessionEventPayload) -> None:
+            if payload.type == "error":
+                callback(payload)
 
         self.on_event(RealtimeSessionEvent.ERROR, _wrapper)
 
     def _emit(
         self, event_type: RealtimeSessionEvent, payload: RealtimeEvent | Exception | None = None
     ) -> None:
+        event_payload = self._build_event_payload(event_type, payload)
         for callback in self._listeners.get(event_type, []):
             try:
-                if event_type is RealtimeSessionEvent.MESSAGE:
-                    callback(payload, self)
-                elif event_type is RealtimeSessionEvent.ERROR:
-                    callback(payload, self)
-                else:
-                    callback(event_type, self)
+                callback(event_payload)
             except Exception:
                 pass
+
+    def _build_event_payload(
+        self,
+        event_type: RealtimeSessionEvent,
+        payload: RealtimeEvent | Exception | None = None,
+    ) -> RealtimeSessionEventPayload:
+        if event_type is RealtimeSessionEvent.MESSAGE and isinstance(payload, RealtimeEvent):
+            return RealtimeSessionMessagePayload(session=self, event=payload)
+        if event_type is RealtimeSessionEvent.ERROR and isinstance(payload, Exception):
+            return RealtimeSessionErrorPayload(session=self, error=payload)
+        if event_type is RealtimeSessionEvent.OPEN:
+            return RealtimeSessionOpenPayload(session=self)
+        return RealtimeSessionClosePayload(session=self)
 
     def _emit_error(self, exc: Exception) -> None:
         self._emit(RealtimeSessionEvent.ERROR, exc)
