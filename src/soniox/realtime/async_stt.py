@@ -3,13 +3,14 @@ from __future__ import annotations
 import json
 from collections.abc import AsyncIterator, Awaitable, Callable
 from types import TracebackType
-from typing import TYPE_CHECKING
+from typing import TYPE_CHECKING, Any, cast
 
 from websockets import connect as async_ws_connect
 from websockets.exceptions import ConnectionClosed
 
 from ..errors import SonioxRealtimeError, SonioxValidationError
 from ..types.realtime import (
+    EventType,
     RealtimeControlType,
     RealtimeEvent,
     RealtimeSessionClosePayload,
@@ -22,21 +23,18 @@ from ..types.realtime import (
 if TYPE_CHECKING:
     from ..client import AsyncSonioxClient
 
+AsyncListener = Callable[[Any, "AsyncRealtimeSTTSession"], Awaitable[None]]
 AsyncOpenCallback = Callable[
-    [RealtimeSessionOpenPayload, "AsyncRealtimeSTTSession"],
-    Awaitable[None],
+    [RealtimeSessionOpenPayload, "AsyncRealtimeSTTSession"], Awaitable[None]
 ]
 AsyncCloseCallback = Callable[
-    [RealtimeSessionClosePayload, "AsyncRealtimeSTTSession"],
-    Awaitable[None],
+    [RealtimeSessionClosePayload, "AsyncRealtimeSTTSession"], Awaitable[None]
 ]
 AsyncFinishedCallback = Callable[
-    [RealtimeSessionFinishedPayload, "AsyncRealtimeSTTSession"],
-    Awaitable[None],
+    [RealtimeSessionFinishedPayload, "AsyncRealtimeSTTSession"], Awaitable[None]
 ]
 AsyncErrorCallback = Callable[
-    [RealtimeSessionErrorPayload, "AsyncRealtimeSTTSession"],
-    Awaitable[None],
+    [RealtimeSessionErrorPayload, "AsyncRealtimeSTTSession"], Awaitable[None]
 ]
 
 
@@ -45,45 +43,47 @@ class AsyncRealtimeSTTSession:
         self._url = url
         self._config = config
         self._ws = None
-        self._open_callbacks: list[AsyncOpenCallback] = []
-        self._close_callbacks: list[AsyncCloseCallback] = []
-        self._finished_callbacks: list[AsyncFinishedCallback] = []
-        self._error_callbacks: list[AsyncErrorCallback] = []
+        self._listeners: dict[EventType, list[AsyncListener]] = {
+            "open": [],
+            "close": [],
+            "finished": [],
+            "error": [],
+        }
 
     @property
     def config(self) -> RealtimeSttConfig:
         return self._config
 
     def on_open(self, callback: AsyncOpenCallback) -> None:
-        self._open_callbacks.append(callback)
+        self._listeners["open"].append(cast(AsyncListener, callback))
 
     def on_close(self, callback: AsyncCloseCallback) -> None:
-        self._close_callbacks.append(callback)
+        self._listeners["close"].append(cast(AsyncListener, callback))
 
     def on_finished(self, callback: AsyncFinishedCallback) -> None:
-        self._finished_callbacks.append(callback)
+        self._listeners["finished"].append(cast(AsyncListener, callback))
 
     def on_error(self, callback: AsyncErrorCallback) -> None:
-        self._error_callbacks.append(callback)
+        self._listeners["error"].append(cast(AsyncListener, callback))
 
     async def _emit_open(self) -> None:
         payload = RealtimeSessionOpenPayload()
-        for callback in self._open_callbacks:
+        for callback in self._listeners["open"]:
             await callback(payload, self)
 
     async def _emit_close(self) -> None:
         payload = RealtimeSessionClosePayload()
-        for callback in self._close_callbacks:
+        for callback in self._listeners["close"]:
             await callback(payload, self)
 
     async def _emit_finished(self, event: RealtimeEvent) -> None:
         payload = RealtimeSessionFinishedPayload(event=event)
-        for callback in self._finished_callbacks:
+        for callback in self._listeners["finished"]:
             await callback(payload, self)
 
     async def _emit_error(self, error: Exception, event: RealtimeEvent | None = None) -> None:
         payload = RealtimeSessionErrorPayload(error=error, event=event)
-        for callback in self._error_callbacks:
+        for callback in self._listeners["error"]:
             await callback(payload, self)
 
     async def _handle_received_event(self, event: RealtimeEvent) -> None:
@@ -95,7 +95,7 @@ class AsyncRealtimeSTTSession:
                 f"Realtime error {event.error_code}: {event.error_message or 'unknown'}"
             )
             await self._emit_error(error, event)
-            if not self._error_callbacks:
+            if not self._listeners["error"]:
                 raise error
 
     async def __aenter__(self) -> AsyncRealtimeSTTSession:

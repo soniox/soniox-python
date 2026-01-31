@@ -51,24 +51,27 @@ class RealtimeControlType(str, Enum):
     FINALIZE = "finalize"
 
 
+EventType = Literal["open", "close", "finished", "error"]
+
+
 class RealtimeSessionOpenPayload(BaseModel):
-    type: Literal["open"] = "open"
+    type: EventType = "open"
     model_config = ConfigDict(arbitrary_types_allowed=True)
 
 
 class RealtimeSessionClosePayload(BaseModel):
-    type: Literal["close"] = "close"
+    type: EventType = "close"
     model_config = ConfigDict(arbitrary_types_allowed=True)
 
 
 class RealtimeSessionFinishedPayload(BaseModel):
-    type: Literal["finished"] = "finished"
+    type: EventType = "finished"
     event: RealtimeEvent
     model_config = ConfigDict(arbitrary_types_allowed=True)
 
 
 class RealtimeSessionErrorPayload(BaseModel):
-    type: Literal["error"] = "error"
+    type: EventType = "error"
     error: Exception
     event: RealtimeEvent | None = None
     model_config = ConfigDict(arbitrary_types_allowed=True)
