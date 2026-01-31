@@ -13,7 +13,6 @@ if TYPE_CHECKING:
         AsyncRealtimeSTTSession,
     )
     from .stt import RealtimeSTTClient, RealtimeSTTSession
-    from .stt_base import BaseRealtimeSTTSession
 
 __all__ = [
     "RealtimeAPI",
@@ -24,7 +23,6 @@ __all__ = [
     "AsyncRealtimeAPI",
     "AsyncRealtimeSTTClient",
     "AsyncRealtimeSTTSession",
-    "BaseRealtimeSTTSession",
 ]
 
 
@@ -36,8 +34,7 @@ class AsyncRealtimeAPI:
     def stt(self) -> AsyncRealtimeSTTClient:
         from .async_stt import AsyncRealtimeSTTClient
 
-        self._stt = AsyncRealtimeSTTClient(self._client)
-        return self._stt
+        return AsyncRealtimeSTTClient(self._client)
 
 
 class RealtimeAPI:
@@ -48,5 +45,4 @@ class RealtimeAPI:
     def stt(self) -> RealtimeSTTClient:
         from .stt import RealtimeSTTClient
 
-        self._stt = RealtimeSTTClient(self._client)
-        return self._stt
+        return RealtimeSTTClient(self._client)

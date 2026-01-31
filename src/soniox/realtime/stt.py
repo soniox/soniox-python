@@ -3,7 +3,7 @@ from __future__ import annotations
 import json
 from collections.abc import Callable, Iterator
 from types import TracebackType
-from typing import TYPE_CHECKING
+from typing import TYPE_CHECKING, Literal, TypeVar
 
 from websockets.exceptions import ConnectionClosed
 from websockets.sync.client import connect as sync_ws_connect
@@ -12,19 +12,91 @@ from ..errors import SonioxRealtimeError, SonioxValidationError
 from ..types.realtime import (
     RealtimeControlType,
     RealtimeEvent,
+    RealtimeSessionClosePayload,
+    RealtimeSessionErrorPayload,
+    RealtimeSessionEventPayload,
+    RealtimeSessionFinishedPayload,
+    RealtimeSessionOpenPayload,
     RealtimeSttConfig,
 )
-from .stt_base import BaseRealtimeSTTSession
 
 if TYPE_CHECKING:
     from ..client import SonioxClient
 
+ListenerType = Literal["open", "close", "finished", "error"]
+PayloadT = TypeVar("PayloadT", bound=RealtimeSessionEventPayload)
 
-class RealtimeSTTSession(BaseRealtimeSTTSession):
+OpenCallback = Callable[[RealtimeSessionOpenPayload, "RealtimeSTTSession"], None]
+CloseCallback = Callable[[RealtimeSessionClosePayload, "RealtimeSTTSession"], None]
+FinishedCallback = Callable[[RealtimeSessionFinishedPayload, "RealtimeSTTSession"], None]
+ErrorCallback = Callable[[RealtimeSessionErrorPayload, "RealtimeSTTSession"], None]
+
+
+class RealtimeSTTSession:
+    def __init__(self, url: str, config: RealtimeSttConfig) -> None:
+        self._url = url
+        self._config = config
+        self._ws = None
+        self._open_callbacks: list[OpenCallback] = []
+        self._close_callbacks: list[CloseCallback] = []
+        self._finished_callbacks: list[FinishedCallback] = []
+        self._error_callbacks: list[ErrorCallback] = []
+        self._open_event_emitted = False
+
+    @property
+    def config(self) -> RealtimeSttConfig:
+        return self._config
+
+    def on_open(self, callback: OpenCallback) -> None:
+        self._open_callbacks.append(callback)
+        if self._open_event_emitted:
+            self._emit_open()
+
+    def on_close(self, callback: CloseCallback) -> None:
+        self._close_callbacks.append(callback)
+
+    def on_finished(self, callback: FinishedCallback) -> None:
+        self._finished_callbacks.append(callback)
+
+    def on_error(self, callback: ErrorCallback) -> None:
+        self._error_callbacks.append(callback)
+
+    def _emit_open(self) -> None:
+        payload = RealtimeSessionOpenPayload()
+        for callback in self._open_callbacks:
+            callback(payload, self)
+
+    def _emit_close(self) -> None:
+        payload = RealtimeSessionClosePayload()
+        for callback in self._close_callbacks:
+            callback(payload, self)
+
+    def _emit_finished(self, event: RealtimeEvent) -> None:
+        payload = RealtimeSessionFinishedPayload(event=event)
+        for callback in self._finished_callbacks:
+            callback(payload, self)
+
+    def _emit_error(self, error: Exception, event: RealtimeEvent | None = None) -> None:
+        payload = RealtimeSessionErrorPayload(error=error, event=event)
+        for callback in self._error_callbacks:
+            callback(payload, self)
+
+    def _handle_received_event(self, event: RealtimeEvent) -> None:
+        if event.finished:
+            self._emit_finished(event)
+
+        if event.error_code:
+            error = SonioxRealtimeError(
+                f"Realtime error {event.error_code}: {event.error_message or 'unknown'}"
+            )
+            self._emit_error(error, event)
+            if not self._error_callbacks:
+                raise error
+
     def __enter__(self) -> RealtimeSTTSession:
         try:
             self._ws = sync_ws_connect(self._url)
-            self._ws.send(json.dumps(self._payload.model_dump(exclude_none=True)))
+            self._ws.send(json.dumps(self._config.model_dump(exclude_none=True)))
             self._emit_open()
             self._open_event_emitted = True
             return self

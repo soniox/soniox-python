@@ -1,9 +1,8 @@
 from __future__ import annotations
 
 import json
-from collections.abc import Callable
 from enum import Enum
-from typing import Literal, TypeVar
+from typing import Literal
 
 from pydantic import BaseModel, ConfigDict
 
@@ -62,12 +61,6 @@ class RealtimeSessionClosePayload(BaseModel):
     model_config = ConfigDict(arbitrary_types_allowed=True)
 
 
-class RealtimeSessionMessagePayload(BaseModel):
-    type: Literal["message"] = "message"
-    event: RealtimeEvent
-    model_config = ConfigDict(arbitrary_types_allowed=True)
-
-
 class RealtimeSessionFinishedPayload(BaseModel):
     type: Literal["finished"] = "finished"
     event: RealtimeEvent
@@ -77,17 +70,13 @@ class RealtimeSessionFinishedPayload(BaseModel):
 class RealtimeSessionErrorPayload(BaseModel):
     type: Literal["error"] = "error"
     error: Exception
+    event: RealtimeEvent | None = None
     model_config = ConfigDict(arbitrary_types_allowed=True)
 
 
 RealtimeSessionEventPayload = (
     RealtimeSessionOpenPayload
     | RealtimeSessionClosePayload
-    | RealtimeSessionMessagePayload
     | RealtimeSessionFinishedPayload
     | RealtimeSessionErrorPayload
 )
-
-# Callback types
-RealtimeEventCallback = Callable[[RealtimeSessionEventPayload], None]
-PayloadT = TypeVar("PayloadT", bound=RealtimeSessionEventPayload)
