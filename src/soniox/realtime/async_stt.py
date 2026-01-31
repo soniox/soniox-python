@@ -1,11 +1,9 @@
 from __future__ import annotations
 
-import asyncio
-import inspect
 import json
 from collections.abc import AsyncIterator, Awaitable, Callable
 from types import TracebackType
-from typing import TYPE_CHECKING, Literal, TypeVar, overload
+from typing import TYPE_CHECKING
 
 from websockets import connect as async_ws_connect
 from websockets.exceptions import ConnectionClosed
@@ -16,7 +14,6 @@ from ..types.realtime import (
     RealtimeEvent,
     RealtimeSessionClosePayload,
     RealtimeSessionErrorPayload,
-    RealtimeSessionEventPayload,
     RealtimeSessionFinishedPayload,
     RealtimeSessionOpenPayload,
     RealtimeSttConfig,
@@ -25,24 +22,21 @@ from ..types.realtime import (
 if TYPE_CHECKING:
     from ..client import AsyncSonioxClient
 
-ListenerType = Literal["open", "close", "finished", "error"]
-PayloadT = TypeVar("PayloadT", bound=RealtimeSessionEventPayload)
-
 AsyncOpenCallback = Callable[
     [RealtimeSessionOpenPayload, "AsyncRealtimeSTTSession"],
-    Awaitable[None] | None,
+    Awaitable[None],
 ]
 AsyncCloseCallback = Callable[
     [RealtimeSessionClosePayload, "AsyncRealtimeSTTSession"],
-    Awaitable[None] | None,
+    Awaitable[None],
 ]
 AsyncFinishedCallback = Callable[
     [RealtimeSessionFinishedPayload, "AsyncRealtimeSTTSession"],
-    Awaitable[None] | None,
+    Awaitable[None],
 ]
 AsyncErrorCallback = Callable[
     [RealtimeSessionErrorPayload, "AsyncRealtimeSTTSession"],
-    Awaitable[None] | None,
+    Awaitable[None],
 ]
 
 
@@ -55,7 +49,6 @@ class AsyncRealtimeSTTSession:
         self._close_callbacks: list[AsyncCloseCallback] = []
         self._finished_callbacks: list[AsyncFinishedCallback] = []
         self._error_callbacks: list[AsyncErrorCallback] = []
-        self._open_event_emitted = False
 
     @property
     def config(self) -> RealtimeSttConfig:
@@ -63,8 +56,6 @@ class AsyncRealtimeSTTSession:
 
     def on_open(self, callback: AsyncOpenCallback) -> None:
         self._open_callbacks.append(callback)
-        if self._open_event_emitted:
-            self._emit_open()
 
     def on_close(self, callback: AsyncCloseCallback) -> None:
         self._close_callbacks.append(callback)
@@ -78,22 +69,22 @@ class AsyncRealtimeSTTSession:
     async def _emit_open(self) -> None:
         payload = RealtimeSessionOpenPayload()
         for callback in self._open_callbacks:
-            callback(payload, self)
+            await callback(payload, self)
 
     async def _emit_close(self) -> None:
         payload = RealtimeSessionClosePayload()
         for callback in self._close_callbacks:
-            callback(payload, self)
+            await callback(payload, self)
 
     async def _emit_finished(self, event: RealtimeEvent) -> None:
         payload = RealtimeSessionFinishedPayload(event=event)
         for callback in self._finished_callbacks:
-            callback(payload, self)
+            await callback(payload, self)
 
     async def _emit_error(self, error: Exception, event: RealtimeEvent | None = None) -> None:
         payload = RealtimeSessionErrorPayload(error=error, event=event)
         for callback in self._error_callbacks:
-            callback(payload, self)
+            await callback(payload, self)
 
     async def _handle_received_event(self, event: RealtimeEvent) -> None:
         if event.finished:
@@ -112,7 +103,6 @@ class AsyncRealtimeSTTSession:
             self._ws = await async_ws_connect(self._url)
             await self._ws.send(json.dumps(self._config.model_dump(exclude_none=True)))
             await self._emit_open()
-            self._open_event_emitted = True
             return self
         except Exception:
             if self._ws:

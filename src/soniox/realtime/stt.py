@@ -3,7 +3,7 @@ from __future__ import annotations
 import json
 from collections.abc import Callable, Iterator
 from types import TracebackType
-from typing import TYPE_CHECKING, Literal, TypeVar
+from typing import TYPE_CHECKING
 
 from websockets.exceptions import ConnectionClosed
 from websockets.sync.client import connect as sync_ws_connect
@@ -14,7 +14,6 @@ from ..types.realtime import (
     RealtimeEvent,
     RealtimeSessionClosePayload,
     RealtimeSessionErrorPayload,
-    RealtimeSessionEventPayload,
     RealtimeSessionFinishedPayload,
     RealtimeSessionOpenPayload,
     RealtimeSttConfig,
@@ -22,9 +21,6 @@ from ..types.realtime import (
 
 if TYPE_CHECKING:
     from ..client import SonioxClient
-
-ListenerType = Literal["open", "close", "finished", "error"]
-PayloadT = TypeVar("PayloadT", bound=RealtimeSessionEventPayload)
 
 OpenCallback = Callable[[RealtimeSessionOpenPayload, "RealtimeSTTSession"], None]
 CloseCallback = Callable[[RealtimeSessionClosePayload, "RealtimeSTTSession"], None]
@@ -50,7 +46,8 @@ class RealtimeSTTSession:
     def on_open(self, callback: OpenCallback) -> None:
         self._open_callbacks.append(callback)
         if self._open_event_emitted:
-            self._emit_open()
+            payload = RealtimeSessionOpenPayload()
+            callback(payload, self)
 
     def on_close(self, callback: CloseCallback) -> None:
         self._close_callbacks.append(callback)
