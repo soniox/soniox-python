@@ -100,15 +100,27 @@ class RealtimeSTTSession:
     def send_finalize(self) -> None:
         self.send_control_message(RealtimeControlType.FINALIZE)
 
-    def receive_event(self) -> RealtimeEvent | None:
+    def recv_bytes(self) -> bytes:
         if not self._ws:
             raise SonioxRealtimeError("Realtime session is not connected")
         try:
-            raw = self._ws.recv()
+            message = self._ws.recv()
         except ConnectionClosed:
-            return None
+            return b""
+        if isinstance(message, str):
+            return message.encode("utf-8")
+        return message
 
+    def parse_event(self, raw: str | bytes) -> RealtimeEvent:
         return RealtimeEvent.validate_event(raw)
+
+    def receive_event(self) -> RealtimeEvent | None:
+        if not self._ws:
+            raise SonioxRealtimeError("Realtime session is not connected")
+        raw = self.recv_bytes()
+        if not raw:
+            return None
+        return self.parse_event(raw)
 
     def receive_events(self) -> Iterator[RealtimeEvent]:
         while True:
@@ -116,12 +128,12 @@ class RealtimeSTTSession:
             if event is None:
                 break
             yield event
-            if event.finished or event.error_code:
-                break
 
     def handle_events(self, handler: Callable[[RealtimeEvent], None]) -> None:
         for event in self.receive_events():
             handler(event)
+
+    enter = __enter__
 
 
 class RealtimeSTTClient:
