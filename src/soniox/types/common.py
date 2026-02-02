@@ -4,6 +4,7 @@ from pydantic import BaseModel, ConfigDict
 
 
 class Token(BaseModel):
+    """Token metadata emitted during realtime streaming transcriptions."""
     model_config = ConfigDict(extra="allow")
 
     text: str

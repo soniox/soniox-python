@@ -15,12 +15,14 @@ TemporaryApiKeyUsageType = Literal["transcribe_websocket"]
 
 
 class ApiErrorValidationError(BaseModel):
+    """Details a single validation error reported by the Soniox API."""
     error_type: str
     location: str
     message: str
 
 
 class ApiError(BaseModel):
+    """Structured representation of a non-2xx API response payload."""
     status_code: int
     error_type: str
     message: str
@@ -29,11 +31,13 @@ class ApiError(BaseModel):
 
 
 class GetFilesPayload(BaseModel):
+    """Parameters accepted by the file listing endpoint."""
     limit: int = Field(default=1000, ge=1, le=1000)
     cursor: str | None = None
 
 
 class File(BaseModel):
+    """Metadata describing an uploaded file in the Soniox API."""
     id: str
     filename: str
     size: int
@@ -42,30 +46,36 @@ class File(BaseModel):
 
 
 class GetFilesResponse(BaseModel):
+    """Paginated response returned when listing uploaded files."""
     files: list[File]
     next_page_cursor: str | None = None
 
 
 class UploadFilePayload(BaseModel):
+    """Optional metadata supplied at upload time."""
     client_reference_id: str | None = Field(default=None, max_length=256)
 
 
 class GetTranscriptionsPayload(BaseModel):
+    """Parameters for listing transcription jobs."""
     limit: int = Field(default=1000, ge=1, le=1000)
     cursor: str | None = None
 
 
 class StructuredContextGeneralItem(BaseModel):
+    """Single general context key/value pair for transcription context."""
     key: str
     value: str
 
 
 class StructuredContextTranslationTerm(BaseModel):
+    """Defines a translation term mapping used in structured context."""
     source: str
     target: str
 
 
 class StructuredContext(BaseModel):
+    """Optional structured context provided to the transcription engine."""
     general: list[StructuredContextGeneralItem] | None = None
     text: str | None = None
     terms: list[str] | None = None
@@ -73,6 +83,7 @@ class StructuredContext(BaseModel):
 
 
 class TranslationConfig(BaseModel):
+    """Configuration describing how translation should be performed."""
     type: TranslationType
     target_language: str | None = None
     language_a: str | None = None
@@ -80,6 +91,7 @@ class TranslationConfig(BaseModel):
 
 
 class CreateTranscriptionPayload(BaseModel):
+    """Payload sent to create an asynchronous transcription job."""
     model: str = "stt-async-v3"
     audio_url: str | None = None
     file_id: str | None = None
@@ -104,6 +116,7 @@ class CreateTranscriptionPayload(BaseModel):
 
 
 class CreateTranscriptionConfig(BaseModel):
+    """Helper config used when building transcription payloads."""
     model: str | None = None
     language_hints: list[str] | None = None
     language_hints_strict: bool | None = None
@@ -118,28 +131,33 @@ class CreateTranscriptionConfig(BaseModel):
 
 
 class CreateTemporaryApiKeyPayload(BaseModel):
+    """Payload for requesting a temporary API key (e.g., websocket)."""
     usage_type: TemporaryApiKeyUsageType
     expires_in_seconds: int = Field(..., ge=1, le=3600)
     client_reference_id: str | None = Field(default=None, max_length=256)
 
 
 class CreateTemporaryApiKeyResponse(BaseModel):
+    """Response data for a temp API key request."""
     api_key: str
     expires_at: datetime
 
 
 class Language(BaseModel):
+    """Represents a supported language for transcription or translation."""
     code: str
     name: str
 
 
 class TranslationTarget(BaseModel):
+    """Describes translation targets offered by a model."""
     target_language: str
     source_languages: list[str]
     exclude_source_languages: list[str]
 
 
 class Model(BaseModel):
+    """Describes a Soniox transcription model."""
     id: str
     aliased_model_id: str | None
     name: str
@@ -154,16 +172,19 @@ class Model(BaseModel):
 
 
 class GetModelsResponse(BaseModel):
+    """Response returned when listing available models."""
     models: list[Model]
 
 
 class TranscriptionTranscript(BaseModel):
+    """Transcript data including the full text and tokens."""
     id: str
     text: str
     tokens: list[Token]
 
 
 class Transcription(BaseModel):
+    """Represents a transcription job tracked by Soniox."""
     id: str
     status: TranscriptionStatus
     created_at: datetime
@@ -185,5 +206,6 @@ class Transcription(BaseModel):
 
 
 class GetTranscriptionsResponse(BaseModel):
+    """Paginated response for transcription listings."""
     transcriptions: list[Transcription]
     next_page_cursor: str | None = None

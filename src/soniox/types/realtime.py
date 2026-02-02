@@ -11,6 +11,7 @@ from .common import Token
 
 
 class RealtimeEvent(BaseModel):
+    """Event payload received from the realtime STT websocket."""
     model_config = ConfigDict(extra="allow")
 
     tokens: list[Token] = []
@@ -27,6 +28,7 @@ class RealtimeEvent(BaseModel):
 
 
 class RealtimeSttConfig(BaseModel):
+    """Configuration for initiating a realtime transcription session."""
     api_key: str | None = None
     model: str
     audio_format: str = "auto"
@@ -46,6 +48,7 @@ class RealtimeSttConfig(BaseModel):
 
 
 class RealtimeControlType(str, Enum):
+    """Control messages that can be sent over a realtime session."""
     FINISH = "finish"
     KEEP_ALIVE = "keep_alive"
     FINALIZE = "finalize"
@@ -55,22 +58,26 @@ EventType = Literal["open", "close", "finished", "error"]
 
 
 class RealtimeSessionOpenPayload(BaseModel):
+    """Event emitted when a realtime websocket session opens."""
     type: EventType = "open"
     model_config = ConfigDict(arbitrary_types_allowed=True)
 
 
 class RealtimeSessionClosePayload(BaseModel):
+    """Event emitted when a realtime websocket session closes."""
     type: EventType = "close"
     model_config = ConfigDict(arbitrary_types_allowed=True)
 
 
 class RealtimeSessionFinishedPayload(BaseModel):
+    """Event emitted when a realtime session finishes processing."""
     type: EventType = "finished"
     event: RealtimeEvent
     model_config = ConfigDict(arbitrary_types_allowed=True)
 
 
 class RealtimeSessionErrorPayload(BaseModel):
+    """Event emitted when a realtime session reports an error."""
     type: EventType = "error"
     error: Exception
     event: RealtimeEvent | None = None

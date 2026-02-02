@@ -54,6 +54,7 @@ class SonioxAPIError(SonioxError):
 
     @classmethod
     def from_response(cls, response: httpx.Response) -> SonioxAPIError:
+        """Parse an `httpx.Response` into a richer SDK error."""
         try:
             payload = response.json()
         except ValueError as exc:

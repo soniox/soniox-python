@@ -29,6 +29,8 @@ _DEFAULT_TIMEOUT_SEC = 30.0
 
 
 class _BaseSonioxClient:
+    """Shared configuration holder for sync and async Soniox clients."""
+
     def __init__(
         self,
         *,
@@ -56,6 +58,8 @@ class _BaseSonioxClient:
 
 
 class SonioxClient(_BaseSonioxClient):
+    """Synchronous Soniox REST client exposing API namespaces via httpx."""
+
     def __init__(
         self,
         *,
@@ -92,6 +96,7 @@ class SonioxClient(_BaseSonioxClient):
         data: Mapping[str, Any] | None = None,
         files: Mapping[str, Any] | None = None,
     ) -> httpx.Response:
+        """Perform a request against the configured Soniox REST endpoint."""
         return self._http_client.request(
             method,
             path,
@@ -158,6 +163,8 @@ class SonioxClient(_BaseSonioxClient):
 
 
 class AsyncSonioxClient(_BaseSonioxClient):
+    """Asynchronous Soniox REST client exposing HTTP and realtime helpers."""
+
     def __init__(
         self,
         api_key: str | None = None,
@@ -193,6 +200,7 @@ class AsyncSonioxClient(_BaseSonioxClient):
         data: Mapping[str, Any] | None = None,
         files: Mapping[str, Any] | None = None,
     ) -> httpx.Response:
+        """Perform a request against the configured Soniox REST endpoint."""
         return await self._http_client.request(
             method,
             path,

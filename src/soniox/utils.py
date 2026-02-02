@@ -20,6 +20,12 @@ def stream_audio(
     *,
     chunk_size_bytes: int = 4 * 1024,
 ) -> Iterator[bytes]:
+    """
+    Yield fixed-size chunks from an audio source.
+
+    Supports bytes, file paths, or binary streams and slices them into
+    `chunk_size_bytes` blocks for realtime transmission.
+    """
     if chunk_size_bytes <= 0:
         raise ValueError("chunk_size_bytes must be greater than zero")
 
@@ -44,6 +50,11 @@ async def stream_audio_async(
     *,
     chunk_size_bytes: int = 4 * 1024,
 ) -> AsyncIterator[bytes]:
+    """
+    Asynchronously yield fixed-size chunks from an audio source.
+
+    Mirrors `stream_audio` but produces an async iterator for later consumption.
+    """
     if chunk_size_bytes <= 0:
         raise ValueError("chunk_size_bytes must be greater than zero")
 
@@ -66,12 +77,14 @@ async def stream_audio_async(
 
 
 async def _async_iter_chunks(handle: BinaryIO, chunk_size: int) -> AsyncIterator[bytes]:
+    """Asynchronously read a binary stream in fixed-size chunks."""
     loop = asyncio.get_running_loop()
     while chunk := await loop.run_in_executor(None, handle.read, chunk_size):
         yield chunk
 
 
 def _iter_chunks(handle: BinaryIO, chunk_size: int) -> Iterable[bytes]:
+    """Synchronously read a binary stream in fixed-size chunks."""
     while chunk := handle.read(chunk_size):
         yield chunk
 
@@ -82,6 +95,9 @@ def throttle_audio(
     chunk_size_bytes: int = 4096,
     delay_seconds: float = 0.0,
 ) -> Iterator[bytes]:
+    """
+    Yield audio chunks at a regulated pace, optionally sleeping between yields.
+    """
     if delay_seconds < 0:
         raise ValueError("delay_seconds must be greater than or equal to zero")
 
@@ -97,6 +113,7 @@ async def throttle_audio_async(
     chunk_size_bytes: int = 32 * 1024,
     delay_seconds: float = 0.0,
 ) -> AsyncIterator[bytes]:
+    """Async counterpart of `throttle_audio`, yielding chunks with optional delay."""
     if delay_seconds < 0:
         raise ValueError("delay_seconds must be greater than or equal to zero")
 
@@ -143,6 +160,8 @@ def start_audio_thread(
     name: str | None = None,
     daemon: bool = True,
 ) -> threading.Thread:
+    """Stream audio into the session on a background thread."""
+
     def _stream() -> None:
         session.send_bytes(chunks)
 
@@ -158,6 +177,12 @@ def start_keep_alive_thread(
     name: str | None = None,
     daemon: bool = True,
 ) -> tuple[threading.Thread, threading.Event]:
+    """
+    Start a background thread that periodically sends keep-alives to the session.
+
+    Returns:
+        A tuple of (thread, stop_event). Setting `stop_event` will stop the loop.
+    """
     if not 1.0 <= interval_seconds <= 20.0:
         raise ValueError("interval_seconds must be between 1 and 20 seconds")
 
@@ -176,11 +201,14 @@ def start_keep_alive_thread(
 
 
 async def keep_alive_async(
-    session: "AsyncRealtimeSTTSession",
+    session: AsyncRealtimeSTTSession,
     *,
     interval_seconds: float = 10.0,
     stop_event: asyncio.Event | None = None,
 ) -> None:
+    """
+    Async helper that repeatedly sends keep-alive messages until told to stop.
+    """
     if not 1.0 <= interval_seconds <= 20.0:
         raise ValueError("interval_seconds must be between 1 and 20 seconds")
 
