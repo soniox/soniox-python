@@ -20,7 +20,7 @@ class ModelsAPI:
         Performs a GET request to ``/models``.
 
         Raises:
-            - SonioxAPIError
+            SonioxAPIError: When the API returns an error.
         """
         response = self._client.request("GET", "/models")
         return parse_response(response, GetModelsResponse)

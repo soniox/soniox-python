@@ -32,7 +32,7 @@ class TranscriptionsAPI:
         Performs a GET request to ``/transcriptions`` with optional pagination.
 
         Raises:
-            - SonioxAPIError
+            SonioxAPIError: When the API returns an error.
         """
         payload = GetTranscriptionsPayload(limit=limit, cursor=cursor)
         params = payload.model_dump(exclude_none=True)
@@ -46,7 +46,7 @@ class TranscriptionsAPI:
         Iterates through all pages and deletes each transcription.
 
         Raises:
-            - SonioxAPIError
+            SonioxAPIError: When the API returns an error.
         """
         cursor: str | None = None
         while True:
@@ -72,7 +72,7 @@ class TranscriptionsAPI:
         Performs a POST request to ``/transcriptions``.
 
         Raises:
-            - SonioxAPIError
+            SonioxAPIError: When the API returns an error.
         """
         if file_id is not None and audio_url is not None:
             raise SonioxValidationError("Provide either file_id or audio_url, not both")
@@ -95,7 +95,7 @@ class TranscriptionsAPI:
         Performs a GET request to ``/transcriptions/{transcription_id}``.
 
         Raises:
-            - SonioxAPIError
+            SonioxAPIError: When the API returns an error.
         """
         response = self._client.request("GET", f"/transcriptions/{transcription_id}")
         return parse_response(response, Transcription)
@@ -107,7 +107,7 @@ class TranscriptionsAPI:
         Returns ``None`` if the transcription does not exist.
 
         Raises:
-            - SonioxAPIError
+            SonioxAPIError: When the API returns an error.
         """
         try:
             return self.get(transcription_id)
@@ -121,7 +121,7 @@ class TranscriptionsAPI:
         Performs a DELETE request to ``/transcriptions/{transcription_id}``.
 
         Raises:
-            - SonioxAPIError
+            SonioxAPIError: When the API returns an error.
         """
         response = self._client.request("DELETE", f"/transcriptions/{transcription_id}")
         ensure_success(response)
@@ -133,7 +133,7 @@ class TranscriptionsAPI:
         Ignores missing transcriptions.
 
         Raises:
-            - SonioxAPIError
+            SonioxAPIError: When the API returns an error.
         """
         try:
             self.delete(transcription_id)
@@ -145,7 +145,7 @@ class TranscriptionsAPI:
         Delete a transcription and its associated uploaded file.
 
         Raises:
-            - SonioxAPIError
+            SonioxAPIError: When the API returns an error.
         """
         transcription = self.get(transcription_id)
         self.delete(transcription_id)
@@ -159,7 +159,7 @@ class TranscriptionsAPI:
         Performs a GET request to ``/transcriptions/{transcription_id}/transcript``.
 
         Raises:
-            - SonioxAPIError
+            SonioxAPIError: When the API returns an error.
         """
         response = self._client.request("GET", f"/transcriptions/{transcription_id}/transcript")
         return parse_response(response, TranscriptionTranscript)
@@ -175,8 +175,8 @@ class TranscriptionsAPI:
         Poll a transcription until it leaves the queued or processing state.
 
         Raises:
-            - SonioxAPIError
-            - TimeoutError
+            SonioxAPIError: When the API returns an error.
+            TimeoutError: Waiting for the transcription to finish exceeded `timeout_sec`.
         """
         deadline = time.monotonic() + timeout_sec if timeout_sec is not None else None
         while True:
@@ -199,7 +199,7 @@ class TranscriptionsAPI:
         Create a transcription from an audio URL.
 
         Raises:
-            - SonioxAPIError
+            SonioxAPIError: When the API returns an error.
         """
         return self.create(
             model=model,
@@ -220,7 +220,7 @@ class TranscriptionsAPI:
         Create a transcription from an existing uploaded file.
 
         Raises:
-            - SonioxAPIError
+            SonioxAPIError: When the API returns an error.
         """
         return self.create(
             model=model,
@@ -242,7 +242,7 @@ class TranscriptionsAPI:
         Upload a file and create a transcription from it.
 
         Raises:
-            - SonioxAPIError
+            SonioxAPIError: When the API returns an error.
         """
         uploaded = self._client.files.upload(
             file,
@@ -273,8 +273,8 @@ class TranscriptionsAPI:
         Validates mutually exclusive inputs before submission.
 
         Raises:
-            - SonioxAPIError
-            - SonioxValidationError
+            SonioxAPIError: When the API returns an error.
+            SonioxValidationError: When the payload fails validation.
         """
         if file is not None:
             if audio_url or file_id:
@@ -319,7 +319,7 @@ class TranscriptionsAPI:
         Upload a file, configure a webhook, and start transcription.
 
         Raises:
-            - SonioxAPIError
+            SonioxAPIError: When the API returns an error.
         """
         webhook_fields = self._client.webhooks.webhook_payload(webhook_url, auth=webhook_auth)
         uploaded = self._client.files.upload(
@@ -360,9 +360,9 @@ class TranscriptionsAPI:
         the transcription and the uploaded file after completion.
 
         Raises:
-            - SonioxAPIError
-            - SonioxValidationError
-            - TimeoutError
+            SonioxAPIError: When the API returns an error.
+            SonioxValidationError: When the payload fails validation.
+            TimeoutError: Waiting for the transcription to finish exceeded `timeout_sec`.
         """
         transcription = self.transcribe(
             model=model,
@@ -407,9 +407,9 @@ class TranscriptionsAPI:
         Optionally deletes the transcription and uploaded file after completion.
 
         Raises:
-            - SonioxAPIError
-            - SonioxValidationError
-            - TimeoutError
+            SonioxAPIError: When the API returns an error.
+            SonioxValidationError: When the payload fails validation.
+            TimeoutError: Waiting for the transcription to finish exceeded `timeout_sec`.
         """
         transcription = self.transcribe_and_wait(
             model=model,

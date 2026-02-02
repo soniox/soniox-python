@@ -20,7 +20,7 @@ class AsyncModelsAPI:
         Performs a GET request to ``/models``.
 
         Raises:
-            - SonioxAPIError
+            SonioxAPIError: When the API returns an error.
         """
         response = await self._client.request("GET", "/models")
         return await parse_async_response(response, GetModelsResponse)

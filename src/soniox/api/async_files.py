@@ -31,7 +31,7 @@ class AsyncFilesAPI:
         Performs a GET request to ``/files`` with optional pagination.
 
         Raises:
-            - SonioxAPIError
+            SonioxAPIError: When the API returns an error.
         """
         payload = GetFilesPayload(limit=limit, cursor=cursor)
         params = payload.model_dump(exclude_none=True)
@@ -45,7 +45,7 @@ class AsyncFilesAPI:
         Performs a GET request to ``/files/{file_id}``.
 
         Raises:
-            - SonioxAPIError
+            SonioxAPIError: When the API returns an error.
         """
         response = await self._client.request("GET", f"/files/{file_id}")
         return await parse_async_response(response, File)
@@ -57,7 +57,7 @@ class AsyncFilesAPI:
         Returns ``None`` if the file does not exist.
 
         Raises:
-            - SonioxAPIError
+            SonioxAPIError: When the API returns an error.
         """
         try:
             return await self.get(file_id)
@@ -71,7 +71,7 @@ class AsyncFilesAPI:
         Performs a DELETE request to ``/files/{file_id}``.
 
         Raises:
-            - SonioxAPIError
+            SonioxAPIError: When the API returns an error.
         """
         response = await self._client.request("DELETE", f"/files/{file_id}")
         ensure_success(response)
@@ -83,7 +83,7 @@ class AsyncFilesAPI:
         Ignores missing files.
 
         Raises:
-            - SonioxAPIError
+            SonioxAPIError: When the API returns an error.
         """
         try:
             await self.delete(file_id)
@@ -103,7 +103,7 @@ class AsyncFilesAPI:
         Performs a multipart POST request to ``/files``.
 
         Raises:
-            - SonioxAPIError
+            SonioxAPIError: When the API returns an error.
         """
         file_obj, effective_filename, close_after = normalize_file(file, filename=filename)
         payload = UploadFilePayload(client_reference_id=client_reference_id)
@@ -130,7 +130,7 @@ class AsyncFilesAPI:
         Iterates through all pages and deletes each file.
 
         Raises:
-            - SonioxAPIError
+            SonioxAPIError: When the API returns an error.
         """
         cursor: str | None = None
         while True:

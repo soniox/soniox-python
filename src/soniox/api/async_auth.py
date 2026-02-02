@@ -30,7 +30,7 @@ class AsyncAuthAPI:
         Performs a POST request to ``/auth/temporary-api-key``.
 
         Raises:
-            - SonioxAPIError
+            SonioxAPIError: When the API returns an error.
         """
         payload = CreateTemporaryApiKeyPayload(
             usage_type=usage_type,

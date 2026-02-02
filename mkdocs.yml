@@ -19,7 +19,9 @@ nav:
   - API:
       - Overview: api/index.md
       - HTTP Clients: api/client.md
+      - REST APIs: api/rest.md
       - Realtime: api/realtime.md
+      - Realtime Sessions: api/realtime_session.md
       - Errors: api/errors.md
       - Types: api/types.md
       - Utilities: api/utils.md

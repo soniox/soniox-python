@@ -53,7 +53,7 @@ class SonioxWebhooksAPI:
         Verify a webhook signature from headers.
 
         Raises:
-            - InvalidWebhookSignatureError
+            InvalidWebhookSignatureError: When the webhook signature cannot be validated.
         """
         auth_config = auth or _resolve_webhook_auth(
             self._webhook_header,
@@ -80,7 +80,7 @@ class SonioxWebhooksAPI:
         Returns a WebhookEvent.
 
         Raises:
-            - InvalidWebhookSignatureError
+            InvalidWebhookSignatureError: When the webhook signature cannot be validated.
         """
         self.verify_signature(headers, auth=auth)
         body = payload.decode("utf-8") if isinstance(payload, bytes | bytearray) else payload

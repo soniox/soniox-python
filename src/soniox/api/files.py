@@ -27,7 +27,7 @@ class FilesAPI:
         Performs a GET request to ``/files`` with optional pagination.
 
         Raises:
-            - SonioxAPIError
+            SonioxAPIError: When the API returns an error.
         """
         payload = GetFilesPayload(limit=limit, cursor=cursor)
         params = payload.model_dump(exclude_none=True)
@@ -41,7 +41,7 @@ class FilesAPI:
         Performs a GET request to ``/files/{file_id}``.
 
         Raises:
-            - SonioxAPIError
+            SonioxAPIError: When the API returns an error.
         """
         response = self._client.request("GET", f"/files/{file_id}")
         return parse_response(response, File)
@@ -53,7 +53,7 @@ class FilesAPI:
         Returns ``None`` if the file does not exist.
 
         Raises:
-            - SonioxAPIError
+            SonioxAPIError: When the API returns an error.
         """
         try:
             return self.get(file_id)
@@ -67,7 +67,7 @@ class FilesAPI:
         Performs a DELETE request to ``/files/{file_id}``.
 
         Raises:
-            - SonioxAPIError
+            SonioxAPIError: When the API returns an error.
         """
         response = self._client.request("DELETE", f"/files/{file_id}")
         ensure_success(response)
@@ -79,7 +79,7 @@ class FilesAPI:
         Ignores missing files.
 
         Raises:
-            - SonioxAPIError
+            SonioxAPIError: When the API returns an error.
         """
         try:
             self.delete(file_id)
@@ -99,7 +99,7 @@ class FilesAPI:
         Performs a multipart POST request to ``/files``.
 
         Raises:
-            - SonioxAPIError
+            SonioxAPIError: When the API returns an error.
         """
         file_obj, effective_filename, close_after = normalize_file(file, filename=filename)
         payload = UploadFilePayload(client_reference_id=client_reference_id)
@@ -126,7 +126,7 @@ class FilesAPI:
         Iterates through all pages and deletes each file.
 
         Raises:
-            - SonioxAPIError
+            SonioxAPIError: When the API returns an error.
         """
         cursor: str | None = None
         while True:
