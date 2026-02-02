@@ -20,6 +20,7 @@ class RealtimeSTTSession:
         self._url = url
         self._config = config
         self._ws = None
+        self._last_message: RealtimeEvent | None = None
 
     @property
     def config(self) -> RealtimeSttConfig:
@@ -114,13 +115,19 @@ class RealtimeSTTSession:
     def parse_event(self, raw: str | bytes) -> RealtimeEvent:
         return RealtimeEvent.validate_event(raw)
 
+    @property
+    def last_message(self) -> RealtimeEvent | None:
+        return self._last_message
+
     def receive_event(self) -> RealtimeEvent | None:
         if not self._ws:
             raise SonioxRealtimeError("Realtime session is not connected")
         raw = self.recv_bytes()
         if not raw:
             return None
-        return self.parse_event(raw)
+        event = self.parse_event(raw)
+        self._last_message = event
+        return event
 
     def receive_events(self) -> Iterator[RealtimeEvent]:
         while True:
