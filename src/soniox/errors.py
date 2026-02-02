@@ -55,20 +55,27 @@ class SonioxAPIError(SonioxError):
     @classmethod
     def from_response(cls, response: httpx.Response) -> SonioxAPIError:
         """Parse an `httpx.Response` into a richer SDK error."""
+        api_error: ApiError | None = None
+        payload = None
         try:
             payload = response.json()
-        except ValueError as exc:
-            raise SonioxAPIError(
-                "Unable to decode error response payload", response=response
-            ) from exc
-
-        try:
-            api_error = ApiError.model_validate(payload)
-        except ValidationError as exc:
-            raise SonioxAPIError("Unable to parse API error schema", response=response) from exc
-
+        except ValueError:
+            pass
+        if payload is not None:
+            try:
+                api_error = ApiError.model_validate(payload)
+            except ValidationError as exc:
+                raise SonioxAPIError("Unable to parse API error schema", response=response) from exc
         error_cls = cls._map_status_to_exception(response.status_code)
-        return error_cls(api_error.message, api_error=api_error, response=response)
+        if api_error:
+            message = api_error.message
+        else:
+            text = (response.text or "").strip()
+            if text.lower().startswith("<!doctype") or text.startswith("<html"):
+                message = response.reason_phrase
+            else:
+                message = text or response.reason_phrase
+        return error_cls(message, api_error=api_error, response=response)
 
     @classmethod
     def _map_status_to_exception(cls, status_code: int) -> type[SonioxAPIError]:
