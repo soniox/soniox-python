@@ -86,11 +86,7 @@ drop non-final tokens until the first chunk of final text is available for your 
 
 ### Documentation & helpers
 
-- `mkdocs serve` builds `docs/` locally; the sidebar mirrors the API reference generated in
-  `generated-docs/`.
-- `preload.py` shows small snippets for syncing files, creating transcriptions, and attaching
-  real-time sessions—handy when iterating in REPLs.
-- `assets/` contains sample audio to exercise the examples without uploading your own files.
+- Generate docs with: `pydoc-markdown`. File is created under `/docs` directory.
 
 ## Resources
 

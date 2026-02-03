@@ -1,3 +1,197 @@
+# API Reference
+
+* [errors](#errors)
+  * [SonioxError](#errors.SonioxError)
+  * [SonioxValidationError](#errors.SonioxValidationError)
+  * [SonioxAPIError](#errors.SonioxAPIError)
+    * [from\_response](#errors.SonioxAPIError.from_response)
+  * [SonioxAuthenticationError](#errors.SonioxAuthenticationError)
+  * [SonioxInvalidRequestError](#errors.SonioxInvalidRequestError)
+  * [SonioxNotFoundError](#errors.SonioxNotFoundError)
+  * [SonioxConflictError](#errors.SonioxConflictError)
+  * [SonioxRateLimitError](#errors.SonioxRateLimitError)
+  * [SonioxServerError](#errors.SonioxServerError)
+  * [InvalidWebhookSignatureError](#errors.InvalidWebhookSignatureError)
+  * [SonioxRealtimeError](#errors.SonioxRealtimeError)
+* [\_\_init\_\_](#__init__)
+* [utils](#utils)
+  * [stream\_audio](#utils.stream_audio)
+  * [stream\_audio\_async](#utils.stream_audio_async)
+  * [throttle\_audio](#utils.throttle_audio)
+  * [throttle\_audio\_async](#utils.throttle_audio_async)
+  * [render\_tokens](#utils.render_tokens)
+  * [start\_audio\_thread](#utils.start_audio_thread)
+  * [start\_keep\_alive\_thread](#utils.start_keep_alive_thread)
+  * [keep\_alive\_async](#utils.keep_alive_async)
+* [client](#client)
+  * [SonioxClient](#client.SonioxClient)
+    * [request](#client.SonioxClient.request)
+    * [close](#client.SonioxClient.close)
+  * [AsyncSonioxClient](#client.AsyncSonioxClient)
+    * [request](#client.AsyncSonioxClient.request)
+    * [aclose](#client.AsyncSonioxClient.aclose)
+* [types](#types)
+* [types.common](#types.common)
+  * [Token](#types.common.Token)
+* [types.webhooks](#types.webhooks)
+  * [WebhookAuthConfig](#types.webhooks.WebhookAuthConfig)
+  * [WebhookEvent](#types.webhooks.WebhookEvent)
+* [types.realtime](#types.realtime)
+  * [RealtimeEvent](#types.realtime.RealtimeEvent)
+  * [RealtimeSTTConfig](#types.realtime.RealtimeSTTConfig)
+  * [RealtimeControlType](#types.realtime.RealtimeControlType)
+  * [RealtimeSessionOpenPayload](#types.realtime.RealtimeSessionOpenPayload)
+  * [RealtimeSessionClosePayload](#types.realtime.RealtimeSessionClosePayload)
+  * [RealtimeSessionFinishedPayload](#types.realtime.RealtimeSessionFinishedPayload)
+  * [RealtimeSessionErrorPayload](#types.realtime.RealtimeSessionErrorPayload)
+* [types.api](#types.api)
+  * [ApiErrorValidationError](#types.api.ApiErrorValidationError)
+  * [ApiError](#types.api.ApiError)
+  * [GetFilesPayload](#types.api.GetFilesPayload)
+  * [File](#types.api.File)
+  * [GetFilesResponse](#types.api.GetFilesResponse)
+  * [UploadFilePayload](#types.api.UploadFilePayload)
+  * [GetTranscriptionsPayload](#types.api.GetTranscriptionsPayload)
+  * [StructuredContextGeneralItem](#types.api.StructuredContextGeneralItem)
+  * [StructuredContextTranslationTerm](#types.api.StructuredContextTranslationTerm)
+  * [StructuredContext](#types.api.StructuredContext)
+  * [TranslationConfig](#types.api.TranslationConfig)
+  * [CreateTranscriptionPayload](#types.api.CreateTranscriptionPayload)
+  * [CreateTranscriptionConfig](#types.api.CreateTranscriptionConfig)
+  * [CreateTemporaryApiKeyPayload](#types.api.CreateTemporaryApiKeyPayload)
+  * [CreateTemporaryApiKeyResponse](#types.api.CreateTemporaryApiKeyResponse)
+  * [Language](#types.api.Language)
+  * [TranslationTarget](#types.api.TranslationTarget)
+  * [Model](#types.api.Model)
+  * [GetModelsResponse](#types.api.GetModelsResponse)
+  * [TranscriptionTranscript](#types.api.TranscriptionTranscript)
+  * [Transcription](#types.api.Transcription)
+  * [GetTranscriptionsResponse](#types.api.GetTranscriptionsResponse)
+* [api](#api)
+* [api.webhooks](#api.webhooks)
+  * [SonioxWebhooksAPI](#api.webhooks.SonioxWebhooksAPI)
+    * [verify\_signature](#api.webhooks.SonioxWebhooksAPI.verify_signature)
+    * [unwrap](#api.webhooks.SonioxWebhooksAPI.unwrap)
+    * [webhook\_payload](#api.webhooks.SonioxWebhooksAPI.webhook_payload)
+* [api.files](#api.files)
+  * [FilesAPI](#api.files.FilesAPI)
+    * [list](#api.files.FilesAPI.list)
+    * [get](#api.files.FilesAPI.get)
+    * [get\_or\_none](#api.files.FilesAPI.get_or_none)
+    * [delete](#api.files.FilesAPI.delete)
+    * [delete\_if\_exists](#api.files.FilesAPI.delete_if_exists)
+    * [upload](#api.files.FilesAPI.upload)
+    * [delete\_all](#api.files.FilesAPI.delete_all)
+* [api.async\_files](#api.async_files)
+  * [AsyncFilesAPI](#api.async_files.AsyncFilesAPI)
+    * [list](#api.async_files.AsyncFilesAPI.list)
+    * [get](#api.async_files.AsyncFilesAPI.get)
+    * [get\_or\_none](#api.async_files.AsyncFilesAPI.get_or_none)
+    * [delete](#api.async_files.AsyncFilesAPI.delete)
+    * [delete\_if\_exists](#api.async_files.AsyncFilesAPI.delete_if_exists)
+    * [upload](#api.async_files.AsyncFilesAPI.upload)
+    * [delete\_all](#api.async_files.AsyncFilesAPI.delete_all)
+* [api.auth](#api.auth)
+  * [AuthAPI](#api.auth.AuthAPI)
+    * [create\_temporary\_api\_key](#api.auth.AuthAPI.create_temporary_api_key)
+* [api.models](#api.models)
+  * [ModelsAPI](#api.models.ModelsAPI)
+    * [list](#api.models.ModelsAPI.list)
+* [api.async\_webhooks](#api.async_webhooks)
+* [api.\_utils](#api._utils)
+  * [normalize\_file](#api._utils.normalize_file)
+* [api.async\_auth](#api.async_auth)
+  * [AsyncAuthAPI](#api.async_auth.AsyncAuthAPI)
+    * [create\_temporary\_api\_key](#api.async_auth.AsyncAuthAPI.create_temporary_api_key)
+* [api.async\_transcriptions](#api.async_transcriptions)
+  * [AsyncTranscriptionsAPI](#api.async_transcriptions.AsyncTranscriptionsAPI)
+    * [list](#api.async_transcriptions.AsyncTranscriptionsAPI.list)
+    * [delete\_all](#api.async_transcriptions.AsyncTranscriptionsAPI.delete_all)
+    * [create](#api.async_transcriptions.AsyncTranscriptionsAPI.create)
+    * [get](#api.async_transcriptions.AsyncTranscriptionsAPI.get)
+    * [get\_or\_none](#api.async_transcriptions.AsyncTranscriptionsAPI.get_or_none)
+    * [delete](#api.async_transcriptions.AsyncTranscriptionsAPI.delete)
+    * [delete\_if\_exists](#api.async_transcriptions.AsyncTranscriptionsAPI.delete_if_exists)
+    * [destroy](#api.async_transcriptions.AsyncTranscriptionsAPI.destroy)
+    * [get\_transcript](#api.async_transcriptions.AsyncTranscriptionsAPI.get_transcript)
+    * [wait](#api.async_transcriptions.AsyncTranscriptionsAPI.wait)
+    * [transcribe\_from\_url](#api.async_transcriptions.AsyncTranscriptionsAPI.transcribe_from_url)
+    * [transcribe\_from\_file\_id](#api.async_transcriptions.AsyncTranscriptionsAPI.transcribe_from_file_id)
+    * [transcribe\_from\_file](#api.async_transcriptions.AsyncTranscriptionsAPI.transcribe_from_file)
+    * [transcribe](#api.async_transcriptions.AsyncTranscriptionsAPI.transcribe)
+    * [transcribe\_file\_with\_webhook](#api.async_transcriptions.AsyncTranscriptionsAPI.transcribe_file_with_webhook)
+    * [transcribe\_and\_wait](#api.async_transcriptions.AsyncTranscriptionsAPI.transcribe_and_wait)
+    * [transcribe\_and\_wait\_with\_tokens](#api.async_transcriptions.AsyncTranscriptionsAPI.transcribe_and_wait_with_tokens)
+* [api.async\_models](#api.async_models)
+  * [AsyncModelsAPI](#api.async_models.AsyncModelsAPI)
+    * [list](#api.async_models.AsyncModelsAPI.list)
+* [api.transcriptions](#api.transcriptions)
+  * [TranscriptionsAPI](#api.transcriptions.TranscriptionsAPI)
+    * [list](#api.transcriptions.TranscriptionsAPI.list)
+    * [delete\_all](#api.transcriptions.TranscriptionsAPI.delete_all)
+    * [create](#api.transcriptions.TranscriptionsAPI.create)
+    * [get](#api.transcriptions.TranscriptionsAPI.get)
+    * [get\_or\_none](#api.transcriptions.TranscriptionsAPI.get_or_none)
+    * [delete](#api.transcriptions.TranscriptionsAPI.delete)
+    * [delete\_if\_exists](#api.transcriptions.TranscriptionsAPI.delete_if_exists)
+    * [destroy](#api.transcriptions.TranscriptionsAPI.destroy)
+    * [get\_transcript](#api.transcriptions.TranscriptionsAPI.get_transcript)
+    * [wait](#api.transcriptions.TranscriptionsAPI.wait)
+    * [transcribe\_from\_url](#api.transcriptions.TranscriptionsAPI.transcribe_from_url)
+    * [transcribe\_from\_file\_id](#api.transcriptions.TranscriptionsAPI.transcribe_from_file_id)
+    * [transcribe\_from\_file](#api.transcriptions.TranscriptionsAPI.transcribe_from_file)
+    * [transcribe](#api.transcriptions.TranscriptionsAPI.transcribe)
+    * [transcribe\_file\_with\_webhook](#api.transcriptions.TranscriptionsAPI.transcribe_file_with_webhook)
+    * [transcribe\_and\_wait](#api.transcriptions.TranscriptionsAPI.transcribe_and_wait)
+    * [transcribe\_and\_wait\_with\_tokens](#api.transcriptions.TranscriptionsAPI.transcribe_and_wait_with_tokens)
+* [realtime](#realtime)
+  * [AsyncRealtimeAPI](#realtime.AsyncRealtimeAPI)
+  * [RealtimeAPI](#realtime.RealtimeAPI)
+* [realtime.stt](#realtime.stt)
+  * [RealtimeSTTSession](#realtime.stt.RealtimeSTTSession)
+    * [\_\_init\_\_](#realtime.stt.RealtimeSTTSession.__init__)
+    * [config](#realtime.stt.RealtimeSTTSession.config)
+    * [\_\_enter\_\_](#realtime.stt.RealtimeSTTSession.__enter__)
+    * [\_\_exit\_\_](#realtime.stt.RealtimeSTTSession.__exit__)
+    * [close](#realtime.stt.RealtimeSTTSession.close)
+    * [send\_byte\_chunk](#realtime.stt.RealtimeSTTSession.send_byte_chunk)
+    * [send\_bytes](#realtime.stt.RealtimeSTTSession.send_bytes)
+    * [send\_control\_message](#realtime.stt.RealtimeSTTSession.send_control_message)
+    * [send\_finish](#realtime.stt.RealtimeSTTSession.send_finish)
+    * [send\_keep\_alive](#realtime.stt.RealtimeSTTSession.send_keep_alive)
+    * [send\_finalize](#realtime.stt.RealtimeSTTSession.send_finalize)
+    * [recv\_bytes](#realtime.stt.RealtimeSTTSession.recv_bytes)
+    * [parse\_event](#realtime.stt.RealtimeSTTSession.parse_event)
+    * [last\_message](#realtime.stt.RealtimeSTTSession.last_message)
+    * [receive\_event](#realtime.stt.RealtimeSTTSession.receive_event)
+    * [receive\_events](#realtime.stt.RealtimeSTTSession.receive_events)
+    * [handle\_events](#realtime.stt.RealtimeSTTSession.handle_events)
+  * [RealtimeSTTClient](#realtime.stt.RealtimeSTTClient)
+    * [\_\_init\_\_](#realtime.stt.RealtimeSTTClient.__init__)
+    * [connect](#realtime.stt.RealtimeSTTClient.connect)
+* [realtime.async\_stt](#realtime.async_stt)
+  * [AsyncRealtimeSTTSession](#realtime.async_stt.AsyncRealtimeSTTSession)
+    * [\_\_init\_\_](#realtime.async_stt.AsyncRealtimeSTTSession.__init__)
+    * [config](#realtime.async_stt.AsyncRealtimeSTTSession.config)
+    * [\_\_aenter\_\_](#realtime.async_stt.AsyncRealtimeSTTSession.__aenter__)
+    * [\_\_aexit\_\_](#realtime.async_stt.AsyncRealtimeSTTSession.__aexit__)
+    * [close](#realtime.async_stt.AsyncRealtimeSTTSession.close)
+    * [send\_byte\_chunk](#realtime.async_stt.AsyncRealtimeSTTSession.send_byte_chunk)
+    * [send\_bytes](#realtime.async_stt.AsyncRealtimeSTTSession.send_bytes)
+    * [send\_control\_message](#realtime.async_stt.AsyncRealtimeSTTSession.send_control_message)
+    * [send\_finish](#realtime.async_stt.AsyncRealtimeSTTSession.send_finish)
+    * [send\_keep\_alive](#realtime.async_stt.AsyncRealtimeSTTSession.send_keep_alive)
+    * [send\_finalize](#realtime.async_stt.AsyncRealtimeSTTSession.send_finalize)
+    * [recv\_bytes](#realtime.async_stt.AsyncRealtimeSTTSession.recv_bytes)
+    * [parse\_event](#realtime.async_stt.AsyncRealtimeSTTSession.parse_event)
+    * [last\_message](#realtime.async_stt.AsyncRealtimeSTTSession.last_message)
+    * [receive\_event](#realtime.async_stt.AsyncRealtimeSTTSession.receive_event)
+    * [receive\_events](#realtime.async_stt.AsyncRealtimeSTTSession.receive_events)
+    * [handle\_events](#realtime.async_stt.AsyncRealtimeSTTSession.handle_events)
+  * [AsyncRealtimeSTTClient](#realtime.async_stt.AsyncRealtimeSTTClient)
+    * [\_\_init\_\_](#realtime.async_stt.AsyncRealtimeSTTClient.__init__)
+    * [connect](#realtime.async_stt.AsyncRealtimeSTTClient.connect)
+
 <a id="errors"></a>
 
 # errors
@@ -377,12 +571,12 @@ class RealtimeEvent(BaseModel)
 
 Event payload received from the realtime STT websocket.
 
-<a id="types.realtime.RealtimeSttConfig"></a>
+<a id="types.realtime.RealtimeSTTConfig"></a>
 
-## RealtimeSttConfig Objects
+## RealtimeSTTConfig Objects
 
 ```python
-class RealtimeSttConfig(BaseModel)
+class RealtimeSTTConfig(BaseModel)
 ```
 
 Configuration for initiating a realtime transcription session.
@@ -1857,7 +2051,7 @@ Instances are designed to be used as context managers.
 #### \_\_init\_\_
 
 ```python
-def __init__(url: str, config: RealtimeSttConfig) -> None
+def __init__(url: str, config: RealtimeSTTConfig) -> None
 ```
 
 Create a new realtime STT session.
@@ -1879,7 +2073,7 @@ is established when entering the context manager.
 
 ```python
 @property
-def config() -> RealtimeSttConfig
+def config() -> RealtimeSTTConfig
 ```
 
 Return the configuration used to initialize this session.
@@ -2163,7 +2357,7 @@ Create a realtime STT client bound to an existing API client.
 
 ```python
 def connect(*,
-            config: RealtimeSttConfig,
+            config: RealtimeSTTConfig,
             api_key: str | None = None) -> RealtimeSTTSession
 ```
 
@@ -2217,7 +2411,7 @@ Instances are designed to be used as async context managers.
 #### \_\_init\_\_
 
 ```python
-def __init__(url: str, config: RealtimeSttConfig) -> None
+def __init__(url: str, config: RealtimeSTTConfig) -> None
 ```
 
 Create a new realtime STT session.
@@ -2239,7 +2433,7 @@ is established when entering the async context manager.
 
 ```python
 @property
-def config() -> RealtimeSttConfig
+def config() -> RealtimeSTTConfig
 ```
 
 Return the configuration used to initialize this session.
@@ -2524,7 +2718,7 @@ Create a realtime STT client bound to an existing API client.
 
 ```python
 def connect(*,
-            config: RealtimeSttConfig,
+            config: RealtimeSTTConfig,
             api_key: str | None = None) -> AsyncRealtimeSTTSession
 ```
 

@@ -7,7 +7,10 @@ processors:
   - type: crossref
 renderer:
   type: markdown
-  filename: docs/single-file-markdown/python-sdk.md
+  filename: docs/python-sdk.md
   classdef_code_block: true
   signature_code_block: true
   code_lang: true
+  render_toc: true
+  render_toc_title: "API Reference"
+  toc_maxdepth: 4
