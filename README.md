@@ -80,4 +80,5 @@ This pulls in `ruff`, `pyright`, `pytest`, `pydoc-markdown`, etc., so you can li
 
 - [soniox.com/docs](https://soniox.com/docs) – official Soniox documentation.
 - [GitHub repo](https://github.com/soniox/soniox-python) – source, examples, and scripts.
+- [PyPI](https://pypi.org/project/soniox/)
 - Support: `support@soniox.com`.
