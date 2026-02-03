@@ -1,99 +1,81 @@
 # Soniox Python SDK
 
-Soniox is a speech-to-text service with production-ready REST and realtime APIs. This SDK
-wraps both synchronous and asynchronous HTTP drivers plus a realtime session helper so you can
-unify uploads, transcriptions, realtime streams, and webhook validation in one typed library.
+The SDK exposes two clients: `SonioxClient` (sync) and `AsyncSonioxClient`. Client can hit every Soniox REST endpoint or open a realtime websocket session without wiring headers, retries, or payload validation yourself. Auth, file uploads, transcription polling, webhook helpers, and realtime stream helpers all live in one typed package.
 
-## Quick start
+## Install
 
-1. **Prepare your environment**
+```bash
+uv add soniox
+export SONIOX_API_KEY=<your-key>
+```
 
-   ```bash
-   python -m venv .venv
-   source .venv/bin/activate
-   pip install -e .[dev]
-   export SONIOX_API_KEY=<your-key>
-   ```
+Get your API key from the [Soniox Console](https://console.soniox.com) and inject it once per shell session. Both clients read `SONIOX_API_KEY` by default, but you can override it per-client if needed.
 
-2. **Run the sync REST example**
+## Quick run (rest + realtime)
 
-   ```bash
-   python examples/soniox_client/api_example.py
-   ```
-
-   It uploads `assets/coffee_shop.mp3`, polls until the transcription is ready, prints a snippet,
-   and cleans up the temporary upload/transcription.
-
-3. **Explore the realtime demo**
-
-   ```bash
-   python examples/soniox_client/realtime_example.py
-   ```
-
-   Use this as a reference for streaming audio toward Soniox and handling `RealtimeEvent` bundles.
-
-Both examples illustrate handling `SonioxAPIError`/`SonioxNotFoundError`, making them excellent
-starting points for production code paths.
-
-## REST transcription sample
+1. **REST transcription**: copy this snippet or run [`examples/soniox_client/api_example.py`](https://github.com/soniox/soniox-python/blob/main/examples/soniox_client/api_example.py).
 
 ```python
-from soniox.client import SonioxClient
+from soniox import sonioxclient
 
-client = SonioxClient()
-upload = client.files.upload("assets/coffee_shop.mp3", client_reference_id="doc")
-transcription = client.transcriptions.create(file_id=upload.id)
+client = sonioxclient()
+transcription = client.transcriptions.transcribe(
+    audio_url="https://soniox.com/media/examples/coffee_shop.mp3",
+    client_reference_id="docs-quick-start",
+)
 client.transcriptions.wait(transcription.id, timeout_sec=60)
-print(client.transcriptions.get_transcript(transcription.id).text)
-client.close()
+print(client.transcriptions.get_transcript(transcription.id).text[:200])
 ```
 
-This snippet mirrors what `examples/soniox_client/api_example.py` automates, including cleanup
-via `client.transcriptions.delete` and `client.files.delete`.
-
-## Realtime transcription + LLM streaming
+2. **realtime streaming**: the realtime helpers mirror the sync rest sample—open `client.realtime.stt.connect`, call `session.send_byte_chunk` or `session.send_bytes`, then iterate `session.receive_events()` to render tokens. example:
 
 ```python
-from soniox.client import SonioxClient
-from soniox.types import RealtimeSttConfig
+from soniox import SonioxClient
+from soniox.types import RealtimeSTTConfig, Token
+from soniox.utils import render_tokens, throttle_audio, start_audio_thread
+
+DEMO_FILE = "path_to_your_audio_file"
 
 client = SonioxClient()
-config = RealtimeSttConfig(model="stt-rt-v3", audio_format="mp3", language_hints=["en"])
+config = RealtimeSTTConfig(model="stt-rt-v3", audio_format="mp3")
+final_tokens: list[Token] = []
+non_final_tokens: list[Token] = []
 
-with client.realtime.stt.connect(config=config) as session:
-    session.send_bytes(open("assets/coffee_shop.mp3", "rb").read())
-    for event in session.receive_events():
-        final_tokens = [token.text for token in event.tokens if token.is_final]
-        if final_tokens:
-            # send final_tokens to your LLM pipeline instead of raw audio
-            streaming_prompt = " ".join(final_tokens)
-            # replace the following line with your LLM call
-            print("LLM input chunk:", streaming_prompt)
+def realtime():
+    with client.realtime.stt.connect(config=config) as session:
+        start_audio_thread(session, throttle_audio(DEMO_FILE, delay_seconds=0.1))
+        for event in session.receive_events():
+            for token in event.tokens:
+                if token.is_final:
+                    final_tokens.append(token)
+                else:
+                    non_final_tokens.append(token)
+            print(render_tokens(final_tokens, non_final_tokens))
+            non_final_tokens.clear()
+
+realtime()
 ```
 
-Use `soniox.utils.render_tokens` in place of the print statement when you need human-readable
-feedback before forwarding tokens. The realtime session yields `RealtimeEvent` objects so you can
-drop non-final tokens until the first chunk of final text is available for your LLM.
+see [`examples/soniox_client/realtime_example.py`](https://github.com/soniox/soniox-python/blob/main/examples/soniox_client/realtime_example.py) for the full flow.
 
-## Development experience
+## Repository layout
 
-### Environment best practices
+- `src/soniox/` – sdk code (clients, http namespaces, realtime/session helpers, types, utils).
+- `examples/soniox_client` & `examples/async_soniox_client` – runnable rest + realtime flows for sync and async.
+- `docs/` – folder where `pydoc-markdown` command generates full sdk reference markdown file.
+- `assets/` – sample audio referenced by the examples.
+- `tests/` – pytest narratives that describe the public behavior.
 
-- Keep `.venv` in the repo root and activate it before running commands.
-- Install extras: `pip install -e .[dev]` gives you `ruff`, `pyright`, and `mkdocs`.
-- Set `SONIOX_API_KEY` once per shell session; the SDK reads it by default but lets you override
-  per-client via args.
+## Development
 
-### Documentation & helpers
+```bash
+uv install --with dev
+```
 
-- Generate docs with: `pydoc-markdown`. File is created under `/docs` directory.
+This pulls in `ruff`, `pyright`, `pytest`, `pydoc-markdown`, etc., so you can lint, type-check, test, and regenerate docs locally.
 
 ## Resources
 
-- API docs: `docs/` (landing page + generated API sections in `docs/api`)
-- Examples: `examples/soniox_client` (sync) and `examples/async_soniox_client`
-- Realtime utils: `soniox.utils` includes `render_tokens`, `start_audio_thread`, and `throttle_audio`
-- Asset samples: `assets/*.mp3`
-
-If you need help, email `support@soniox.com` or consult the upstream README and API docs hosted
-at the URLs in `pyproject.toml`.
+- [soniox.com/docs](https://soniox.com/docs) – official Soniox documentation.
+- [GitHub repo](https://github.com/soniox/soniox-python) – source, examples, and scripts.
+- Support: `support@soniox.com`.
