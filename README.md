@@ -16,9 +16,9 @@ Get your API key from the [Soniox Console](https://console.soniox.com) and injec
 1. **REST transcription**: copy this snippet or run [`examples/soniox_client/api_example.py`](https://github.com/soniox/soniox-python/blob/main/examples/soniox_client/api_example.py).
 
 ```python
-from soniox import sonioxclient
+from soniox import SonioxClient
 
-client = sonioxclient()
+client = SonioxClient()
 transcription = client.transcriptions.transcribe(
     audio_url="https://soniox.com/media/examples/coffee_shop.mp3",
     client_reference_id="docs-quick-start",
@@ -27,7 +27,7 @@ client.transcriptions.wait(transcription.id, timeout_sec=60)
 print(client.transcriptions.get_transcript(transcription.id).text[:200])
 ```
 
-2. **realtime streaming**: the realtime helpers mirror the sync rest sample—open `client.realtime.stt.connect`, call `session.send_byte_chunk` or `session.send_bytes`, then iterate `session.receive_events()` to render tokens. example:
+2. **Realtime streaming**: the realtime helpers mirror the sync rest sample—open `client.realtime.stt.connect`, call `session.send_byte_chunk` or `session.send_bytes`, then iterate `session.receive_events()` to render tokens. example:
 
 ```python
 from soniox import SonioxClient
