@@ -27,7 +27,7 @@ from .api import (
     UploadFilePayload,
 )
 from .common import Token
-from .realtime import RealtimeEvent, RealtimeSttConfig
+from .realtime import RealtimeEvent, RealtimeSTTConfig
 from .webhooks import (
     Headers,
     WebhookAuthConfig,
@@ -64,7 +64,7 @@ __all__ = [
     "UploadFilePayload",
     # realtime.py
     "RealtimeEvent",
-    "RealtimeSttConfig",
+    "RealtimeSTTConfig",
     # webhooks.py
     "Headers",
     "WebhookAuthConfig",

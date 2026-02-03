@@ -1,7 +1,7 @@
 from pathlib import Path
 
 from soniox.client import SonioxClient
-from soniox.types import RealtimeSttConfig, Token
+from soniox.types import RealtimeSTTConfig, Token
 from soniox.utils import render_tokens, start_audio_thread, throttle_audio
 
 DEMO_FILE = Path(__file__).resolve().parents[2] / "assets" / "coffee_shop.mp3"
@@ -9,7 +9,7 @@ DEMO_FILE = Path(__file__).resolve().parents[2] / "assets" / "coffee_shop.mp3"
 
 def main() -> None:
     client = SonioxClient()
-    config = RealtimeSttConfig(model="stt-rt-v3", audio_format="mp3")
+    config = RealtimeSTTConfig(model="stt-rt-v3", audio_format="mp3")
     final_tokens: list[Token] = []
     non_final_tokens: list[Token] = []
     with client.realtime.stt.connect(config=config) as session:

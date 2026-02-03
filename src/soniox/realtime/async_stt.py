@@ -9,7 +9,7 @@ from websockets import connect as async_ws_connect
 from websockets.exceptions import ConnectionClosed
 
 from ..errors import SonioxRealtimeError, SonioxValidationError
-from ..types.realtime import RealtimeControlType, RealtimeEvent, RealtimeSttConfig
+from ..types.realtime import RealtimeControlType, RealtimeEvent, RealtimeSTTConfig
 
 if TYPE_CHECKING:
     from ..client import AsyncSonioxClient
@@ -27,7 +27,7 @@ class AsyncRealtimeSTTSession:
     Instances are designed to be used as async context managers.
     """
 
-    def __init__(self, url: str, config: RealtimeSttConfig) -> None:
+    def __init__(self, url: str, config: RealtimeSTTConfig) -> None:
         """
         Create a new realtime STT session.
 
@@ -47,7 +47,7 @@ class AsyncRealtimeSTTSession:
         self._last_message: RealtimeEvent | None = None
 
     @property
-    def config(self) -> RealtimeSttConfig:
+    def config(self) -> RealtimeSTTConfig:
         """
         Return the configuration used to initialize this session.
         """
@@ -310,7 +310,7 @@ class AsyncRealtimeSTTClient:
     def connect(
         self,
         *,
-        config: RealtimeSttConfig,
+        config: RealtimeSTTConfig,
         api_key: str | None = None,
     ) -> AsyncRealtimeSTTSession:
         """

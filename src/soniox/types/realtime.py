@@ -28,7 +28,7 @@ class RealtimeEvent(BaseModel):
         return cls.model_validate(json.loads(payload))
 
 
-class RealtimeSttConfig(BaseModel):
+class RealtimeSTTConfig(BaseModel):
     """Configuration for initiating a realtime transcription session."""
 
     api_key: str | None = None
@@ -45,7 +45,7 @@ class RealtimeSttConfig(BaseModel):
     translation: TranslationConfig | None = None
     client_reference_id: str | None = None
 
-    def build_payload(self, api_key: str) -> RealtimeSttConfig:
+    def build_payload(self, api_key: str) -> RealtimeSTTConfig:
         return self.model_copy(update={"api_key": api_key})
 
 

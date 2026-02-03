@@ -2,7 +2,7 @@ import asyncio
 from pathlib import Path
 
 from soniox.client import AsyncSonioxClient
-from soniox.types import RealtimeSttConfig, Token
+from soniox.types import RealtimeSTTConfig, Token
 from soniox.utils import render_tokens, throttle_audio_async
 
 DEMO_FILE = Path(__file__).resolve().parents[2] / "assets" / "coffee_shop.mp3"
@@ -10,7 +10,7 @@ DEMO_FILE = Path(__file__).resolve().parents[2] / "assets" / "coffee_shop.mp3"
 
 async def main() -> None:
     client = AsyncSonioxClient()
-    config = RealtimeSttConfig(model="stt-rt-v3", audio_format="mp3")
+    config = RealtimeSTTConfig(model="stt-rt-v3", audio_format="mp3")
     final_tokens: list[Token] = []
     non_final_tokens: list[Token] = []
     async with client.realtime.stt.connect(config=config) as session:

@@ -3,7 +3,7 @@ from __future__ import annotations
 from functools import cached_property
 from typing import TYPE_CHECKING
 
-from ..types.realtime import RealtimeEvent, RealtimeSttConfig
+from ..types.realtime import RealtimeEvent, RealtimeSTTConfig
 from .stt import RealtimeSTTClient, RealtimeSTTSession
 
 if TYPE_CHECKING:
@@ -19,7 +19,7 @@ __all__ = [
     "RealtimeEvent",
     "RealtimeSTTClient",
     "RealtimeSTTSession",
-    "RealtimeSttConfig",
+    "RealtimeSTTConfig",
     "AsyncRealtimeAPI",
     "AsyncRealtimeSTTClient",
     "AsyncRealtimeSTTSession",
@@ -28,6 +28,7 @@ __all__ = [
 
 class AsyncRealtimeAPI:
     """Entrypoint for async realtime helpers on AsyncSonioxClient."""
+
     def __init__(self, client: AsyncSonioxClient) -> None:
         self._client = client
 
@@ -40,6 +41,7 @@ class AsyncRealtimeAPI:
 
 class RealtimeAPI:
     """Entrypoint for realtime helpers on SonioxClient."""
+
     def __init__(self, client: SonioxClient) -> None:
         self._client = client
 
