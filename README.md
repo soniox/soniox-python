@@ -5,6 +5,8 @@ The SDK exposes two clients: `SonioxClient` (sync) and `AsyncSonioxClient`. Clie
 ## Install
 
 ```bash
+pip install soniox
+# or if using uv
 uv add soniox
 export SONIOX_API_KEY=<your-key>
 ```
