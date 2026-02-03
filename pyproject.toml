@@ -3,29 +3,39 @@ requires = ["hatchling>=1.10.0"]
 build-backend = "hatchling.build"
 
 [project]
-name = "soniox-python-sdk"
-version = "0.1.0"
+name = "soniox"
+version = "2.0.0"
 dependencies = ["httpx>0.25.0", "websockets>11.0", "pydantic>2"]
 requires-python = ">=3.10"
 authors = [{ name = "Soniox", email = "support@soniox.com" }]
 maintainers = [{ name = "Soniox", email = "support@soniox.com" }]
-description = "Python SDK for Soniox API (STT, REST)"
+description = "The official Python SDK for the Soniox API (STT, REST)"
 readme = "README.md"
-license = "MIT"
+license = "Apache-2.0"
 license-files = ["LICENSE"]
 keywords = ["soniox", "speech-to-text", "stt", "ai", "sdk"]
 classifiers = [
+    "Typing :: Typed",
+    "Intended Audience :: Developers",
     "Programming Language :: Python :: 3",
-    "License :: OSI Approved :: MIT License",
+    "Programming Language :: Python :: 3.10",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+    "Programming Language :: Python :: 3.13",
+    "Programming Language :: Python :: 3.14",
     "Operating System :: OS Independent",
+    "Operating System :: POSIX",
+    "Operating System :: MacOS",
+    "Operating System :: POSIX :: Linux",
+    "Operating System :: Microsoft :: Windows",
+    "Topic :: Software Development :: Libraries :: Python Modules",
+    "License :: OSI Approved :: Apache Software License",
 ]
 
 [project.urls]
-Homepage = "https://example.com"
-Documentation = "https://readthedocs.org"
-Repository = "https://github.com/me/spam.git"
-"Bug Tracker" = "https://github.com/me/spam/issues"
-Changelog = "https://github.com/me/spam/blob/master/CHANGELOG.md"
+Homepage = "https://sonoix.com"
+Documentation = "https://soniox.com/docs"
+Repository = "https://github.com/soniox/soniox-python"
 
 [project.optional-dependencies]
 dev = [
@@ -35,6 +45,7 @@ dev = [
     "mkdocs-material>=9.7.1",
     "mkdocstrings>=0.25.1",
     "mkdocstrings-python>=0.25.1",
+    "pydoc-markdown>=4.8.2",
 ]
 
 [tool.hatch.build.targets.wheel]
