@@ -52,7 +52,7 @@ class TranscriptionsAPI:
         while True:
             page = self.list(limit=limit, cursor=cursor)
             for transcription in page.transcriptions:
-                self.delete(transcription.id)
+                self.delete_if_exists(transcription.id)
             if not page.next_page_cursor:
                 break
             cursor = page.next_page_cursor
@@ -150,7 +150,7 @@ class TranscriptionsAPI:
         transcription = self.get(transcription_id)
         self.delete(transcription_id)
         if transcription.file_id:
-            self._client.files.delete(transcription.file_id)
+            self._client.files.delete_if_exists(transcription.file_id)
 
     def get_transcript(self, transcription_id: str) -> TranscriptionTranscript:
         """

@@ -58,7 +58,7 @@ class AsyncTranscriptionsAPI:
         while True:
             page = await self.list(limit=limit, cursor=cursor)
             for transcription in page.transcriptions:
-                await self.delete(transcription.id)
+                await self.delete_if_exists(transcription.id)
             if not page.next_page_cursor:
                 break
             cursor = page.next_page_cursor
@@ -156,7 +156,7 @@ class AsyncTranscriptionsAPI:
         transcription = await self.get(transcription_id)
         await self.delete(transcription_id)
         if transcription.file_id:
-            await self._client.files.delete(transcription.file_id)
+            await self._client.files.delete_if_exists(transcription.file_id)
 
     async def get_transcript(self, transcription_id: str) -> TranscriptionTranscript:
         """
