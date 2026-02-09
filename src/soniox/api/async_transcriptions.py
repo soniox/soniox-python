@@ -20,7 +20,7 @@ if TYPE_CHECKING:
     from ..client import AsyncSonioxClient
 
 
-DEFAULT_MODEL = "stt-async-v3"
+DEFAULT_MODEL = "stt-async-v4"
 
 
 class AsyncTranscriptionsAPI:

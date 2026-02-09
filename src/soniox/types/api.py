@@ -104,7 +104,7 @@ class TranslationConfig(BaseModel):
 class CreateTranscriptionPayload(BaseModel):
     """Payload sent to create an asynchronous transcription job."""
 
-    model: str = "stt-async-v3"
+    model: str = "stt-async-v4"
     audio_url: str | None = None
     file_id: str | None = None
     language_hints: list[str] | None = None

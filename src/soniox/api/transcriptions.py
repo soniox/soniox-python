@@ -18,7 +18,7 @@ from ._utils import build_create_payload, ensure_success, parse_response
 if TYPE_CHECKING:
     from ..client import SonioxClient
 
-DEFAULT_MODEL = "stt-async-v3"
+DEFAULT_MODEL = "stt-async-v4"
 
 
 class TranscriptionsAPI:
