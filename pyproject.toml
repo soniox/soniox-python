@@ -38,7 +38,7 @@ Documentation = "https://soniox.com/docs"
 Repository = "https://github.com/soniox/soniox-python"
 
 [project.optional-dependencies]
-dev = ["ruff>=0.0.0", "pyright>=1.1.0", "pydoc-markdown>=4.8.2"]
+dev = ["ruff>=0.0.0", "pyright>=1.1.0", "griffe>=1.15.0"]
 
 [tool.hatch.build.targets.wheel]
 packages = ["src/soniox"]

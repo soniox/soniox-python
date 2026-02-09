@@ -1,6 +1,7 @@
 # Soniox Python SDK
 
-The SDK exposes two clients: `SonioxClient` (sync) and `AsyncSonioxClient`. Client can hit every Soniox REST endpoint or open a realtime websocket session without wiring headers, retries, or payload validation yourself. Auth, file uploads, transcription polling, webhook helpers, and realtime stream helpers all live in one typed package.
+The SDK exposes two clients: `SonioxClient` (sync) and `AsyncSonioxClient`. Client can hit every Soniox REST endpoint or open a realtime websocket session, so you can focus on building features instead of dealing with boilerplate.
+Auth, file uploads, transcription polling, webhook helpers, and realtime stream helpers all live in one typed package.
 
 ## Install
 
@@ -64,7 +65,7 @@ see [`examples/soniox_client/realtime_example.py`](https://github.com/soniox/son
 
 - `src/soniox/` – sdk code (clients, http namespaces, realtime/session helpers, types, utils).
 - `examples/soniox_client` & `examples/async_soniox_client` – runnable rest + realtime flows for sync and async.
-- `docs/` – folder where `pydoc-markdown` command generates full sdk reference markdown file.
+- `docs/` – markdown outputs (e.g., `docs/python-sdk.md`) that come from `pydoc-markdown`.
 - `assets/` – sample audio referenced by the examples.
 - `tests/` – pytest narratives that describe the public behavior.
 
@@ -75,6 +76,15 @@ uv install --with dev
 ```
 
 This pulls in `ruff`, `pyright`, `pytest`, `pydoc-markdown`, etc., so you can lint, type-check, test, and regenerate docs locally.
+
+## Docs
+
+```bash
+source .venv/bin/activate
+python3 scripts/generate_docs.py
+```
+
+Docs are output to `/docs` directory.
 
 ## Resources
 
