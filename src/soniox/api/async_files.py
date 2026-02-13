@@ -136,7 +136,7 @@ class AsyncFilesAPI:
         while True:
             page = await self.list(limit=limit, cursor=cursor)
             for file in page.files:
-                await self.delete(file.id)
+                await self.delete_if_exists(file.id)
             if not page.next_page_cursor:
                 break
             cursor = page.next_page_cursor

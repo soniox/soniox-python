@@ -132,7 +132,7 @@ class FilesAPI:
         while True:
             page = self.list(limit=limit, cursor=cursor)
             for file in page.files:
-                self.delete(file.id)
+                self.delete_if_exists(file.id)
             if not page.next_page_cursor:
                 break
             cursor = page.next_page_cursor
