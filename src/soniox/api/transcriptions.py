@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import time
+from collections.abc import Generator
 from pathlib import Path
 from typing import TYPE_CHECKING, BinaryIO
 
@@ -38,6 +39,26 @@ class TranscriptionsAPI:
         params = payload.model_dump(exclude_none=True)
         response = self._client.request("GET", "/transcriptions", params=params)
         return parse_response(response, GetTranscriptionsResponse)
+
+    def list_all(self, limit: int = 100) -> Generator[Transcription, None, None]:
+        """
+        Iterate through all transcriptions across all pages.
+
+        Yields:
+            File: The next transcription object from the API.
+
+        Raises:
+            SonioxAPIError: When the API returns an error.
+        """
+        cursor = None
+        while True:
+            response = self.list(limit=limit, cursor=cursor)
+
+            yield from response.transcriptions
+
+            cursor = response.next_page_cursor
+            if not cursor:
+                break
 
     def delete_all(self, *, limit: int = 100) -> None:
         """

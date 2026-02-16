@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+from collections.abc import Generator
 from pathlib import Path
 from typing import TYPE_CHECKING, BinaryIO
 
@@ -33,6 +34,26 @@ class FilesAPI:
         params = payload.model_dump(exclude_none=True)
         response = self._client.request("GET", "/files", params=params)
         return parse_response(response, GetFilesResponse)
+
+    def list_all(self, limit: int = 100) -> Generator[File, None, None]:
+        """
+        Iterate through all uploaded files across all pages.
+
+        Yields:
+            File: The next file object from the API.
+
+        Raises:
+            SonioxAPIError: When the API returns an error.
+        """
+        cursor = None
+        while True:
+            response = self.list(limit=limit, cursor=cursor)
+
+            yield from response.files
+
+            cursor = response.next_page_cursor
+            if not cursor:
+                break
 
     def get(self, file_id: str) -> File:
         """

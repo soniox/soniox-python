@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import asyncio
 import time
+from collections.abc import AsyncGenerator
 from pathlib import Path
 from typing import TYPE_CHECKING, BinaryIO
 
@@ -44,6 +45,28 @@ class AsyncTranscriptionsAPI:
         params = payload.model_dump(exclude_none=True)
         response = await self._client.request("GET", "/transcriptions", params=params)
         return await parse_async_response(response, GetTranscriptionsResponse)
+
+    async def list_all(self, limit: int = 100) -> AsyncGenerator[Transcription, None]:
+        """
+        Iterate through all transcriptions across all pages.
+
+        Yields:
+            File: The next transcription object from the API.
+
+        Raises:
+            SonioxAPIError: When the API returns an error.
+        """
+        cursor: str | None = None
+
+        while True:
+            response = await self.list(limit=limit, cursor=cursor)
+
+            for transcription in response.transcriptions:
+                yield transcription
+
+            cursor = response.next_page_cursor
+            if not cursor:
+                break
 
     async def delete_all(self, *, limit: int = 100) -> None:
         """
