@@ -231,3 +231,11 @@ class GetTranscriptionsResponse(BaseModel):
 
     transcriptions: list[Transcription]
     next_page_cursor: str | None = None
+
+
+class DeletionStatus(BaseModel):
+    """Result of a deletion operation on a specific resource."""
+
+    id: str
+    success: bool
+    error: str | None = None

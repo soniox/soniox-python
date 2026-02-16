@@ -6,6 +6,7 @@ from typing import TYPE_CHECKING, BinaryIO
 
 from ..errors import SonioxNotFoundError
 from ..types import (
+    DeletionStatus,
     File,
     GetFilesPayload,
     GetFilesResponse,
@@ -140,20 +141,21 @@ class FilesAPI:
             if close_after:
                 file_obj.close()
 
-    def delete_all(self, *, limit: int = 100) -> None:
+    def delete_all(self, limit: int = 100) -> Generator[DeletionStatus, None, None]:
         """
         Delete all files.
 
         Iterates through all pages and deletes each file.
 
+        Yields:
+            DeletionStatus: The status of each deletion attempt.
+
         Raises:
             SonioxAPIError: When the API returns an error.
         """
-        cursor: str | None = None
-        while True:
-            page = self.list(limit=limit, cursor=cursor)
-            for file in page.files:
-                self.delete_if_exists(file.id)
-            if not page.next_page_cursor:
-                break
-            cursor = page.next_page_cursor
+        for file in self.list_all(limit=limit):
+            try:
+                self.delete(file.id)
+                yield DeletionStatus(id=file.id, success=True)
+            except Exception as e:
+                yield DeletionStatus(id=file.id, success=False, error=str(e))

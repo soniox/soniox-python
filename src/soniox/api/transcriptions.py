@@ -8,6 +8,7 @@ from typing import TYPE_CHECKING, BinaryIO
 from ..errors import SonioxNotFoundError, SonioxValidationError
 from ..types import (
     CreateTranscriptionConfig,
+    DeletionStatus,
     GetTranscriptionsPayload,
     GetTranscriptionsResponse,
     Transcription,
@@ -60,23 +61,24 @@ class TranscriptionsAPI:
             if not cursor:
                 break
 
-    def delete_all(self, *, limit: int = 100) -> None:
+    def delete_all(self, limit: int = 100) -> Generator[DeletionStatus, None, None]:
         """
         Delete all transcriptions.
 
         Iterates through all pages and deletes each transcription.
 
+        Yields:
+            DeletionStatus: The status of each deletion attempt.
+
         Raises:
             SonioxAPIError: When the API returns an error.
         """
-        cursor: str | None = None
-        while True:
-            page = self.list(limit=limit, cursor=cursor)
-            for transcription in page.transcriptions:
-                self.delete_if_exists(transcription.id)
-            if not page.next_page_cursor:
-                break
-            cursor = page.next_page_cursor
+        for transcription in self.list_all(limit=limit):
+            try:
+                self.delete(transcription.id)
+                yield DeletionStatus(id=transcription.id, success=True)
+            except Exception as e:
+                yield DeletionStatus(id=transcription.id, success=False, error=str(e))
 
     def create(
         self,
@@ -172,6 +174,25 @@ class TranscriptionsAPI:
         self.delete(transcription_id)
         if transcription.file_id:
             self._client.files.delete_if_exists(transcription.file_id)
+
+    def destroy_all(self, limit: int = 100) -> Generator[DeletionStatus, None, None]:
+        """
+        Delete all transcriptions and their associated files.
+
+        Yields:
+            dict: A status report for each transcription processed.
+
+        Raises:
+            SonioxAPIError: When the API returns an error during listing.
+        """
+        for transcription in self.list_all(limit=limit):
+            try:
+                self.delete(transcription.id)
+                if transcription.file_id:
+                    self._client.files.delete_if_exists(transcription.file_id)
+                yield DeletionStatus(id=transcription.id, success=True)
+            except Exception as e:
+                yield DeletionStatus(id=transcription.id, success=False, error=str(e))
 
     def get_transcript(self, transcription_id: str) -> TranscriptionTranscript:
         """

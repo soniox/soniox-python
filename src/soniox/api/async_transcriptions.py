@@ -9,6 +9,7 @@ from typing import TYPE_CHECKING, BinaryIO
 from ..errors import SonioxNotFoundError, SonioxValidationError
 from ..types import (
     CreateTranscriptionConfig,
+    DeletionStatus,
     GetTranscriptionsPayload,
     GetTranscriptionsResponse,
     Transcription,
@@ -68,23 +69,24 @@ class AsyncTranscriptionsAPI:
             if not cursor:
                 break
 
-    async def delete_all(self, *, limit: int = 100) -> None:
+    async def delete_all(self, limit: int = 100) -> AsyncGenerator[DeletionStatus, None]:
         """
         Delete all transcriptions.
 
         Iterates through all pages and deletes each transcription.
 
+        Yields:
+            DeletionStatus: The status of each deletion attempt.
+
         Raises:
             SonioxAPIError: When the API returns an error.
         """
-        cursor: str | None = None
-        while True:
-            page = await self.list(limit=limit, cursor=cursor)
-            for transcription in page.transcriptions:
-                await self.delete_if_exists(transcription.id)
-            if not page.next_page_cursor:
-                break
-            cursor = page.next_page_cursor
+        async for transcription in self.list_all(limit=limit):
+            try:
+                await self.delete(transcription.id)
+                yield DeletionStatus(id=transcription.id, success=True)
+            except Exception as e:
+                yield DeletionStatus(id=transcription.id, success=False, error=str(e))
 
     async def create(
         self,
@@ -180,6 +182,25 @@ class AsyncTranscriptionsAPI:
         await self.delete(transcription_id)
         if transcription.file_id:
             await self._client.files.delete_if_exists(transcription.file_id)
+
+    async def destroy_all(self, limit: int = 100) -> AsyncGenerator[DeletionStatus, None]:
+        """
+        Delete all transcriptions and their associated files.
+
+        Yields:
+            dict: A status report for each transcription processed.
+
+        Raises:
+            SonioxAPIError: When the API returns an error during listing.
+        """
+        async for transcription in self.list_all(limit=limit):
+            try:
+                await self.delete(transcription.id)
+                if transcription.file_id:
+                    await self._client.files.delete_if_exists(transcription.file_id)
+                yield DeletionStatus(id=transcription.id, success=True)
+            except Exception as e:
+                yield DeletionStatus(id=transcription.id, success=False, error=str(e))
 
     async def get_transcript(self, transcription_id: str) -> TranscriptionTranscript:
         """
