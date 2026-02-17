@@ -14,12 +14,12 @@ if TYPE_CHECKING:
     from .api.async_auth import AsyncAuthAPI
     from .api.async_files import AsyncFilesAPI
     from .api.async_models import AsyncModelsAPI
-    from .api.async_transcriptions import AsyncTranscriptionsAPI
+    from .api.async_stt import AsyncSttAPI
     from .api.async_webhooks import AsyncSonioxWebhooksAPI
     from .api.auth import AuthAPI
     from .api.files import FilesAPI
     from .api.models import ModelsAPI
-    from .api.transcriptions import TranscriptionsAPI
+    from .api.stt import SttAPI
     from .api.webhooks import SonioxWebhooksAPI
     from .realtime import AsyncRealtimeAPI, RealtimeAPI
 
@@ -113,10 +113,10 @@ class SonioxClient(_BaseSonioxClient):
         return FilesAPI(self)
 
     @cached_property
-    def transcriptions(self) -> TranscriptionsAPI:
-        from .api.transcriptions import TranscriptionsAPI
+    def stt(self) -> SttAPI:
+        from .api.stt import SttAPI
 
-        return TranscriptionsAPI(self)
+        return SttAPI(self)
 
     @cached_property
     def models(self) -> ModelsAPI:
@@ -217,10 +217,10 @@ class AsyncSonioxClient(_BaseSonioxClient):
         return AsyncFilesAPI(self)
 
     @cached_property
-    def transcriptions(self) -> AsyncTranscriptionsAPI:
-        from .api.async_transcriptions import AsyncTranscriptionsAPI
+    def stt(self) -> AsyncSttAPI:
+        from .api.async_stt import AsyncSttAPI
 
-        return AsyncTranscriptionsAPI(self)
+        return AsyncSttAPI(self)
 
     @cached_property
     def models(self) -> AsyncModelsAPI:

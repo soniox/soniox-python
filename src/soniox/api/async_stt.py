@@ -1,7 +1,8 @@
 from __future__ import annotations
 
+import asyncio
 import time
-from collections.abc import Generator
+from collections.abc import AsyncGenerator
 from pathlib import Path
 from typing import TYPE_CHECKING, BinaryIO
 
@@ -15,19 +16,24 @@ from ..types import (
     TranscriptionTranscript,
     WebhookAuthConfig,
 )
-from ._utils import build_create_payload, ensure_success, parse_response
+from ._utils import build_create_payload, ensure_success, parse_async_response
 
 if TYPE_CHECKING:
-    from ..client import SonioxClient
+    from ..client import AsyncSonioxClient
+
 
 DEFAULT_MODEL = "stt-async-v4"
 
 
-class TranscriptionsAPI:
-    def __init__(self, client: SonioxClient) -> None:
+class AsyncSttAPI:
+    def __init__(self, client: AsyncSonioxClient) -> None:
         self._client = client
 
-    def list(self, limit: int = 100, cursor: str | None = None) -> GetTranscriptionsResponse:
+    async def list(
+        self,
+        limit: int = 100,
+        cursor: str | None = None,
+    ) -> GetTranscriptionsResponse:
         """
         List transcriptions.
 
@@ -38,10 +44,10 @@ class TranscriptionsAPI:
         """
         payload = GetTranscriptionsPayload(limit=limit, cursor=cursor)
         params = payload.model_dump(exclude_none=True)
-        response = self._client.request("GET", "/transcriptions", params=params)
-        return parse_response(response, GetTranscriptionsResponse)
+        response = await self._client.request("GET", "/transcriptions", params=params)
+        return await parse_async_response(response, GetTranscriptionsResponse)
 
-    def list_all(self, limit: int = 100) -> Generator[Transcription, None, None]:
+    async def list_all(self, limit: int = 100) -> AsyncGenerator[Transcription, None]:
         """
         Iterate through all transcriptions across all pages.
 
@@ -51,17 +57,19 @@ class TranscriptionsAPI:
         Raises:
             SonioxAPIError: When the API returns an error.
         """
-        cursor = None
-        while True:
-            response = self.list(limit=limit, cursor=cursor)
+        cursor: str | None = None
 
-            yield from response.transcriptions
+        while True:
+            response = await self.list(limit=limit, cursor=cursor)
+
+            for transcription in response.transcriptions:
+                yield transcription
 
             cursor = response.next_page_cursor
             if not cursor:
                 break
 
-    def delete_all(self, limit: int = 100) -> Generator[DeletionStatus, None, None]:
+    async def delete_all(self, limit: int = 100) -> AsyncGenerator[DeletionStatus, None]:
         """
         Delete all transcriptions.
 
@@ -73,14 +81,14 @@ class TranscriptionsAPI:
         Raises:
             SonioxAPIError: When the API returns an error.
         """
-        for transcription in self.list_all(limit=limit):
+        async for transcription in self.list_all(limit=limit):
             try:
-                self.delete(transcription.id)
+                await self.delete(transcription.id)
                 yield DeletionStatus(id=transcription.id, success=True)
             except Exception as e:
                 yield DeletionStatus(id=transcription.id, success=False, error=str(e))
 
-    def create(
+    async def create(
         self,
         *,
         model: str = DEFAULT_MODEL,
@@ -106,12 +114,12 @@ class TranscriptionsAPI:
             client_reference_id=client_reference_id,
             config=config,
         )
-        response = self._client.request(
+        response = await self._client.request(
             "POST", "/transcriptions", json=payload.model_dump(exclude_none=True)
         )
-        return parse_response(response, Transcription)
+        return await parse_async_response(response, Transcription)
 
-    def get(self, transcription_id: str) -> Transcription:
+    async def get(self, transcription_id: str) -> Transcription:
         """
         Retrieve a transcription by ID.
 
@@ -120,10 +128,10 @@ class TranscriptionsAPI:
         Raises:
             SonioxAPIError: When the API returns an error.
         """
-        response = self._client.request("GET", f"/transcriptions/{transcription_id}")
-        return parse_response(response, Transcription)
+        response = await self._client.request("GET", f"/transcriptions/{transcription_id}")
+        return await parse_async_response(response, Transcription)
 
-    def get_or_none(self, transcription_id: str) -> Transcription | None:
+    async def get_or_none(self, transcription_id: str) -> Transcription | None:
         """
         Retrieve a transcription by ID.
 
@@ -133,11 +141,11 @@ class TranscriptionsAPI:
             SonioxAPIError: When the API returns an error.
         """
         try:
-            return self.get(transcription_id)
+            return await self.get(transcription_id)
         except SonioxNotFoundError:
             return None
 
-    def delete(self, transcription_id: str) -> None:
+    async def delete(self, transcription_id: str) -> None:
         """
         Delete a transcription by ID.
 
@@ -146,10 +154,10 @@ class TranscriptionsAPI:
         Raises:
             SonioxAPIError: When the API returns an error.
         """
-        response = self._client.request("DELETE", f"/transcriptions/{transcription_id}")
+        response = await self._client.request("DELETE", f"/transcriptions/{transcription_id}")
         ensure_success(response)
 
-    def delete_if_exists(self, transcription_id: str) -> None:
+    async def delete_if_exists(self, transcription_id: str) -> None:
         """
         Delete a transcription by ID if it exists.
 
@@ -159,23 +167,23 @@ class TranscriptionsAPI:
             SonioxAPIError: When the API returns an error.
         """
         try:
-            self.delete(transcription_id)
+            await self.delete(transcription_id)
         except SonioxNotFoundError:
             return
 
-    def destroy(self, transcription_id: str) -> None:
+    async def destroy(self, transcription_id: str) -> None:
         """
         Delete a transcription and its associated uploaded file.
 
         Raises:
             SonioxAPIError: When the API returns an error.
         """
-        transcription = self.get(transcription_id)
-        self.delete(transcription_id)
+        transcription = await self.get(transcription_id)
+        await self.delete(transcription_id)
         if transcription.file_id:
-            self._client.files.delete_if_exists(transcription.file_id)
+            await self._client.files.delete_if_exists(transcription.file_id)
 
-    def destroy_all(self, limit: int = 100) -> Generator[DeletionStatus, None, None]:
+    async def destroy_all(self, limit: int = 100) -> AsyncGenerator[DeletionStatus, None]:
         """
         Delete all transcriptions and their associated files.
 
@@ -185,16 +193,16 @@ class TranscriptionsAPI:
         Raises:
             SonioxAPIError: When the API returns an error during listing.
         """
-        for transcription in self.list_all(limit=limit):
+        async for transcription in self.list_all(limit=limit):
             try:
-                self.delete(transcription.id)
+                await self.delete(transcription.id)
                 if transcription.file_id:
-                    self._client.files.delete_if_exists(transcription.file_id)
+                    await self._client.files.delete_if_exists(transcription.file_id)
                 yield DeletionStatus(id=transcription.id, success=True)
             except Exception as e:
                 yield DeletionStatus(id=transcription.id, success=False, error=str(e))
 
-    def get_transcript(self, transcription_id: str) -> TranscriptionTranscript:
+    async def get_transcript(self, transcription_id: str) -> TranscriptionTranscript:
         """
         Retrieve the transcript for a transcription.
 
@@ -203,10 +211,12 @@ class TranscriptionsAPI:
         Raises:
             SonioxAPIError: When the API returns an error.
         """
-        response = self._client.request("GET", f"/transcriptions/{transcription_id}/transcript")
-        return parse_response(response, TranscriptionTranscript)
+        response = await self._client.request(
+            "GET", f"/transcriptions/{transcription_id}/transcript"
+        )
+        return await parse_async_response(response, TranscriptionTranscript)
 
-    def wait(
+    async def wait(
         self,
         transcription_id: str,
         *,
@@ -222,14 +232,14 @@ class TranscriptionsAPI:
         """
         deadline = time.monotonic() + timeout_sec if timeout_sec is not None else None
         while True:
-            transcription = self.get(transcription_id)
+            transcription = await self.get(transcription_id)
             if transcription.status not in ("queued", "processing"):
                 return transcription
             if deadline is not None and time.monotonic() >= deadline:
                 raise TimeoutError(f"Timed out waiting for transcription {transcription_id}")
-            time.sleep(interval_sec)
+            await asyncio.sleep(interval_sec)
 
-    def transcribe_from_url(
+    async def transcribe_from_url(
         self,
         *,
         model: str = DEFAULT_MODEL,
@@ -243,14 +253,14 @@ class TranscriptionsAPI:
         Raises:
             SonioxAPIError: When the API returns an error.
         """
-        return self.create(
+        return await self.create(
             model=model,
             audio_url=audio_url,
             client_reference_id=client_reference_id,
             config=config,
         )
 
-    def transcribe_from_file_id(
+    async def transcribe_from_file_id(
         self,
         *,
         model: str = DEFAULT_MODEL,
@@ -264,14 +274,14 @@ class TranscriptionsAPI:
         Raises:
             SonioxAPIError: When the API returns an error.
         """
-        return self.create(
+        return await self.create(
             model=model,
             file_id=file_id,
             client_reference_id=client_reference_id,
             config=config,
         )
 
-    def transcribe_from_file(
+    async def transcribe_from_file(
         self,
         *,
         model: str = DEFAULT_MODEL,
@@ -286,19 +296,19 @@ class TranscriptionsAPI:
         Raises:
             SonioxAPIError: When the API returns an error.
         """
-        uploaded = self._client.files.upload(
+        uploaded = await self._client.files.upload(
             file,
             filename=filename,
             client_reference_id=client_reference_id,
         )
-        return self.transcribe_from_file_id(
+        return await self.transcribe_from_file_id(
             model=model,
             file_id=uploaded.id,
             client_reference_id=client_reference_id,
             config=config,
         )
 
-    def transcribe(
+    async def transcribe(
         self,
         *,
         model: str = DEFAULT_MODEL,
@@ -321,7 +331,7 @@ class TranscriptionsAPI:
         if file is not None:
             if audio_url or file_id:
                 raise SonioxValidationError("file cannot be combined with audio_url or file_id")
-            return self.transcribe_from_file(
+            return await self.transcribe_from_file(
                 model=model,
                 file=file,
                 filename=filename,
@@ -331,7 +341,7 @@ class TranscriptionsAPI:
         if file_id is not None:
             if audio_url:
                 raise SonioxValidationError("file_id cannot be combined with audio_url")
-            return self.transcribe_from_file_id(
+            return await self.transcribe_from_file_id(
                 model=model,
                 file_id=file_id,
                 client_reference_id=client_reference_id,
@@ -339,14 +349,14 @@ class TranscriptionsAPI:
             )
         if not audio_url:
             raise SonioxValidationError("Either audio_url, file_id, or file must be provided")
-        return self.transcribe_from_url(
+        return await self.transcribe_from_url(
             model=model,
             audio_url=audio_url,
             client_reference_id=client_reference_id,
             config=config,
         )
 
-    def transcribe_file_with_webhook(
+    async def transcribe_file_with_webhook(
         self,
         *,
         model: str = DEFAULT_MODEL,
@@ -364,7 +374,7 @@ class TranscriptionsAPI:
             SonioxAPIError: When the API returns an error.
         """
         webhook_fields = self._client.webhooks.webhook_payload(webhook_url, auth=webhook_auth)
-        uploaded = self._client.files.upload(
+        uploaded = await self._client.files.upload(
             file,
             filename=filename,
             client_reference_id=client_reference_id,
@@ -374,14 +384,14 @@ class TranscriptionsAPI:
         webhook_config = (
             CreateTranscriptionConfig.model_validate(config_data) if config_data else None
         )
-        return self.create(
+        return await self.create(
             model=model,
             file_id=uploaded.id,
             client_reference_id=client_reference_id,
             config=webhook_config,
         )
 
-    def transcribe_and_wait(
+    async def transcribe_and_wait(
         self,
         *,
         model: str = DEFAULT_MODEL,
@@ -406,7 +416,7 @@ class TranscriptionsAPI:
             SonioxValidationError: When the payload fails validation.
             TimeoutError: Waiting for the transcription to finish exceeded `timeout_sec`.
         """
-        transcription = self.transcribe(
+        transcription = await self.transcribe(
             model=model,
             audio_url=audio_url,
             file_id=file_id,
@@ -415,7 +425,7 @@ class TranscriptionsAPI:
             client_reference_id=client_reference_id,
             config=config,
         )
-        transcription = self.wait(
+        transcription = await self.wait(
             transcription.id,
             interval_sec=wait_interval_sec,
             timeout_sec=wait_timeout_sec,
@@ -423,13 +433,13 @@ class TranscriptionsAPI:
 
         if delete_after:
             file_id_to_delete = transcription.file_id
-            self.delete(transcription.id)
+            await self.delete(transcription.id)
             if file_id_to_delete:
-                self._client.files.delete(file_id_to_delete)
+                await self._client.files.delete(file_id_to_delete)
 
         return transcription
 
-    def transcribe_and_wait_with_tokens(
+    async def transcribe_and_wait_with_tokens(
         self,
         *,
         model: str = DEFAULT_MODEL,
@@ -453,7 +463,7 @@ class TranscriptionsAPI:
             SonioxValidationError: When the payload fails validation.
             TimeoutError: Waiting for the transcription to finish exceeded `timeout_sec`.
         """
-        transcription = self.transcribe_and_wait(
+        transcription = await self.transcribe_and_wait(
             model=model,
             audio_url=audio_url,
             file_id=file_id,
@@ -466,12 +476,12 @@ class TranscriptionsAPI:
             config=config,
         )
 
-        result = self.get_transcript(transcription.id)
+        result = await self.get_transcript(transcription.id)
 
         if delete_after:
             file_id_to_delete = transcription.file_id
-            self.delete(transcription.id)
+            await self.delete(transcription.id)
             if file_id_to_delete:
-                self._client.files.delete(file_id_to_delete)
+                await self._client.files.delete(file_id_to_delete)
 
         return result
