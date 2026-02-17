@@ -17,7 +17,7 @@ Asynchronous Soniox REST client exposing HTTP and realtime helpers.
 
 - **files**: 
 
-- **transcriptions**: 
+- **stt**: 
 
 - **models**: 
 
@@ -155,7 +155,7 @@ Synchronous Soniox REST client exposing API namespaces via httpx.
 
 - **files**: 
 
-- **transcriptions**: 
+- **stt**: 
 
 - **models**: 
 

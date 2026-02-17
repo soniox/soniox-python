@@ -1,7 +1,7 @@
 ---
 title: soniox.realtime.stt
 description: Description for stt
-keywords: annotations, json, Callable, Iterator, TracebackType, TYPE_CHECKING, ConnectionClosed, sync_ws_connect, SonioxRealtimeError, SonioxValidationError, RealtimeControlType, RealtimeEvent, RealtimeSTTConfig, SonioxClient, RealtimeSTTSession, RealtimeSTTClient
+keywords: annotations, json, Callable, Iterator, TracebackType, TYPE_CHECKING, ConnectionClosed, sync_ws_connect, SonioxRealtimeError, SonioxValidationError, RealtimeControlType, RealtimeEvent, RealtimeSTTConfig, KEEP_ALIVE_INTERVAL_SEC, KeepaliveThread, SonioxClient, RealtimeSTTSession, RealtimeSTTClient
 ---
 
 
@@ -28,7 +28,13 @@ Instances are designed to be used as context managers.
 
 - **_last_message**: 
 
+- **_paused**: 
+
+- **_keepalive**: 
+
 - **config**: Return the configuration used to initialize this session.
+
+- **paused**: Return True if the session is currently paused.
 
 - **last_message**: Return the most recently received realtime event, if any.
 
@@ -234,14 +240,14 @@ send_control_message(control_type: RealtimeControlType) -> None
 
 None
 
-### `send_finish`
+### `finish`
 
 Signal that no more audio will be sent for this session.
 
 #### Signature
 
 ```python
-send_finish() -> None
+finish() -> None
 ```
 
 #### Parameters
@@ -252,14 +258,14 @@ send_finish() -> None
 
 None
 
-### `send_keep_alive`
+### `keep_alive`
 
 Send a keep-alive message to prevent the session from timing out.
 
 #### Signature
 
 ```python
-send_keep_alive() -> None
+keep_alive() -> None
 ```
 
 #### Parameters
@@ -270,7 +276,7 @@ send_keep_alive() -> None
 
 None
 
-### `send_finalize`
+### `finalize`
 
 Finalize all outstanding non-final tokens while keeping the session open.
 
@@ -279,7 +285,7 @@ Subsequent tokens will be delivered with `is_final=True`.
 #### Signature
 
 ```python
-send_finalize() -> None
+finalize() -> None
 ```
 
 #### Parameters
@@ -403,6 +409,59 @@ handle_events(handler: Callable[[RealtimeEvent], None]) -> None
 - **self** (None): 
 
 - **handler** (Callable[[RealtimeEvent], None]): 
+
+#### Returns
+
+None
+
+### `pause`
+
+Pause the session, suppressing outgoing audio and starting a
+background keepalive thread.
+
+While paused, calls to :meth:`send_byte_chunk` are silently dropped.
+A background thread sends a keepalive message every
+``KEEP_ALIVE_INTERVAL_SEC`` seconds to prevent the server from
+timing out the session.
+
+Calling `pause` on an already-paused session is a no-op.
+
+Raises:
+    SonioxRealtimeError: If the session is not connected.
+
+#### Signature
+
+```python
+pause() -> None
+```
+
+#### Parameters
+
+- **self** (None): 
+
+#### Returns
+
+None
+
+### `resume`
+
+Resume a paused session, stopping the keepalive thread and
+allowing audio to be sent again.
+
+Calling `resume` on a session that is not paused is a no-op.
+
+Raises:
+    SonioxRealtimeError: If the session is not connected.
+
+#### Signature
+
+```python
+resume() -> None
+```
+
+#### Parameters
+
+- **self** (None): 
 
 #### Returns
 

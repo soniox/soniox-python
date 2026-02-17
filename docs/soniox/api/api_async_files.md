@@ -1,7 +1,7 @@
 ---
 title: soniox.api.async_files
 description: Description for async_files
-keywords: annotations, Path, TYPE_CHECKING, BinaryIO, SonioxNotFoundError, File, GetFilesPayload, GetFilesResponse, UploadFilePayload, ensure_success, normalize_file, parse_async_response, AsyncSonioxClient, AsyncFilesAPI
+keywords: annotations, AsyncGenerator, Path, TYPE_CHECKING, BinaryIO, SonioxNotFoundError, DeletionStatus, File, GetFilesPayload, GetFilesResponse, UploadFilePayload, ensure_success, normalize_file, parse_async_response, AsyncSonioxClient, AsyncFilesAPI
 ---
 
 
@@ -57,6 +57,32 @@ list(limit: int = 100, cursor: str | None = None) -> GetFilesResponse
 #### Returns
 
 GetFilesResponse
+
+### `list_all`
+
+Iterate through all uploaded files across all pages.
+
+Yields:
+    File: The next file object from the API.
+
+Raises:
+    SonioxAPIError: When the API returns an error.
+
+#### Signature
+
+```python
+list_all(limit: int = 100) -> AsyncGenerator[File, None]
+```
+
+#### Parameters
+
+- **self** (None): 
+
+- **limit** (int): 
+
+#### Returns
+
+AsyncGenerator[File, None]
 
 ### `get`
 
@@ -191,7 +217,7 @@ File
 
 Delete all files.
 
-Iterates through all pages and deletes each file.
+Iterates through all pages and deletes each file. Stops and raises on the first failed deletion.
 
 Raises:
     SonioxAPIError: When the API returns an error.
@@ -199,7 +225,7 @@ Raises:
 #### Signature
 
 ```python
-delete_all(*, limit: int = 100) -> None
+delete_all(limit: int = 100) -> None
 ```
 
 #### Parameters

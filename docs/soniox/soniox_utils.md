@@ -1,7 +1,7 @@
 ---
 title: soniox.utils
 description: Description for utils
-keywords: annotations, asyncio, threading, time, AsyncIterator, Iterable, Iterator, Path, TYPE_CHECKING, BinaryIO, RealtimeSTTSession, Token, AsyncRealtimeSTTSession, stream_audio, stream_audio_async, _async_iter_chunks, _iter_chunks, throttle_audio, throttle_audio_async, render_tokens, start_audio_thread, start_keep_alive_thread, keep_alive_async
+keywords: annotations, asyncio, threading, time, AsyncIterator, Iterable, Iterator, Path, BinaryIO, RealtimeSTTSession, Token, stream_audio, stream_audio_async, _async_iter_chunks, _iter_chunks, throttle_audio, throttle_audio_async, render_tokens, start_audio_thread
 ---
 
 
@@ -193,56 +193,3 @@ start_audio_thread(session: RealtimeSTTSession, chunks: bytes | Iterator[bytes],
 #### Returns
 
 threading.Thread
-
----
-
-### `start_keep_alive_thread`
-
-Start a background thread that periodically sends keep-alives to the session.
-
-Returns:
-    A tuple of (thread, stop_event). Setting `stop_event` will stop the loop.
-
-#### Signature
-
-```python
-start_keep_alive_thread(session: RealtimeSTTSession, *, interval_seconds: float = 10.0, name: str | None = None, daemon: bool = True) -> tuple[threading.Thread, threading.Event]
-```
-
-#### Parameters
-
-- **session** (RealtimeSTTSession): 
-
-- **interval_seconds** (float): 
-
-- **name** (str | None): 
-
-- **daemon** (bool): 
-
-#### Returns
-
-tuple[threading.Thread, threading.Event]
-
----
-
-### `keep_alive_async`
-
-Async helper that repeatedly sends keep-alive messages until told to stop.
-
-#### Signature
-
-```python
-keep_alive_async(session: AsyncRealtimeSTTSession, *, interval_seconds: float = 10.0, stop_event: asyncio.Event | None = None) -> None
-```
-
-#### Parameters
-
-- **session** (AsyncRealtimeSTTSession): 
-
-- **interval_seconds** (float): 
-
-- **stop_event** (asyncio.Event | None): 
-
-#### Returns
-
-None

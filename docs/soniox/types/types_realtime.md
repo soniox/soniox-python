@@ -1,7 +1,7 @@
 ---
 title: soniox.types.realtime
 description: Description for realtime
-keywords: annotations, json, Enum, Literal, BaseModel, ConfigDict, Field, StructuredContext, TranslationConfig, Token, RealtimeEvent, RealtimeSTTConfig, RealtimeControlType, EventType, RealtimeSessionOpenPayload, RealtimeSessionClosePayload, RealtimeSessionFinishedPayload, RealtimeSessionErrorPayload, RealtimeSessionEventPayload
+keywords: annotations, json, Enum, BaseModel, ConfigDict, Field, StructuredContext, TranslationConfig, Token, RealtimeEvent, RealtimeSTTConfig, RealtimeControlType
 ---
 
 
@@ -15,17 +15,17 @@ Event payload received from the realtime STT websocket.
 
 - **model_config**: 
 
-- **tokens**: 
+- **tokens**: Tokens in this result.
 
-- **final_audio_proc_ms**: 
+- **final_audio_proc_ms**: Milliseconds of audio that have been finalized.
 
-- **total_audio_proc_ms**: 
+- **total_audio_proc_ms**: Total milliseconds of audio processed.
 
-- **finished**: 
+- **finished**: Whether this is the final result (session ending).
 
-- **error_code**: 
+- **error_code**: Error code if the realtime operation failed.
 
-- **error_message**: 
+- **error_message**: Human-readable description of the error.
 
 ### `validate_event`
 
@@ -53,31 +53,31 @@ Configuration for initiating a realtime transcription session.
 
 ### Attributes
 
-- **api_key**: 
+- **api_key**: API key for real-time sessions.
 
-- **model**: 
+- **model**: Speech-to-text model to use.
 
-- **audio_format**: 
+- **audio_format**: Audio format. Use 'auto' for automatic detection of container formats.
 
-- **num_channels**: 
+- **num_channels**: Number of audio channels (required for raw audio formats).
 
-- **sample_rate**: 
+- **sample_rate**: Sample rate in Hz (required for PCM formats).
 
-- **language_hints**: 
+- **language_hints**: Expected languages in the audio (ISO language codes).
 
-- **language_hints_strict**: 
+- **language_hints_strict**: When true, recognition is strongly biased toward language hints (best results when using one language in language_hints).
 
-- **context**: 
+- **context**: Additional context to improve transcription accuracy.
 
-- **enable_speaker_diarization**: 
+- **enable_speaker_diarization**: Enable speaker identification.
 
-- **enable_language_identification**: 
+- **enable_language_identification**: Enable automatic language detection.
 
-- **enable_endpoint_detection**: 
+- **enable_endpoint_detection**: Enable endpoint detection for utterance boundaries.
 
-- **translation**: 
+- **translation**: Translation configuration.
 
-- **client_reference_id**: 
+- **client_reference_id**: Optional tracking identifier (max 256 chars).
 
 ### `build_payload`
 
@@ -110,57 +110,3 @@ Control messages that can be sent over a realtime session.
 - **KEEP_ALIVE**: 
 
 - **FINALIZE**: 
-
----
-
-## Class `RealtimeSessionOpenPayload`
-
-Event emitted when a realtime websocket session opens.
-
-### Attributes
-
-- **type**: 
-
-- **model_config**: 
-
----
-
-## Class `RealtimeSessionClosePayload`
-
-Event emitted when a realtime websocket session closes.
-
-### Attributes
-
-- **type**: 
-
-- **model_config**: 
-
----
-
-## Class `RealtimeSessionFinishedPayload`
-
-Event emitted when a realtime session finishes processing.
-
-### Attributes
-
-- **type**: 
-
-- **event**: 
-
-- **model_config**: 
-
----
-
-## Class `RealtimeSessionErrorPayload`
-
-Event emitted when a realtime session reports an error.
-
-### Attributes
-
-- **type**: 
-
-- **error**: 
-
-- **event**: 
-
-- **model_config**: 

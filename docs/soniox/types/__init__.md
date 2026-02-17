@@ -13,15 +13,15 @@ Structured representation of a non-2xx API response payload.
 
 ### Attributes
 
-- **status_code**: 
+- **status_code**: HTTP status code.
 
-- **error_type**: 
+- **error_type**: High-level error code (e.g., 'bad_request', 'quota_exceeded') for programmatic handling.
 
-- **message**: 
+- **message**: Detailed error message describing the failure.
 
-- **validation_errors**: 
+- **validation_errors**: List of specific field validation failures, if applicable.
 
-- **request_id**: 
+- **request_id**: Unique identifier for the request, useful for troubleshooting.
 
 ---
 
@@ -31,11 +31,11 @@ Details a single validation error reported by the Soniox API.
 
 ### Attributes
 
-- **error_type**: 
+- **error_type**: The category of validation error.
 
-- **location**: 
+- **location**: The location of the error, e.g. ['body', 'audio_url'].
 
-- **message**: 
+- **message**: A human-readable description of the validation failure.
 
 ---
 
@@ -45,11 +45,11 @@ Payload for requesting a temporary API key (e.g., websocket).
 
 ### Attributes
 
-- **usage_type**: 
+- **usage_type**: Intended usage of the temporary API key.
 
-- **expires_in_seconds**: 
+- **expires_in_seconds**: Duration in seconds until the temporary API key expires
 
-- **client_reference_id**: 
+- **client_reference_id**: Optional tracking identifier string. Does not need to be unique
 
 ---
 
@@ -59,9 +59,9 @@ Response data for a temp API key request.
 
 ### Attributes
 
-- **api_key**: 
+- **api_key**: Created temporary API key.
 
-- **expires_at**: 
+- **expires_at**: UTC timestamp indicating when generated temporary API key will expire
 
 ---
 
@@ -71,27 +71,27 @@ Helper config used when building transcription payloads.
 
 ### Attributes
 
-- **model**: 
+- **model**: Speech-to-text model to use.
 
-- **language_hints**: 
+- **language_hints**: Array of expected ISO language codes to bias recognition.
 
-- **language_hints_strict**: 
+- **language_hints_strict**: When true, model relies more heavily on language hints.
 
-- **enable_speaker_diarization**: 
+- **enable_speaker_diarization**: Enable speaker diarization to identify different speakers.
 
-- **enable_language_identification**: 
+- **enable_language_identification**: Enable automatic language identification
 
-- **translation**: 
+- **translation**: Translation configuration
 
-- **context**: 
+- **context**: Additional context to improve transcription accuracy and formatting of specialized terms.
 
-- **webhook_url**: 
+- **webhook_url**: URL to receive webhook notifications when transcription is completed or fails.
 
-- **webhook_auth_header_name**: 
+- **webhook_auth_header_name**: Name of the authentication header sent with webhook notifications
 
-- **webhook_auth_header_value**: 
+- **webhook_auth_header_value**: Authentication header value sent with webhook notifications
 
-- **client_reference_id**: 
+- **client_reference_id**: Optional tracking identifier
 
 ---
 
@@ -101,31 +101,31 @@ Payload sent to create an asynchronous transcription job.
 
 ### Attributes
 
-- **model**: 
+- **model**: Speech-to-text model to use.
 
-- **audio_url**: 
+- **audio_url**: URL of a publicly accessible audio file.
 
-- **file_id**: 
+- **file_id**: ID of a previously uploaded file (UUID).
 
-- **language_hints**: 
+- **language_hints**: Array of expected ISO language codes to bias recognition.
 
-- **language_hints_strict**: 
+- **language_hints_strict**: When true, model relies more heavily on language hints (best results with one language hint set).
 
-- **enable_speaker_diarization**: 
+- **enable_speaker_diarization**: Enable speaker diarization to identify different speakers.
 
-- **enable_language_identification**: 
+- **enable_language_identification**: Enable automatic language identification.
 
-- **translation**: 
+- **translation**: Translation configuration.
 
-- **context**: 
+- **context**: Additional context to improve transcription accuracy and formatting of specialized terms.
 
-- **webhook_url**: 
+- **webhook_url**: URL to receive webhook notifications when transcription is completed or fails.
 
-- **webhook_auth_header_name**: 
+- **webhook_auth_header_name**: Name of the authentication header sent with webhook notifications
 
-- **webhook_auth_header_value**: 
+- **webhook_auth_header_value**: Authentication header value sent with webhook notifications.
 
-- **client_reference_id**: 
+- **client_reference_id**: Optional tracking identifier.
 
 ### `_validate_audio_source`
 
@@ -151,15 +151,15 @@ Metadata describing an uploaded file in the Soniox API.
 
 ### Attributes
 
-- **id**: 
+- **id**: Unique identifier of the file (UUID).
 
-- **filename**: 
+- **filename**: Name of the file.
 
-- **size**: 
+- **size**: Size of the file in bytes.
 
-- **created_at**: 
+- **created_at**: UTC timestamp indicating when the file was uploaded.
 
-- **client_reference_id**: 
+- **client_reference_id**: Optional tracking identifier string.
 
 ---
 
@@ -169,9 +169,9 @@ Parameters accepted by the file listing endpoint.
 
 ### Attributes
 
-- **limit**: 
+- **limit**: Maximum number of files to return.
 
-- **cursor**: 
+- **cursor**: Pagination cursor for the next page of results.
 
 ---
 
@@ -181,9 +181,9 @@ Paginated response returned when listing uploaded files.
 
 ### Attributes
 
-- **files**: 
+- **files**: List of uploaded files.
 
-- **next_page_cursor**: 
+- **next_page_cursor**: A pagination token that references the next page of results. When None, no additional results are available.
 
 ---
 
@@ -193,7 +193,7 @@ Response returned when listing available models.
 
 ### Attributes
 
-- **models**: 
+- **models**: List of all available models.
 
 ---
 
@@ -203,9 +203,9 @@ Parameters for listing transcription jobs.
 
 ### Attributes
 
-- **limit**: 
+- **limit**: Maximum number of transcriptions to return.
 
-- **cursor**: 
+- **cursor**: Pagination cursor for the next page of results.
 
 ---
 
@@ -215,9 +215,9 @@ Paginated response for transcription listings.
 
 ### Attributes
 
-- **transcriptions**: 
+- **transcriptions**: List of transcriptions.
 
-- **next_page_cursor**: 
+- **next_page_cursor**: A pagination token that references the next page of results. When None, no additional results are available.
 
 ---
 
@@ -227,27 +227,27 @@ Describes a Soniox transcription model.
 
 ### Attributes
 
-- **id**: 
+- **id**: Unique identifier of the model.
 
-- **aliased_model_id**: 
+- **aliased_model_id**: If this is an alias, the id of the aliased model. None for non-alias models.
 
-- **name**: 
+- **name**: Name of the model.
 
-- **context_version**: 
+- **context_version**: Version of context supported.
 
-- **transcription_mode**: 
+- **transcription_mode**: Transcription mode of the model.
 
-- **languages**: 
+- **languages**: List of languages supported by the model.
 
-- **supports_language_hints_strict**: 
+- **supports_language_hints_strict**: If model supports 'language_hints_strict' option.
 
-- **translation_targets**: 
+- **translation_targets**: List of supported one-way translation targets. If list is empty, check for one_way_translation field.
 
-- **two_way_translation_pairs**: 
+- **two_way_translation_pairs**: List of supported two-way translation pairs. If list is empty, check for one_way_translation field.
 
-- **one_way_translation**: 
+- **one_way_translation**: When contains string 'all_languages', any language from languages can be used
 
-- **two_way_translation**: 
+- **two_way_translation**: When contains string 'all_languages',' any language pair from languages can be used
 
 ---
 
@@ -257,13 +257,13 @@ Optional structured context provided to the transcription engine.
 
 ### Attributes
 
-- **general**: 
+- **general**: Structured key-value pairs describing domain, topic, intent, participant names, etc.
 
-- **text**: 
+- **text**: Longer free-form background text, prior interaction history, reference documents, or meeting notes.
 
-- **terms**: 
+- **terms**: Domain-specific or uncommon words to recognize.
 
-- **translation_terms**: 
+- **translation_terms**: Custom translations for ambiguous terms.
 
 ---
 
@@ -273,9 +273,9 @@ Single general context key/value pair for transcription context.
 
 ### Attributes
 
-- **key**: 
+- **key**: The key describing the context type (e.g., "domain", "topic", "doctor").
 
-- **value**: 
+- **value**: The value for the context key.
 
 ---
 
@@ -285,9 +285,9 @@ Defines a translation term mapping used in structured context.
 
 ### Attributes
 
-- **source**: 
+- **source**: The source term to translate.
 
-- **target**: 
+- **target**: The target translation for the term.
 
 ---
 
@@ -297,41 +297,41 @@ Represents a transcription job tracked by Soniox.
 
 ### Attributes
 
-- **id**: 
+- **id**: Unique identifier of the transcription (UUID).
 
-- **status**: 
+- **status**: Current status of the transcription.
 
-- **created_at**: 
+- **created_at**: UTC timestamp when the transcription was created.
 
-- **model**: 
+- **model**: Speech-to-text model used.
 
-- **audio_url**: 
+- **audio_url**: URL of the audio file being transcribed.
 
-- **file_id**: 
+- **file_id**: ID of the uploaded file being transcribed (UUID).
 
-- **filename**: 
+- **filename**: Name of the file being transcribed.
 
-- **language_hints**: 
+- **language_hints**: Expected languages in the audio. If not specified, languages are automatically detected.
 
-- **enable_speaker_diarization**: 
+- **enable_speaker_diarization**: When true, speakers are identified and separated in the transcription output.
 
-- **enable_language_identification**: 
+- **enable_language_identification**: When true, language is detected for each part of the transcription.
 
-- **audio_duration_ms**: 
+- **audio_duration_ms**: Duration of the audio in milliseconds. Only available after processing begins.
 
-- **error_type**: 
+- **error_type**: Error type if transcription failed. None for successful or in-progress transcriptions.
 
-- **error_message**: 
+- **error_message**: Error message if transcription failed. None for successful or in-progress transcriptions.
 
-- **webhook_url**: 
+- **webhook_url**: URL to receive webhook notifications when transcription is completed or fails.
 
-- **webhook_auth_header_name**: 
+- **webhook_auth_header_name**: Name of the authentication header sent with webhook notifications.
 
-- **webhook_auth_header_value**: 
+- **webhook_auth_header_value**: Authentication header value. Always returned masked.
 
-- **webhook_status_code**: 
+- **webhook_status_code**: HTTP status code received from your server when webhook was delivered. None if not yet sent.
 
-- **client_reference_id**: 
+- **client_reference_id**: Optional tracking identifier.
 
 ---
 
@@ -341,11 +341,11 @@ Transcript data including the full text and tokens.
 
 ### Attributes
 
-- **id**: 
+- **id**: Unique identifier of the transcription this transcript belongs to (UUID).
 
-- **text**: 
+- **text**: Complete transcribed text content.
 
-- **tokens**: 
+- **tokens**: List of detailed token information with timestamps and metadata.
 
 ---
 
@@ -355,13 +355,13 @@ Configuration describing how translation should be performed.
 
 ### Attributes
 
-- **type**: 
+- **type**: Translation type.
 
-- **target_language**: 
+- **target_language**: Target language code for translation (e.g., "fr", "es", "de") (one_way).
 
-- **language_a**: 
+- **language_a**: First language code (two_way).
 
-- **language_b**: 
+- **language_b**: Second language code (two_way).
 
 ---
 
@@ -385,7 +385,7 @@ Optional metadata supplied at upload time.
 
 ### Attributes
 
-- **client_reference_id**: 
+- **client_reference_id**: Optional tracking identifier string. Does not need to be unique
 
 ---
 
@@ -397,23 +397,23 @@ Token metadata emitted during realtime streaming transcriptions.
 
 - **model_config**: 
 
-- **text**: 
+- **text**: The transcribed text.
 
-- **start_ms**: 
+- **start_ms**: Start time in milliseconds relative to audio start.
 
-- **end_ms**: 
+- **end_ms**: End time in milliseconds relative to audio start.
 
-- **confidence**: 
+- **confidence**: Confidence score (0.0 to 1.0).
 
-- **is_final**: 
+- **is_final**: Whether this is a finalized token.
 
-- **speaker**: 
+- **speaker**: Speaker identifier (if diarization enabled).
 
-- **translation_status**: 
+- **translation_status**: Translation status of this token.
 
-- **language**: 
+- **language**: Detected language code (if language identification enabled).
 
-- **source_language**: 
+- **source_language**: Source language for translated tokens.
 
 ---
 
@@ -425,17 +425,17 @@ Event payload received from the realtime STT websocket.
 
 - **model_config**: 
 
-- **tokens**: 
+- **tokens**: Tokens in this result.
 
-- **final_audio_proc_ms**: 
+- **final_audio_proc_ms**: Milliseconds of audio that have been finalized.
 
-- **total_audio_proc_ms**: 
+- **total_audio_proc_ms**: Total milliseconds of audio processed.
 
-- **finished**: 
+- **finished**: Whether this is the final result (session ending).
 
-- **error_code**: 
+- **error_code**: Error code if the realtime operation failed.
 
-- **error_message**: 
+- **error_message**: Human-readable description of the error.
 
 ### `validate_event`
 
@@ -463,31 +463,31 @@ Configuration for initiating a realtime transcription session.
 
 ### Attributes
 
-- **api_key**: 
+- **api_key**: API key for real-time sessions.
 
-- **model**: 
+- **model**: Speech-to-text model to use.
 
-- **audio_format**: 
+- **audio_format**: Audio format. Use 'auto' for automatic detection of container formats.
 
-- **num_channels**: 
+- **num_channels**: Number of audio channels (required for raw audio formats).
 
-- **sample_rate**: 
+- **sample_rate**: Sample rate in Hz (required for PCM formats).
 
-- **language_hints**: 
+- **language_hints**: Expected languages in the audio (ISO language codes).
 
-- **language_hints_strict**: 
+- **language_hints_strict**: When true, recognition is strongly biased toward language hints (best results when using one language in language_hints).
 
-- **context**: 
+- **context**: Additional context to improve transcription accuracy.
 
-- **enable_speaker_diarization**: 
+- **enable_speaker_diarization**: Enable speaker identification.
 
-- **enable_language_identification**: 
+- **enable_language_identification**: Enable automatic language detection.
 
-- **enable_endpoint_detection**: 
+- **enable_endpoint_detection**: Enable endpoint detection for utterance boundaries.
 
-- **translation**: 
+- **translation**: Translation configuration.
 
-- **client_reference_id**: 
+- **client_reference_id**: Optional tracking identifier (max 256 chars).
 
 ### `build_payload`
 
@@ -515,9 +515,9 @@ Configuration for webhook authentication headers.
 
 ### Attributes
 
-- **name**: 
+- **name**: Expected header name (case-insensitive comparison).
 
-- **value**: 
+- **value**: Expected header value (exact match).
 
 ---
 
@@ -527,6 +527,6 @@ Basic webhook event metadata.
 
 ### Attributes
 
-- **id**: 
+- **id**: Transcription ID (UUID).
 
-- **status**: 
+- **status**: Transcription result status.

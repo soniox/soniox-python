@@ -1,7 +1,7 @@
 ---
 title: soniox.api
 description: Description for api
-keywords: AsyncAuthAPI, AsyncFilesAPI, AsyncModelsAPI, AsyncTranscriptionsAPI, AsyncSonioxWebhooksAPI, AuthAPI, FilesAPI, ModelsAPI, TranscriptionsAPI, SonioxWebhooksAPI, __all__, webhooks, files, async_files, auth, models, async_webhooks, _utils, async_auth, async_transcriptions, async_models, transcriptions
+keywords: AsyncAuthAPI, AsyncFilesAPI, AsyncModelsAPI, AsyncSttAPI, AsyncSonioxWebhooksAPI, AuthAPI, FilesAPI, ModelsAPI, SttAPI, SonioxWebhooksAPI, __all__, webhooks, files, async_files, stt, auth, models, async_webhooks, _utils, async_stt, async_auth, async_models
 ---
 
 
@@ -112,6 +112,32 @@ list(limit: int = 100, cursor: str | None = None) -> GetFilesResponse
 #### Returns
 
 GetFilesResponse
+
+### `list_all`
+
+Iterate through all uploaded files across all pages.
+
+Yields:
+    File: The next file object from the API.
+
+Raises:
+    SonioxAPIError: When the API returns an error.
+
+#### Signature
+
+```python
+list_all(limit: int = 100) -> AsyncGenerator[File, None]
+```
+
+#### Parameters
+
+- **self** (None): 
+
+- **limit** (int): 
+
+#### Returns
+
+AsyncGenerator[File, None]
 
 ### `get`
 
@@ -246,7 +272,7 @@ File
 
 Delete all files.
 
-Iterates through all pages and deletes each file.
+Iterates through all pages and deletes each file. Stops and raises on the first failed deletion.
 
 Raises:
     SonioxAPIError: When the API returns an error.
@@ -254,7 +280,7 @@ Raises:
 #### Signature
 
 ```python
-delete_all(*, limit: int = 100) -> None
+delete_all(limit: int = 100) -> None
 ```
 
 #### Parameters
@@ -318,7 +344,7 @@ GetModelsResponse
 
 ---
 
-## Class `AsyncTranscriptionsAPI`
+## Class `AsyncSttAPI`
 
 ### Attributes
 
@@ -369,11 +395,12 @@ list(limit: int = 100, cursor: str | None = None) -> GetTranscriptionsResponse
 
 GetTranscriptionsResponse
 
-### `delete_all`
+### `list_all`
 
-Delete all transcriptions.
+Iterate through all transcriptions across all pages.
 
-Iterates through all pages and deletes each transcription.
+Yields:
+    File: The next transcription object from the API.
 
 Raises:
     SonioxAPIError: When the API returns an error.
@@ -381,7 +408,32 @@ Raises:
 #### Signature
 
 ```python
-delete_all(*, limit: int = 100) -> None
+list_all(limit: int = 100) -> AsyncGenerator[Transcription, None]
+```
+
+#### Parameters
+
+- **self** (None): 
+
+- **limit** (int): 
+
+#### Returns
+
+AsyncGenerator[Transcription, None]
+
+### `delete_all`
+
+Delete all transcriptions.
+
+Iterates through all pages and deletes each transcription. Stops and raises on the first failed deletion.
+
+Raises:
+    SonioxAPIError: When the API returns an error.
+
+#### Signature
+
+```python
+delete_all(limit: int = 100) -> None
 ```
 
 #### Parameters
@@ -545,6 +597,29 @@ destroy(transcription_id: str) -> None
 - **self** (None): 
 
 - **transcription_id** (str): 
+
+#### Returns
+
+None
+
+### `destroy_all`
+
+Delete all transcriptions and their associated files. Stops and raises on the first failed deletion.
+
+Raises:
+    SonioxAPIError: When the API returns an error during listing.
+
+#### Signature
+
+```python
+destroy_all(limit: int = 100) -> None
+```
+
+#### Parameters
+
+- **self** (None): 
+
+- **limit** (int): 
 
 #### Returns
 
@@ -968,6 +1043,32 @@ list(limit: int = 100, cursor: str | None = None) -> GetFilesResponse
 
 GetFilesResponse
 
+### `list_all`
+
+Iterate through all uploaded files across all pages.
+
+Yields:
+    File: The next file object from the API.
+
+Raises:
+    SonioxAPIError: When the API returns an error.
+
+#### Signature
+
+```python
+list_all(limit: int = 100) -> Generator[File, None, None]
+```
+
+#### Parameters
+
+- **self** (None): 
+
+- **limit** (int): 
+
+#### Returns
+
+Generator[File, None, None]
+
 ### `get`
 
 Retrieve a file by ID.
@@ -1101,7 +1202,7 @@ File
 
 Delete all files.
 
-Iterates through all pages and deletes each file.
+Iterates through all pages and deletes each file. Stops and raises on the first failed deletion.
 
 Raises:
     SonioxAPIError: When the API returns an error.
@@ -1109,7 +1210,7 @@ Raises:
 #### Signature
 
 ```python
-delete_all(*, limit: int = 100) -> None
+delete_all(limit: int = 100) -> None
 ```
 
 #### Parameters
@@ -1173,7 +1274,7 @@ GetModelsResponse
 
 ---
 
-## Class `TranscriptionsAPI`
+## Class `SttAPI`
 
 ### Attributes
 
@@ -1224,11 +1325,12 @@ list(limit: int = 100, cursor: str | None = None) -> GetTranscriptionsResponse
 
 GetTranscriptionsResponse
 
-### `delete_all`
+### `list_all`
 
-Delete all transcriptions.
+Iterate through all transcriptions across all pages.
 
-Iterates through all pages and deletes each transcription.
+Yields:
+    File: The next transcription object from the API.
 
 Raises:
     SonioxAPIError: When the API returns an error.
@@ -1236,7 +1338,32 @@ Raises:
 #### Signature
 
 ```python
-delete_all(*, limit: int = 100) -> None
+list_all(limit: int = 100) -> Generator[Transcription, None, None]
+```
+
+#### Parameters
+
+- **self** (None): 
+
+- **limit** (int): 
+
+#### Returns
+
+Generator[Transcription, None, None]
+
+### `delete_all`
+
+Delete all transcriptions.
+
+Iterates through all pages and deletes each transcription. Stops and raises on the first failed deletion.
+
+Raises:
+    SonioxAPIError: When the API returns an error.
+
+#### Signature
+
+```python
+delete_all(limit: int = 100) -> None
 ```
 
 #### Parameters
@@ -1400,6 +1527,29 @@ destroy(transcription_id: str) -> None
 - **self** (None): 
 
 - **transcription_id** (str): 
+
+#### Returns
+
+None
+
+### `destroy_all`
+
+Delete all transcriptions and their associated files. Stops and raises on the first failed deletion.
+
+Raises:
+    SonioxAPIError: When the API returns an error during listing.
+
+#### Signature
+
+```python
+destroy_all(limit: int = 100) -> None
+```
+
+#### Parameters
+
+- **self** (None): 
+
+- **limit** (int): 
 
 #### Returns
 

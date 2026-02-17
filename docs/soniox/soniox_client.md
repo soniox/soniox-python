@@ -1,7 +1,7 @@
 ---
 title: soniox.client
 description: Description for client
-keywords: annotations, os, Mapping, cached_property, TracebackType, TYPE_CHECKING, Any, httpx, SonioxValidationError, AsyncAuthAPI, AsyncFilesAPI, AsyncModelsAPI, AsyncTranscriptionsAPI, AsyncSonioxWebhooksAPI, AuthAPI, FilesAPI, ModelsAPI, TranscriptionsAPI, SonioxWebhooksAPI, AsyncRealtimeAPI, RealtimeAPI, _DEFAULT_API_BASE_URL, _DEFAULT_WEBSOCKET_BASE_URL, _DEFAULT_TIMEOUT_SEC, _BaseSonioxClient, SonioxClient, AsyncSonioxClient
+keywords: annotations, os, Mapping, cached_property, TracebackType, TYPE_CHECKING, Any, httpx, SonioxValidationError, AsyncAuthAPI, AsyncFilesAPI, AsyncModelsAPI, AsyncSttAPI, AsyncSonioxWebhooksAPI, AuthAPI, FilesAPI, ModelsAPI, SttAPI, SonioxWebhooksAPI, AsyncRealtimeAPI, RealtimeAPI, _DEFAULT_API_BASE_URL, _DEFAULT_WEBSOCKET_BASE_URL, _DEFAULT_TIMEOUT_SEC, _BaseSonioxClient, SonioxClient, AsyncSonioxClient
 ---
 
 
@@ -81,7 +81,7 @@ Synchronous Soniox REST client exposing API namespaces via httpx.
 
 - **files**: 
 
-- **transcriptions**: 
+- **stt**: 
 
 - **models**: 
 
@@ -219,7 +219,7 @@ Asynchronous Soniox REST client exposing HTTP and realtime helpers.
 
 - **files**: 
 
-- **transcriptions**: 
+- **stt**: 
 
 - **models**: 
 

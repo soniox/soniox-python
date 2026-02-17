@@ -1,7 +1,7 @@
 ---
 title: soniox.api.files
 description: Description for files
-keywords: annotations, Path, TYPE_CHECKING, BinaryIO, SonioxNotFoundError, File, GetFilesPayload, GetFilesResponse, UploadFilePayload, ensure_success, normalize_file, parse_response, SonioxClient, FilesAPI
+keywords: annotations, Generator, Path, TYPE_CHECKING, BinaryIO, SonioxNotFoundError, File, GetFilesPayload, GetFilesResponse, UploadFilePayload, ensure_success, normalize_file, parse_response, SonioxClient, FilesAPI
 ---
 
 
@@ -57,6 +57,32 @@ list(limit: int = 100, cursor: str | None = None) -> GetFilesResponse
 #### Returns
 
 GetFilesResponse
+
+### `list_all`
+
+Iterate through all uploaded files across all pages.
+
+Yields:
+    File: The next file object from the API.
+
+Raises:
+    SonioxAPIError: When the API returns an error.
+
+#### Signature
+
+```python
+list_all(limit: int = 100) -> Generator[File, None, None]
+```
+
+#### Parameters
+
+- **self** (None): 
+
+- **limit** (int): 
+
+#### Returns
+
+Generator[File, None, None]
 
 ### `get`
 
@@ -191,7 +217,7 @@ File
 
 Delete all files.
 
-Iterates through all pages and deletes each file.
+Iterates through all pages and deletes each file. Stops and raises on the first failed deletion.
 
 Raises:
     SonioxAPIError: When the API returns an error.
@@ -199,7 +225,7 @@ Raises:
 #### Signature
 
 ```python
-delete_all(*, limit: int = 100) -> None
+delete_all(limit: int = 100) -> None
 ```
 
 #### Parameters

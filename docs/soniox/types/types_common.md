@@ -15,20 +15,20 @@ Token metadata emitted during realtime streaming transcriptions.
 
 - **model_config**: 
 
-- **text**: 
+- **text**: The transcribed text.
 
-- **start_ms**: 
+- **start_ms**: Start time in milliseconds relative to audio start.
 
-- **end_ms**: 
+- **end_ms**: End time in milliseconds relative to audio start.
 
-- **confidence**: 
+- **confidence**: Confidence score (0.0 to 1.0).
 
-- **is_final**: 
+- **is_final**: Whether this is a finalized token.
 
-- **speaker**: 
+- **speaker**: Speaker identifier (if diarization enabled).
 
-- **translation_status**: 
+- **translation_status**: Translation status of this token.
 
-- **language**: 
+- **language**: Detected language code (if language identification enabled).
 
-- **source_language**: 
+- **source_language**: Source language for translated tokens.

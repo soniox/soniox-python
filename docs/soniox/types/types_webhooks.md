@@ -13,9 +13,9 @@ Configuration for webhook authentication headers.
 
 ### Attributes
 
-- **name**: 
+- **name**: Expected header name (case-insensitive comparison).
 
-- **value**: 
+- **value**: Expected header value (exact match).
 
 ---
 
@@ -25,6 +25,6 @@ Basic webhook event metadata.
 
 ### Attributes
 
-- **id**: 
+- **id**: Transcription ID (UUID).
 
-- **status**: 
+- **status**: Transcription result status.
