@@ -9,7 +9,6 @@ from typing import TYPE_CHECKING, BinaryIO
 from ..errors import SonioxNotFoundError, SonioxValidationError
 from ..types import (
     CreateTranscriptionConfig,
-    DeletionStatus,
     GetTranscriptionsPayload,
     GetTranscriptionsResponse,
     Transcription,
@@ -69,24 +68,17 @@ class AsyncSttAPI:
             if not cursor:
                 break
 
-    async def delete_all(self, limit: int = 100) -> AsyncGenerator[DeletionStatus, None]:
+    async def delete_all(self, limit: int = 100) -> None:
         """
         Delete all transcriptions.
 
-        Iterates through all pages and deletes each transcription.
-
-        Yields:
-            DeletionStatus: The status of each deletion attempt.
+        Iterates through all pages and deletes each transcription. Stops and raises on the first failed deletion.
 
         Raises:
             SonioxAPIError: When the API returns an error.
         """
         async for transcription in self.list_all(limit=limit):
-            try:
-                await self.delete(transcription.id)
-                yield DeletionStatus(id=transcription.id, success=True)
-            except Exception as e:
-                yield DeletionStatus(id=transcription.id, success=False, error=str(e))
+            await self.delete_if_exists(transcription.id)
 
     async def create(
         self,
@@ -183,24 +175,17 @@ class AsyncSttAPI:
         if transcription.file_id:
             await self._client.files.delete_if_exists(transcription.file_id)
 
-    async def destroy_all(self, limit: int = 100) -> AsyncGenerator[DeletionStatus, None]:
+    async def destroy_all(self, limit: int = 100) -> None:
         """
-        Delete all transcriptions and their associated files.
-
-        Yields:
-            dict: A status report for each transcription processed.
+        Delete all transcriptions and their associated files. Stops and raises on the first failed deletion.
 
         Raises:
             SonioxAPIError: When the API returns an error during listing.
         """
         async for transcription in self.list_all(limit=limit):
-            try:
-                await self.delete(transcription.id)
-                if transcription.file_id:
-                    await self._client.files.delete_if_exists(transcription.file_id)
-                yield DeletionStatus(id=transcription.id, success=True)
-            except Exception as e:
-                yield DeletionStatus(id=transcription.id, success=False, error=str(e))
+            await self.delete_if_exists(transcription.id)
+            if transcription.file_id:
+                await self._client.files.delete_if_exists(transcription.file_id)
 
     async def get_transcript(self, transcription_id: str) -> TranscriptionTranscript:
         """

@@ -413,16 +413,3 @@ class GetTranscriptionsResponse(BaseModel):
 
     next_page_cursor: str | None = None
     """A pagination token that references the next page of results. When None, no additional results are available."""
-
-
-class DeletionStatus(BaseModel):
-    """Result of a deletion operation on a specific resource."""
-
-    id: str
-    """Identifier of the resource that was deleted (UUID)."""
-
-    success: bool
-    """Whether the deletion was successful."""
-
-    error: str | None = None
-    """Error message if the deletion failed."""
