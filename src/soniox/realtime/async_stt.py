@@ -155,7 +155,7 @@ class AsyncRealtimeSTTSession:
 
         async for chunk in chunks:
             await self.send_byte_chunk(chunk)
-        await self.send_finish()
+        await self.finish()
 
     async def send_control_message(self, control_type: RealtimeControlType) -> None:
         """
@@ -184,19 +184,19 @@ class AsyncRealtimeSTTSession:
         except Exception as exc:
             raise SonioxRealtimeError("Failed to send control message") from exc
 
-    async def send_finish(self) -> None:
+    async def finish(self) -> None:
         """
         Signal that no more audio will be sent for this session.
         """
         await self.send_control_message(RealtimeControlType.FINISH)
 
-    async def send_keep_alive(self) -> None:
+    async def keep_alive(self) -> None:
         """
         Send a keep-alive message to prevent the session from timing out.
         """
         await self.send_control_message(RealtimeControlType.KEEP_ALIVE)
 
-    async def send_finalize(self) -> None:
+    async def finalize(self) -> None:
         """
         Finalize all outstanding non-final tokens while keeping the session open.
 

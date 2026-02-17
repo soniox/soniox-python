@@ -156,7 +156,7 @@ class RealtimeSTTSession:
 
         for chunk in chunks:
             self.send_byte_chunk(chunk)
-        self.send_finish()
+        self.finish()
 
     def send_control_message(self, control_type: RealtimeControlType) -> None:
         """
@@ -185,19 +185,19 @@ class RealtimeSTTSession:
         except Exception as exc:
             raise SonioxRealtimeError("Failed to send control message") from exc
 
-    def send_finish(self) -> None:
+    def finish(self) -> None:
         """
         Signal that no more audio will be sent for this session.
         """
         self.send_control_message(RealtimeControlType.FINISH)
 
-    def send_keep_alive(self) -> None:
+    def keep_alive(self) -> None:
         """
         Send a keep-alive message to prevent the session from timing out.
         """
         self.send_control_message(RealtimeControlType.KEEP_ALIVE)
 
-    def send_finalize(self) -> None:
+    def finalize(self) -> None:
         """
         Finalize all outstanding non-final tokens while keeping the session open.
 
