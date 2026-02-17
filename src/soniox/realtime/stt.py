@@ -10,6 +10,7 @@ from websockets.sync.client import connect as sync_ws_connect
 
 from ..errors import SonioxRealtimeError, SonioxValidationError
 from ..types.realtime import RealtimeControlType, RealtimeEvent, RealtimeSTTConfig
+from ._utils import KEEP_ALIVE_INTERVAL_SEC, KeepaliveThread
 
 if TYPE_CHECKING:
     from ..client import SonioxClient
@@ -45,6 +46,8 @@ class RealtimeSTTSession:
         self._config = config
         self._ws = None
         self._last_message: RealtimeEvent | None = None
+        self._paused = False
+        self._keepalive: KeepaliveThread | None = None
 
     @property
     def config(self) -> RealtimeSTTConfig:
@@ -52,6 +55,11 @@ class RealtimeSTTSession:
         Return the configuration used to initialize this session.
         """
         return self._config
+
+    @property
+    def paused(self) -> bool:
+        """Return True if the session is currently paused."""
+        return self._paused
 
     def __enter__(self) -> RealtimeSTTSession:
         """
@@ -104,6 +112,10 @@ class RealtimeSTTSession:
         Sends a final empty message to signal end-of-stream, then closes
         the WebSocket connection. Calling this method multiple times is safe.
         """
+        if self._keepalive is not None:
+            self._keepalive.stop()
+            self._keepalive = None
+        self._paused = False
         if not self._ws:
             return
         try:
@@ -132,6 +144,8 @@ class RealtimeSTTSession:
         """
         if not self._ws:
             raise SonioxRealtimeError("Realtime session is not connected")
+        if self._paused:
+            return
         try:
             self._ws.send(chunk)
         except Exception as exc:
@@ -285,6 +299,48 @@ class RealtimeSTTSession:
         """
         for event in self.receive_events():
             handler(event)
+
+    def pause(self) -> None:
+        """
+        Pause the session, suppressing outgoing audio and starting a
+        background keepalive thread.
+
+        While paused, calls to :meth:`send_byte_chunk` are silently dropped.
+        A background thread sends a keepalive message every
+        ``KEEP_ALIVE_INTERVAL_SEC`` seconds to prevent the server from
+        timing out the session.
+
+        Calling `pause` on an already-paused session is a no-op.
+
+        Raises:
+            SonioxRealtimeError: If the session is not connected.
+        """
+        if not self._ws:
+            raise SonioxRealtimeError("Realtime session is not connected")
+        if self._paused:
+            return
+        self._paused = True
+        self._keepalive = KeepaliveThread(self.keep_alive, KEEP_ALIVE_INTERVAL_SEC)
+        self._keepalive.start()
+
+    def resume(self) -> None:
+        """
+        Resume a paused session, stopping the keepalive thread and
+        allowing audio to be sent again.
+
+        Calling `resume` on a session that is not paused is a no-op.
+
+        Raises:
+            SonioxRealtimeError: If the session is not connected.
+        """
+        if not self._ws:
+            raise SonioxRealtimeError("Realtime session is not connected")
+        if not self._paused:
+            return
+        if self._keepalive is not None:
+            self._keepalive.stop()
+            self._keepalive = None
+        self._paused = False
 
     enter = __enter__
 
