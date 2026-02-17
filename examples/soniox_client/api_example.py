@@ -38,13 +38,13 @@ def main() -> None:
         uploaded_id = uploaded.id
         print(f"Uploaded {uploaded.filename} (id={uploaded.id})")
 
-        transcription = client.transcriptions.create(file_id=uploaded.id)
+        transcription = client.stt.create(file_id=uploaded.id)
         transcription_id = transcription.id
         print("Polling transcription until completion...")
-        finished = client.transcriptions.wait(transcription.id, timeout_sec=60)
+        finished = client.stt.wait(transcription.id, timeout_sec=60)
         print(f"Status: {finished.status}")
 
-        transcript = client.transcriptions.get_transcript(transcription.id)
+        transcript = client.stt.get_transcript(transcription.id)
         print("Transcript snippet:")
         print(transcript.text[:200].strip() or "<no text yet>")
 
@@ -54,7 +54,7 @@ def main() -> None:
             print("  request_id:", exc.request_id)
     finally:
         if transcription_id:
-            client.transcriptions.delete(transcription_id)
+            client.stt.delete(transcription_id)
             print(f"Deleted transcription {transcription_id}")
         if uploaded_id:
             client.files.delete(uploaded_id)

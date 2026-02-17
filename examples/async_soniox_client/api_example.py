@@ -39,13 +39,13 @@ async def main() -> None:
         uploaded_id = uploaded.id
         print(f"Uploaded {uploaded.filename} (id={uploaded.id})")
 
-        transcription = await client.transcriptions.create(file_id=uploaded.id)
+        transcription = await client.stt.create(file_id=uploaded.id)
         transcription_id = transcription.id
         print("Polling transcription until completion...")
-        finished = await client.transcriptions.wait(transcription.id, timeout_sec=60)
+        finished = await client.stt.wait(transcription.id, timeout_sec=60)
         print(f"Status: {finished.status}")
 
-        transcript = await client.transcriptions.get_transcript(transcription.id)
+        transcript = await client.stt.get_transcript(transcription.id)
         print("Transcript snippet:")
         print(transcript.text[:200].strip() or "<no text yet>")
 
@@ -55,7 +55,7 @@ async def main() -> None:
             print("  request_id:", exc.request_id)
     finally:
         if transcription_id:
-            await client.transcriptions.delete(transcription_id)
+            await client.stt.delete(transcription_id)
             print(f"Deleted transcription {transcription_id}")
         if uploaded_id:
             await client.files.delete(uploaded_id)
