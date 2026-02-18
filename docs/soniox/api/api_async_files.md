@@ -1,7 +1,7 @@
 ---
 title: soniox.api.async_files
 description: Description for async_files
-keywords: annotations, AsyncGenerator, Path, TYPE_CHECKING, BinaryIO, SonioxNotFoundError, DeletionStatus, File, GetFilesPayload, GetFilesResponse, UploadFilePayload, ensure_success, normalize_file, parse_async_response, AsyncSonioxClient, AsyncFilesAPI
+keywords: annotations, AsyncGenerator, Path, TYPE_CHECKING, BinaryIO, SonioxNotFoundError, File, GetFilesPayload, GetFilesResponse, UploadFilePayload, ensure_success, normalize_file, parse_async_response, AsyncSonioxClient, AsyncFilesAPI
 ---
 
 

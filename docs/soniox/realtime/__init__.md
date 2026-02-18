@@ -272,7 +272,7 @@ Args:
 #### Signature
 
 ```python
-send_bytes(chunks: bytes | Iterator[bytes]) -> None
+send_bytes(chunks: bytes | Iterator[bytes], *, finish: bool = True) -> None
 ```
 
 #### Parameters
@@ -280,6 +280,8 @@ send_bytes(chunks: bytes | Iterator[bytes]) -> None
 - **self** (None): 
 
 - **chunks** (bytes | Iterator[bytes]): 
+
+- **finish** (bool): 
 
 #### Returns
 
@@ -812,7 +814,7 @@ Args:
 #### Signature
 
 ```python
-send_bytes(chunks: bytes | AsyncIterator[bytes]) -> None
+send_bytes(chunks: bytes | AsyncIterator[bytes], *, finish: bool = True) -> None
 ```
 
 #### Parameters
@@ -820,6 +822,8 @@ send_bytes(chunks: bytes | AsyncIterator[bytes]) -> None
 - **self** (None): 
 
 - **chunks** (bytes | AsyncIterator[bytes]): 
+
+- **finish** (bool): 
 
 #### Returns
 
