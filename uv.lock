@@ -316,14 +316,9 @@ dev = [
     { name = "ruff" },
 ]
 
-[package.dev-dependencies]
-dev = [
-    { name = "griffe" },
-]
-
 [package.metadata]
 requires-dist = [
-    { name = "griffe", marker = "extra == 'dev'", specifier = ">=0.37" },
+    { name = "griffe", marker = "extra == 'dev'", specifier = ">=1.15.0" },
     { name = "httpx", specifier = ">0.25.0" },
     { name = "pydantic", specifier = ">2" },
     { name = "pyright", marker = "extra == 'dev'", specifier = ">=1.1.0" },
@@ -331,9 +326,6 @@ requires-dist = [
     { name = "websockets", specifier = ">11.0" },
 ]
 provides-extras = ["dev"]
-
-[package.metadata.requires-dev]
-dev = [{ name = "griffe", specifier = ">=1.15.0" }]
 
 [[package]]
 name = "typing-extensions"
