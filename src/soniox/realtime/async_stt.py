@@ -150,7 +150,9 @@ class AsyncRealtimeSTTSession:
         except Exception as exc:
             raise SonioxRealtimeError("Failed to send audio chunk") from exc
 
-    async def send_bytes(self, chunks: bytes | AsyncIterator[bytes]) -> None:
+    async def send_bytes(
+        self, chunks: bytes | AsyncIterator[bytes], *, finish: bool = True
+    ) -> None:
         """
         Send audio data to the realtime stream.
 
@@ -169,7 +171,9 @@ class AsyncRealtimeSTTSession:
 
         async for chunk in chunks:
             await self.send_byte_chunk(chunk)
-        await self.finish()
+
+        if finish:
+            await self.finish()
 
     async def send_control_message(self, control_type: RealtimeControlType) -> None:
         """
