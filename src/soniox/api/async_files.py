@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+from collections.abc import AsyncGenerator
 from pathlib import Path
 from typing import TYPE_CHECKING, BinaryIO
 
@@ -37,6 +38,28 @@ class AsyncFilesAPI:
         params = payload.model_dump(exclude_none=True)
         response = await self._client.request("GET", "/files", params=params)
         return await parse_async_response(response, GetFilesResponse)
+
+    async def list_all(self, limit: int = 100) -> AsyncGenerator[File, None]:
+        """
+        Iterate through all uploaded files across all pages.
+
+        Yields:
+            File: The next file object from the API.
+
+        Raises:
+            SonioxAPIError: When the API returns an error.
+        """
+        cursor: str | None = None
+
+        while True:
+            response = await self.list(limit=limit, cursor=cursor)
+
+            for file in response.files:
+                yield file
+
+            cursor = response.next_page_cursor
+            if not cursor:
+                break
 
     async def get(self, file_id: str) -> File:
         """
@@ -123,20 +146,14 @@ class AsyncFilesAPI:
             if close_after:
                 file_obj.close()
 
-    async def delete_all(self, *, limit: int = 100) -> None:
+    async def delete_all(self, limit: int = 100) -> None:
         """
         Delete all files.
 
-        Iterates through all pages and deletes each file.
+        Iterates through all pages and deletes each file. Stops and raises on the first failed deletion.
 
         Raises:
             SonioxAPIError: When the API returns an error.
         """
-        cursor: str | None = None
-        while True:
-            page = await self.list(limit=limit, cursor=cursor)
-            for file in page.files:
-                await self.delete(file.id)
-            if not page.next_page_cursor:
-                break
-            cursor = page.next_page_cursor
+        async for file in self.list_all(limit=limit):
+            await self.delete_if_exists(file.id)

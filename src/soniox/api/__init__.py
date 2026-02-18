@@ -1,19 +1,19 @@
 from .async_auth import AsyncAuthAPI
 from .async_files import AsyncFilesAPI
 from .async_models import AsyncModelsAPI
-from .async_transcriptions import AsyncTranscriptionsAPI
+from .async_stt import AsyncSttAPI
 from .async_webhooks import AsyncSonioxWebhooksAPI
 from .auth import AuthAPI
 from .files import FilesAPI
 from .models import ModelsAPI
-from .transcriptions import TranscriptionsAPI
+from .stt import SttAPI
 from .webhooks import SonioxWebhooksAPI
 
 __all__ = [
     "FilesAPI",
     "AsyncFilesAPI",
-    "TranscriptionsAPI",
-    "AsyncTranscriptionsAPI",
+    "SttAPI",
+    "AsyncSttAPI",
     "ModelsAPI",
     "AsyncModelsAPI",
     "AuthAPI",

@@ -5,14 +5,11 @@ import threading
 import time
 from collections.abc import AsyncIterator, Iterable, Iterator
 from pathlib import Path
-from typing import TYPE_CHECKING, BinaryIO
+from typing import BinaryIO
 
 from soniox.realtime.stt import RealtimeSTTSession
 
 from .types import Token
-
-if TYPE_CHECKING:
-    from soniox.realtime.async_stt import AsyncRealtimeSTTSession
 
 
 def stream_audio(
@@ -168,55 +165,3 @@ def start_audio_thread(
     thread = threading.Thread(target=_stream, daemon=daemon, name=name)
     thread.start()
     return thread
-
-
-def start_keep_alive_thread(
-    session: RealtimeSTTSession,
-    *,
-    interval_seconds: float = 10.0,
-    name: str | None = None,
-    daemon: bool = True,
-) -> tuple[threading.Thread, threading.Event]:
-    """
-    Start a background thread that periodically sends keep-alives to the session.
-
-    Returns:
-        A tuple of (thread, stop_event). Setting `stop_event` will stop the loop.
-    """
-    if not 1.0 <= interval_seconds <= 20.0:
-        raise ValueError("interval_seconds must be between 1 and 20 seconds")
-
-    stop_event = threading.Event()
-
-    def _keep_alive() -> None:
-        while not stop_event.is_set():
-            time.sleep(interval_seconds)
-            if stop_event.is_set():
-                break
-            session.send_keep_alive()
-
-    thread = threading.Thread(target=_keep_alive, daemon=daemon, name=name)
-    thread.start()
-    return thread, stop_event
-
-
-async def keep_alive_async(
-    session: AsyncRealtimeSTTSession,
-    *,
-    interval_seconds: float = 10.0,
-    stop_event: asyncio.Event | None = None,
-) -> None:
-    """
-    Async helper that repeatedly sends keep-alive messages until told to stop.
-    """
-    if not 1.0 <= interval_seconds <= 20.0:
-        raise ValueError("interval_seconds must be between 1 and 20 seconds")
-
-    if stop_event is None:
-        stop_event = asyncio.Event()
-
-    while not stop_event.is_set():
-        await asyncio.sleep(interval_seconds)
-        if stop_event.is_set():
-            break
-        await session.send_keep_alive()
