@@ -6,7 +6,6 @@ from typing import TYPE_CHECKING, BinaryIO
 
 from ..errors import SonioxNotFoundError
 from ..types import (
-    DeletionStatus,
     File,
     GetFilesPayload,
     GetFilesResponse,
