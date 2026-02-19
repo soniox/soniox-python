@@ -1,8 +1,72 @@
 ---
-title: "soniox.realtime"
-description: "Factory for creating synchronous realtime speech-to-text sessions."
-keywords: "AsyncRealtimeAPI, AsyncRealtimeSTTClient, AsyncRealtimeSTTSession, RealtimeAPI, RealtimeSTTClient, RealtimeSTTSession"
+title: "Realtime Client"
+description: "Soniox Python SDK - Realtime Client Reference"
+keywords: "RealtimeAPI, AsyncRealtimeAPI, RealtimeSTTClient, RealtimeSTTSession, AsyncRealtimeSTTClient, AsyncRealtimeSTTSession"
 ---
+
+---
+
+## RealtimeAPI
+
+Entrypoint for realtime helpers on SonioxClient.
+
+<a id="realtimeapi-constructor"></a>
+
+### Constructor
+
+```python
+RealtimeAPI(client: SonioxClient)
+```
+
+**Parameters**
+
+| Parameter | Type | Description |
+| ------ | ------ | ------ |
+| `client` | `SonioxClient` | Soniox client instance. |
+
+**Returns**
+
+`None`
+
+<a id="realtimeapi-properties"></a>
+
+### Properties
+
+| Property | Type | Description |
+| ------ | ------ | ------ |
+| `stt` | `RealtimeSTTClient` | Speech-to-text API namespace. |
+
+---
+
+## AsyncRealtimeAPI
+
+Entrypoint for async realtime helpers on AsyncSonioxClient.
+
+<a id="asyncrealtimeapi-constructor"></a>
+
+### Constructor
+
+```python
+AsyncRealtimeAPI(client: AsyncSonioxClient)
+```
+
+**Parameters**
+
+| Parameter | Type | Description |
+| ------ | ------ | ------ |
+| `client` | `AsyncSonioxClient` | Soniox client instance. |
+
+**Returns**
+
+`None`
+
+<a id="asyncrealtimeapi-properties"></a>
+
+### Properties
+
+| Property | Type | Description |
+| ------ | ------ | ------ |
+| `stt` | `AsyncRealtimeSTTClient` | Speech-to-text API namespace. |
 
 ---
 
@@ -25,9 +89,9 @@ Create a realtime STT client bound to an existing API client.
 
 **Parameters**
 
-| Parameter | Type |
-| ------ | ------ |
-| `client` | `SonioxClient` |
+| Parameter | Type | Description |
+| ------ | ------ | ------ |
+| `client` | `SonioxClient` | Parent Soniox client providing configuration and credentials. |
 
 **Returns**
 
@@ -48,10 +112,10 @@ context manager.
 
 **Parameters**
 
-| Parameter | Type |
-| ------ | ------ |
-| `config` | `RealtimeSTTConfig` |
-| `api_key` | `str \| None` |
+| Parameter | Type | Description |
+| ------ | ------ | ------ |
+| `config` | `RealtimeSTTConfig` | Realtime transcription configuration. |
+| `api_key` | `str \| None` | Optional API key override. If not provided, the client's default API key is used. |
 
 **Returns**
 
@@ -91,10 +155,10 @@ is established when entering the context manager.
 
 **Parameters**
 
-| Parameter | Type |
-| ------ | ------ |
-| `url` | `str` |
-| `config` | `RealtimeSTTConfig` |
+| Parameter | Type | Description |
+| ------ | ------ | ------ |
+| `url` | `str` | WebSocket URL for the realtime transcription endpoint. |
+| `config` | `RealtimeSTTConfig` | Configuration describing the audio format and transcription behavior for this session. |
 
 **Returns**
 
@@ -104,12 +168,11 @@ is established when entering the context manager.
 
 ### Properties
 
-| Property | Type |
-| ------ | ------ |
-| `config` | `RealtimeSTTConfig` |
-| `paused` | `bool` |
-| `last_message` | `RealtimeEvent \| None` |
-| `enter` | `-` |
+| Property | Type | Description |
+| ------ | ------ | ------ |
+| `config` | `RealtimeSTTConfig` | Return the configuration used to initialize this session. |
+| `paused` | `bool` | Return True if the session is currently paused. |
+| `last_message` | `RealtimeEvent \| None` | Return the most recently received realtime event, if any. |
 
 <a id="realtimesttsession-close"></a>
 
@@ -145,9 +208,9 @@ configuration (sample rate, channels, encoding).
 
 **Parameters**
 
-| Parameter | Type |
-| ------ | ------ |
-| `chunk` | `bytes` |
+| Parameter | Type | Description |
+| ------ | ------ | ------ |
+| `chunk` | `bytes` | Raw audio bytes to send. |
 
 **Returns**
 
@@ -176,10 +239,10 @@ been transmitted.
 
 **Parameters**
 
-| Parameter | Type |
-| ------ | ------ |
-| `chunks` | `bytes \| Iterator[bytes]` |
-| `finish` | `bool` |
+| Parameter | Type | Description |
+| ------ | ------ | ------ |
+| `chunks` | `bytes \| Iterator[bytes]` | Audio data as raw bytes or an iterator of byte chunks. |
+| `finish` | `bool` | Whether to send a finish signal after streaming completes. |
 
 **Returns**
 
@@ -202,9 +265,9 @@ end-of-audio or requesting finalization.
 
 **Parameters**
 
-| Parameter | Type |
-| ------ | ------ |
-| `control_type` | `RealtimeControlType` |
+| Parameter | Type | Description |
+| ------ | ------ | ------ |
+| `control_type` | `RealtimeControlType` | The type of control message to send. |
 
 **Returns**
 
@@ -297,9 +360,9 @@ Parse a raw WebSocket message into a structured realtime event.
 
 **Parameters**
 
-| Parameter | Type |
-| ------ | ------ |
-| `raw` | `str \| bytes` |
+| Parameter | Type | Description |
+| ------ | ------ | ------ |
+| `raw` | `str \| bytes` | Raw message payload received from the server. |
 
 **Returns**
 
@@ -361,9 +424,9 @@ Receive realtime events and dispatch them to a handler callback.
 
 **Parameters**
 
-| Parameter | Type |
-| ------ | ------ |
-| `handler` | `Callable[[RealtimeEvent], None]` |
+| Parameter | Type | Description |
+| ------ | ------ | ------ |
+| `handler` | `Callable[[RealtimeEvent], None]` | Callable invoked for each received RealtimeEvent. |
 
 **Returns**
 
@@ -441,9 +504,9 @@ Create a realtime STT client bound to an existing API client.
 
 **Parameters**
 
-| Parameter | Type |
-| ------ | ------ |
-| `client` | `AsyncSonioxClient` |
+| Parameter | Type | Description |
+| ------ | ------ | ------ |
+| `client` | `AsyncSonioxClient` | Parent Soniox client providing configuration and credentials. |
 
 **Returns**
 
@@ -464,10 +527,10 @@ context manager.
 
 **Parameters**
 
-| Parameter | Type |
-| ------ | ------ |
-| `config` | `RealtimeSTTConfig` |
-| `api_key` | `str \| None` |
+| Parameter | Type | Description |
+| ------ | ------ | ------ |
+| `config` | `RealtimeSTTConfig` | Realtime transcription configuration. |
+| `api_key` | `str \| None` | Optional API key override. If not provided, the client's default API key is used. |
 
 **Returns**
 
@@ -507,10 +570,10 @@ is established when entering the async context manager.
 
 **Parameters**
 
-| Parameter | Type |
-| ------ | ------ |
-| `url` | `str` |
-| `config` | `RealtimeSTTConfig` |
+| Parameter | Type | Description |
+| ------ | ------ | ------ |
+| `url` | `str` | WebSocket URL for the realtime transcription endpoint. |
+| `config` | `RealtimeSTTConfig` | Configuration describing the audio format and transcription behavior for this session. |
 
 **Returns**
 
@@ -520,13 +583,11 @@ is established when entering the async context manager.
 
 ### Properties
 
-| Property | Type |
-| ------ | ------ |
-| `config` | `RealtimeSTTConfig` |
-| `paused` | `bool` |
-| `last_message` | `RealtimeEvent \| None` |
-| `enter` | `-` |
-| `aenter` | `-` |
+| Property | Type | Description |
+| ------ | ------ | ------ |
+| `config` | `RealtimeSTTConfig` | Return the configuration used to initialize this session. |
+| `paused` | `bool` | Return True if the session is currently paused. |
+| `last_message` | `RealtimeEvent \| None` | Return the most recently received realtime event, if any. |
 
 <a id="asyncrealtimesttsession-close"></a>
 
@@ -562,9 +623,9 @@ configuration (sample rate, channels, encoding).
 
 **Parameters**
 
-| Parameter | Type |
-| ------ | ------ |
-| `chunk` | `bytes` |
+| Parameter | Type | Description |
+| ------ | ------ | ------ |
+| `chunk` | `bytes` | Raw audio bytes to send. |
 
 **Returns**
 
@@ -593,10 +654,10 @@ have been transmitted.
 
 **Parameters**
 
-| Parameter | Type |
-| ------ | ------ |
-| `chunks` | `bytes \| AsyncIterator[bytes]` |
-| `finish` | `bool` |
+| Parameter | Type | Description |
+| ------ | ------ | ------ |
+| `chunks` | `bytes \| AsyncIterator[bytes]` | Audio data as raw bytes or an iterator of byte chunks. |
+| `finish` | `bool` | Whether to send a finish signal after streaming completes. |
 
 **Returns**
 
@@ -619,9 +680,9 @@ end-of-audio or requesting finalization.
 
 **Parameters**
 
-| Parameter | Type |
-| ------ | ------ |
-| `control_type` | `RealtimeControlType` |
+| Parameter | Type | Description |
+| ------ | ------ | ------ |
+| `control_type` | `RealtimeControlType` | The type of control message to send. |
 
 **Returns**
 
@@ -714,9 +775,9 @@ Parse a raw WebSocket message into a structured realtime event.
 
 **Parameters**
 
-| Parameter | Type |
-| ------ | ------ |
-| `raw` | `str \| bytes` |
+| Parameter | Type | Description |
+| ------ | ------ | ------ |
+| `raw` | `str \| bytes` | Raw message payload received from the server. |
 
 **Returns**
 
@@ -778,9 +839,9 @@ Receive realtime events and dispatch them to a handler callback.
 
 **Parameters**
 
-| Parameter | Type |
-| ------ | ------ |
-| `handler` | `Callable[[RealtimeEvent], Awaitable[None]]` |
+| Parameter | Type | Description |
+| ------ | ------ | ------ |
+| `handler` | `Callable[[RealtimeEvent], Awaitable[None]]` | Callable invoked for each received RealtimeEvent. |
 
 **Returns**
 
@@ -836,67 +897,3 @@ Calling `resume` on a session that is not paused is a no-op.
 **Raises**
 
 - `SonioxRealtimeError` If the session is not connected.
-
----
-
-## AsyncRealtimeAPI
-
-Entrypoint for async realtime helpers on AsyncSonioxClient.
-
-<a id="asyncrealtimeapi-constructor"></a>
-
-### Constructor
-
-```python
-AsyncRealtimeAPI(client: AsyncSonioxClient)
-```
-
-**Parameters**
-
-| Parameter | Type |
-| ------ | ------ |
-| `client` | `AsyncSonioxClient` |
-
-**Returns**
-
-`None`
-
-<a id="asyncrealtimeapi-properties"></a>
-
-### Properties
-
-| Property | Type |
-| ------ | ------ |
-| `stt` | `AsyncRealtimeSTTClient` |
-
----
-
-## RealtimeAPI
-
-Entrypoint for realtime helpers on SonioxClient.
-
-<a id="realtimeapi-constructor"></a>
-
-### Constructor
-
-```python
-RealtimeAPI(client: SonioxClient)
-```
-
-**Parameters**
-
-| Parameter | Type |
-| ------ | ------ |
-| `client` | `SonioxClient` |
-
-**Returns**
-
-`None`
-
-<a id="realtimeapi-properties"></a>
-
-### Properties
-
-| Property | Type |
-| ------ | ------ |
-| `stt` | `RealtimeSTTClient` |
