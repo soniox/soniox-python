@@ -1,532 +1,512 @@
 ---
-title: soniox.types
-description: Description for types
-keywords: annotations, ApiError, ApiErrorValidationError, CreateTemporaryApiKeyPayload, CreateTemporaryApiKeyResponse, CreateTranscriptionConfig, CreateTranscriptionPayload, File, GetFilesPayload, GetFilesResponse, GetModelsResponse, GetTranscriptionsPayload, GetTranscriptionsResponse, Model, StructuredContext, StructuredContextGeneralItem, StructuredContextTranslationTerm, TemporaryApiKeyUsageType, Transcription, TranscriptionStatus, TranscriptionTranscript, TranslationConfig, TranslationTarget, TranslationType, UploadFilePayload, Token, RealtimeEvent, RealtimeSTTConfig, Headers, WebhookAuthConfig, WebhookEvent, __all__, common, webhooks, realtime, api
+title: "soniox.types"
+description: "Structured representation of a non-2xx API response payload."
+keywords: "ApiError, ApiErrorValidationError, CreateTemporaryApiKeyPayload, CreateTemporaryApiKeyResponse, CreateTranscriptionConfig, CreateTranscriptionPayload, File, GetFilesPayload, GetFilesResponse, GetModelsResponse, GetTranscriptionsPayload, GetTranscriptionsResponse, Model, RealtimeEvent, RealtimeSTTConfig, StructuredContext, StructuredContextGeneralItem, StructuredContextTranslationTerm, Token, Transcription, TranscriptionTranscript, TranslationConfig, TranslationTarget, UploadFilePayload, WebhookAuthConfig, WebhookEvent"
 ---
 
-
 ---
 
-## Class `ApiError`
+## ApiError
 
 Structured representation of a non-2xx API response payload.
 
-### Attributes
+<a id="apierror-properties"></a>
 
-- **status_code**: HTTP status code.
+### Properties
 
-- **error_type**: High-level error code (e.g., 'bad_request', 'quota_exceeded') for programmatic handling.
-
-- **message**: Detailed error message describing the failure.
-
-- **validation_errors**: List of specific field validation failures, if applicable.
-
-- **request_id**: Unique identifier for the request, useful for troubleshooting.
+| Property | Type |
+| ------ | ------ |
+| `status_code` | `int` |
+| `error_type` | `str` |
+| `message` | `str` |
+| `validation_errors` | `list[ApiErrorValidationError]` |
+| `request_id` | `str \| None` |
 
 ---
 
-## Class `ApiErrorValidationError`
+## ApiErrorValidationError
 
 Details a single validation error reported by the Soniox API.
 
-### Attributes
+<a id="apierrorvalidationerror-properties"></a>
 
-- **error_type**: The category of validation error.
+### Properties
 
-- **location**: The location of the error, e.g. ['body', 'audio_url'].
-
-- **message**: A human-readable description of the validation failure.
+| Property | Type |
+| ------ | ------ |
+| `error_type` | `str` |
+| `location` | `str` |
+| `message` | `str` |
 
 ---
 
-## Class `CreateTemporaryApiKeyPayload`
+## CreateTemporaryApiKeyPayload
 
 Payload for requesting a temporary API key (e.g., websocket).
 
-### Attributes
+<a id="createtemporaryapikeypayload-properties"></a>
 
-- **usage_type**: Intended usage of the temporary API key.
+### Properties
 
-- **expires_in_seconds**: Duration in seconds until the temporary API key expires
-
-- **client_reference_id**: Optional tracking identifier string. Does not need to be unique
+| Property | Type |
+| ------ | ------ |
+| `usage_type` | `TemporaryApiKeyUsageType` |
+| `expires_in_seconds` | `int` |
+| `client_reference_id` | `str \| None` |
 
 ---
 
-## Class `CreateTemporaryApiKeyResponse`
+## CreateTemporaryApiKeyResponse
 
 Response data for a temp API key request.
 
-### Attributes
+<a id="createtemporaryapikeyresponse-properties"></a>
 
-- **api_key**: Created temporary API key.
+### Properties
 
-- **expires_at**: UTC timestamp indicating when generated temporary API key will expire
+| Property | Type |
+| ------ | ------ |
+| `api_key` | `str` |
+| `expires_at` | `datetime` |
 
 ---
 
-## Class `CreateTranscriptionConfig`
+## CreateTranscriptionConfig
 
 Helper config used when building transcription payloads.
 
-### Attributes
+<a id="createtranscriptionconfig-properties"></a>
 
-- **model**: Speech-to-text model to use.
+### Properties
 
-- **language_hints**: Array of expected ISO language codes to bias recognition.
-
-- **language_hints_strict**: When true, model relies more heavily on language hints.
-
-- **enable_speaker_diarization**: Enable speaker diarization to identify different speakers.
-
-- **enable_language_identification**: Enable automatic language identification
-
-- **translation**: Translation configuration
-
-- **context**: Additional context to improve transcription accuracy and formatting of specialized terms.
-
-- **webhook_url**: URL to receive webhook notifications when transcription is completed or fails.
-
-- **webhook_auth_header_name**: Name of the authentication header sent with webhook notifications
-
-- **webhook_auth_header_value**: Authentication header value sent with webhook notifications
-
-- **client_reference_id**: Optional tracking identifier
+| Property | Type |
+| ------ | ------ |
+| `model` | `str \| None` |
+| `language_hints` | `list[str] \| None` |
+| `language_hints_strict` | `bool \| None` |
+| `enable_speaker_diarization` | `bool \| None` |
+| `enable_language_identification` | `bool \| None` |
+| `translation` | `TranslationConfig \| None` |
+| `context` | `StructuredContext \| None` |
+| `webhook_url` | `str \| None` |
+| `webhook_auth_header_name` | `str \| None` |
+| `webhook_auth_header_value` | `str \| None` |
+| `client_reference_id` | `str \| None` |
 
 ---
 
-## Class `CreateTranscriptionPayload`
+## CreateTranscriptionPayload
 
 Payload sent to create an asynchronous transcription job.
 
-### Attributes
+<a id="createtranscriptionpayload-properties"></a>
 
-- **model**: Speech-to-text model to use.
+### Properties
 
-- **audio_url**: URL of a publicly accessible audio file.
-
-- **file_id**: ID of a previously uploaded file (UUID).
-
-- **language_hints**: Array of expected ISO language codes to bias recognition.
-
-- **language_hints_strict**: When true, model relies more heavily on language hints (best results with one language hint set).
-
-- **enable_speaker_diarization**: Enable speaker diarization to identify different speakers.
-
-- **enable_language_identification**: Enable automatic language identification.
-
-- **translation**: Translation configuration.
-
-- **context**: Additional context to improve transcription accuracy and formatting of specialized terms.
-
-- **webhook_url**: URL to receive webhook notifications when transcription is completed or fails.
-
-- **webhook_auth_header_name**: Name of the authentication header sent with webhook notifications
-
-- **webhook_auth_header_value**: Authentication header value sent with webhook notifications.
-
-- **client_reference_id**: Optional tracking identifier.
-
-### `_validate_audio_source`
-
-#### Signature
-
-```python
-_validate_audio_source() -> Self
-```
-
-#### Parameters
-
-- **self** (None): 
-
-#### Returns
-
-Self
+| Property | Type |
+| ------ | ------ |
+| `model` | `str` |
+| `audio_url` | `str \| None` |
+| `file_id` | `str \| None` |
+| `language_hints` | `list[str] \| None` |
+| `language_hints_strict` | `bool \| None` |
+| `enable_speaker_diarization` | `bool \| None` |
+| `enable_language_identification` | `bool \| None` |
+| `translation` | `TranslationConfig \| None` |
+| `context` | `StructuredContext \| None` |
+| `webhook_url` | `str \| None` |
+| `webhook_auth_header_name` | `str \| None` |
+| `webhook_auth_header_value` | `str \| None` |
+| `client_reference_id` | `str \| None` |
 
 ---
 
-## Class `File`
+## File
 
 Metadata describing an uploaded file in the Soniox API.
 
-### Attributes
+<a id="file-properties"></a>
 
-- **id**: Unique identifier of the file (UUID).
+### Properties
 
-- **filename**: Name of the file.
-
-- **size**: Size of the file in bytes.
-
-- **created_at**: UTC timestamp indicating when the file was uploaded.
-
-- **client_reference_id**: Optional tracking identifier string.
+| Property | Type |
+| ------ | ------ |
+| `id` | `str` |
+| `filename` | `str` |
+| `size` | `int` |
+| `created_at` | `datetime` |
+| `client_reference_id` | `str \| None` |
 
 ---
 
-## Class `GetFilesPayload`
+## GetFilesPayload
 
 Parameters accepted by the file listing endpoint.
 
-### Attributes
+<a id="getfilespayload-properties"></a>
 
-- **limit**: Maximum number of files to return.
+### Properties
 
-- **cursor**: Pagination cursor for the next page of results.
+| Property | Type |
+| ------ | ------ |
+| `limit` | `int` |
+| `cursor` | `str \| None` |
 
 ---
 
-## Class `GetFilesResponse`
+## GetFilesResponse
 
 Paginated response returned when listing uploaded files.
 
-### Attributes
+<a id="getfilesresponse-properties"></a>
 
-- **files**: List of uploaded files.
+### Properties
 
-- **next_page_cursor**: A pagination token that references the next page of results. When None, no additional results are available.
+| Property | Type |
+| ------ | ------ |
+| `files` | `list[File]` |
+| `next_page_cursor` | `str \| None` |
 
 ---
 
-## Class `GetModelsResponse`
+## GetModelsResponse
 
 Response returned when listing available models.
 
-### Attributes
+<a id="getmodelsresponse-properties"></a>
 
-- **models**: List of all available models.
+### Properties
+
+| Property | Type |
+| ------ | ------ |
+| `models` | `list[Model]` |
 
 ---
 
-## Class `GetTranscriptionsPayload`
+## GetTranscriptionsPayload
 
 Parameters for listing transcription jobs.
 
-### Attributes
+<a id="gettranscriptionspayload-properties"></a>
 
-- **limit**: Maximum number of transcriptions to return.
+### Properties
 
-- **cursor**: Pagination cursor for the next page of results.
+| Property | Type |
+| ------ | ------ |
+| `limit` | `int` |
+| `cursor` | `str \| None` |
 
 ---
 
-## Class `GetTranscriptionsResponse`
+## GetTranscriptionsResponse
 
 Paginated response for transcription listings.
 
-### Attributes
+<a id="gettranscriptionsresponse-properties"></a>
 
-- **transcriptions**: List of transcriptions.
+### Properties
 
-- **next_page_cursor**: A pagination token that references the next page of results. When None, no additional results are available.
+| Property | Type |
+| ------ | ------ |
+| `transcriptions` | `list[Transcription]` |
+| `next_page_cursor` | `str \| None` |
 
 ---
 
-## Class `Model`
+## Model
 
 Describes a Soniox transcription model.
 
-### Attributes
+<a id="model-properties"></a>
 
-- **id**: Unique identifier of the model.
+### Properties
 
-- **aliased_model_id**: If this is an alias, the id of the aliased model. None for non-alias models.
-
-- **name**: Name of the model.
-
-- **context_version**: Version of context supported.
-
-- **transcription_mode**: Transcription mode of the model.
-
-- **languages**: List of languages supported by the model.
-
-- **supports_language_hints_strict**: If model supports 'language_hints_strict' option.
-
-- **translation_targets**: List of supported one-way translation targets. If list is empty, check for one_way_translation field.
-
-- **two_way_translation_pairs**: List of supported two-way translation pairs. If list is empty, check for one_way_translation field.
-
-- **one_way_translation**: When contains string 'all_languages', any language from languages can be used
-
-- **two_way_translation**: When contains string 'all_languages',' any language pair from languages can be used
+| Property | Type |
+| ------ | ------ |
+| `id` | `str` |
+| `aliased_model_id` | `str \| None` |
+| `name` | `str` |
+| `context_version` | `int \| None` |
+| `transcription_mode` | `TranscriptionMode` |
+| `languages` | `list[Language]` |
+| `supports_language_hints_strict` | `bool` |
+| `translation_targets` | `list[TranslationTarget]` |
+| `two_way_translation_pairs` | `list[str]` |
+| `one_way_translation` | `str \| None` |
+| `two_way_translation` | `str \| None` |
 
 ---
 
-## Class `StructuredContext`
+## StructuredContext
 
 Optional structured context provided to the transcription engine.
 
-### Attributes
+<a id="structuredcontext-properties"></a>
 
-- **general**: Structured key-value pairs describing domain, topic, intent, participant names, etc.
+### Properties
 
-- **text**: Longer free-form background text, prior interaction history, reference documents, or meeting notes.
-
-- **terms**: Domain-specific or uncommon words to recognize.
-
-- **translation_terms**: Custom translations for ambiguous terms.
+| Property | Type |
+| ------ | ------ |
+| `general` | `list[StructuredContextGeneralItem] \| None` |
+| `text` | `str \| None` |
+| `terms` | `list[str] \| None` |
+| `translation_terms` | `list[StructuredContextTranslationTerm] \| None` |
 
 ---
 
-## Class `StructuredContextGeneralItem`
+## StructuredContextGeneralItem
 
 Single general context key/value pair for transcription context.
 
-### Attributes
+<a id="structuredcontextgeneralitem-properties"></a>
 
-- **key**: The key describing the context type (e.g., "domain", "topic", "doctor").
+### Properties
 
-- **value**: The value for the context key.
+| Property | Type |
+| ------ | ------ |
+| `key` | `str` |
+| `value` | `str` |
 
 ---
 
-## Class `StructuredContextTranslationTerm`
+## StructuredContextTranslationTerm
 
 Defines a translation term mapping used in structured context.
 
-### Attributes
+<a id="structuredcontexttranslationterm-properties"></a>
 
-- **source**: The source term to translate.
+### Properties
 
-- **target**: The target translation for the term.
+| Property | Type |
+| ------ | ------ |
+| `source` | `str` |
+| `target` | `str` |
 
 ---
 
-## Class `Transcription`
+## Transcription
 
 Represents a transcription job tracked by Soniox.
 
-### Attributes
+<a id="transcription-properties"></a>
 
-- **id**: Unique identifier of the transcription (UUID).
+### Properties
 
-- **status**: Current status of the transcription.
-
-- **created_at**: UTC timestamp when the transcription was created.
-
-- **model**: Speech-to-text model used.
-
-- **audio_url**: URL of the audio file being transcribed.
-
-- **file_id**: ID of the uploaded file being transcribed (UUID).
-
-- **filename**: Name of the file being transcribed.
-
-- **language_hints**: Expected languages in the audio. If not specified, languages are automatically detected.
-
-- **enable_speaker_diarization**: When true, speakers are identified and separated in the transcription output.
-
-- **enable_language_identification**: When true, language is detected for each part of the transcription.
-
-- **audio_duration_ms**: Duration of the audio in milliseconds. Only available after processing begins.
-
-- **error_type**: Error type if transcription failed. None for successful or in-progress transcriptions.
-
-- **error_message**: Error message if transcription failed. None for successful or in-progress transcriptions.
-
-- **webhook_url**: URL to receive webhook notifications when transcription is completed or fails.
-
-- **webhook_auth_header_name**: Name of the authentication header sent with webhook notifications.
-
-- **webhook_auth_header_value**: Authentication header value. Always returned masked.
-
-- **webhook_status_code**: HTTP status code received from your server when webhook was delivered. None if not yet sent.
-
-- **client_reference_id**: Optional tracking identifier.
+| Property | Type |
+| ------ | ------ |
+| `id` | `str` |
+| `status` | `TranscriptionStatus` |
+| `created_at` | `datetime` |
+| `model` | `str` |
+| `audio_url` | `str \| None` |
+| `file_id` | `str \| None` |
+| `filename` | `str` |
+| `language_hints` | `list[str] \| None` |
+| `enable_speaker_diarization` | `bool` |
+| `enable_language_identification` | `bool` |
+| `audio_duration_ms` | `int \| None` |
+| `error_type` | `str \| None` |
+| `error_message` | `str \| None` |
+| `webhook_url` | `str \| None` |
+| `webhook_auth_header_name` | `str \| None` |
+| `webhook_auth_header_value` | `str \| None` |
+| `webhook_status_code` | `int \| None` |
+| `client_reference_id` | `str \| None` |
 
 ---
 
-## Class `TranscriptionTranscript`
+## TranscriptionTranscript
 
 Transcript data including the full text and tokens.
 
-### Attributes
+<a id="transcriptiontranscript-properties"></a>
 
-- **id**: Unique identifier of the transcription this transcript belongs to (UUID).
+### Properties
 
-- **text**: Complete transcribed text content.
-
-- **tokens**: List of detailed token information with timestamps and metadata.
+| Property | Type |
+| ------ | ------ |
+| `id` | `str` |
+| `text` | `str` |
+| `tokens` | `list[Token]` |
 
 ---
 
-## Class `TranslationConfig`
+## TranslationConfig
 
 Configuration describing how translation should be performed.
 
-### Attributes
+<a id="translationconfig-properties"></a>
 
-- **type**: Translation type.
+### Properties
 
-- **target_language**: Target language code for translation (e.g., "fr", "es", "de") (one_way).
-
-- **language_a**: First language code (two_way).
-
-- **language_b**: Second language code (two_way).
+| Property | Type |
+| ------ | ------ |
+| `type` | `TranslationType` |
+| `target_language` | `str \| None` |
+| `language_a` | `str \| None` |
+| `language_b` | `str \| None` |
 
 ---
 
-## Class `TranslationTarget`
+## TranslationTarget
 
 Describes translation targets offered by a model.
 
-### Attributes
+<a id="translationtarget-properties"></a>
 
-- **target_language**: 
+### Properties
 
-- **source_languages**: 
-
-- **exclude_source_languages**: 
+| Property | Type |
+| ------ | ------ |
+| `target_language` | `str` |
+| `source_languages` | `list[str]` |
+| `exclude_source_languages` | `list[str]` |
 
 ---
 
-## Class `UploadFilePayload`
+## UploadFilePayload
 
 Optional metadata supplied at upload time.
 
-### Attributes
+<a id="uploadfilepayload-properties"></a>
 
-- **client_reference_id**: Optional tracking identifier string. Does not need to be unique
+### Properties
+
+| Property | Type |
+| ------ | ------ |
+| `client_reference_id` | `str \| None` |
 
 ---
 
-## Class `Token`
+## Token
 
 Token metadata emitted during realtime streaming transcriptions.
 
-### Attributes
+<a id="token-properties"></a>
 
-- **model_config**: 
+### Properties
 
-- **text**: The transcribed text.
-
-- **start_ms**: Start time in milliseconds relative to audio start.
-
-- **end_ms**: End time in milliseconds relative to audio start.
-
-- **confidence**: Confidence score (0.0 to 1.0).
-
-- **is_final**: Whether this is a finalized token.
-
-- **speaker**: Speaker identifier (if diarization enabled).
-
-- **translation_status**: Translation status of this token.
-
-- **language**: Detected language code (if language identification enabled).
-
-- **source_language**: Source language for translated tokens.
+| Property | Type |
+| ------ | ------ |
+| `model_config` | `-` |
+| `text` | `str` |
+| `start_ms` | `int \| None` |
+| `end_ms` | `int \| None` |
+| `confidence` | `float \| None` |
+| `is_final` | `bool \| None` |
+| `speaker` | `str \| None` |
+| `translation_status` | `str \| None` |
+| `language` | `str \| None` |
+| `source_language` | `str \| None` |
 
 ---
 
-## Class `RealtimeEvent`
+## RealtimeEvent
 
 Event payload received from the realtime STT websocket.
 
-### Attributes
+<a id="realtimeevent-properties"></a>
 
-- **model_config**: 
+### Properties
 
-- **tokens**: Tokens in this result.
+| Property | Type |
+| ------ | ------ |
+| `model_config` | `-` |
+| `tokens` | `list[Token]` |
+| `final_audio_proc_ms` | `int \| None` |
+| `total_audio_proc_ms` | `int \| None` |
+| `finished` | `bool` |
+| `error_code` | `int \| None` |
+| `error_message` | `str \| None` |
 
-- **final_audio_proc_ms**: Milliseconds of audio that have been finalized.
+<a id="realtimeevent-validate_event"></a>
 
-- **total_audio_proc_ms**: Total milliseconds of audio processed.
-
-- **finished**: Whether this is the final result (session ending).
-
-- **error_code**: Error code if the realtime operation failed.
-
-- **error_message**: Human-readable description of the error.
-
-### `validate_event`
-
-#### Signature
+### validate_event()
 
 ```python
 validate_event(raw: str | bytes) -> RealtimeEvent
 ```
 
-#### Parameters
+**Parameters**
 
-- **cls** (None): 
+| Parameter | Type |
+| ------ | ------ |
+| `raw` | `str \| bytes` |
 
-- **raw** (str | bytes): 
+**Returns**
 
-#### Returns
-
-RealtimeEvent
+`RealtimeEvent`
 
 ---
 
-## Class `RealtimeSTTConfig`
+## RealtimeSTTConfig
 
 Configuration for initiating a realtime transcription session.
 
-### Attributes
+<a id="realtimesttconfig-properties"></a>
 
-- **api_key**: API key for real-time sessions.
+### Properties
 
-- **model**: Speech-to-text model to use.
+| Property | Type |
+| ------ | ------ |
+| `api_key` | `str \| None` |
+| `model` | `str` |
+| `audio_format` | `str` |
+| `num_channels` | `int \| None` |
+| `sample_rate` | `int \| None` |
+| `language_hints` | `list[str] \| None` |
+| `language_hints_strict` | `bool \| None` |
+| `context` | `StructuredContext \| None` |
+| `enable_speaker_diarization` | `bool \| None` |
+| `enable_language_identification` | `bool \| None` |
+| `enable_endpoint_detection` | `bool \| None` |
+| `translation` | `TranslationConfig \| None` |
+| `client_reference_id` | `str \| None` |
 
-- **audio_format**: Audio format. Use 'auto' for automatic detection of container formats.
+<a id="realtimesttconfig-build_payload"></a>
 
-- **num_channels**: Number of audio channels (required for raw audio formats).
-
-- **sample_rate**: Sample rate in Hz (required for PCM formats).
-
-- **language_hints**: Expected languages in the audio (ISO language codes).
-
-- **language_hints_strict**: When true, recognition is strongly biased toward language hints (best results when using one language in language_hints).
-
-- **context**: Additional context to improve transcription accuracy.
-
-- **enable_speaker_diarization**: Enable speaker identification.
-
-- **enable_language_identification**: Enable automatic language detection.
-
-- **enable_endpoint_detection**: Enable endpoint detection for utterance boundaries.
-
-- **translation**: Translation configuration.
-
-- **client_reference_id**: Optional tracking identifier (max 256 chars).
-
-### `build_payload`
-
-#### Signature
+### build_payload()
 
 ```python
 build_payload(api_key: str) -> RealtimeSTTConfig
 ```
 
-#### Parameters
+**Parameters**
 
-- **self** (None): 
+| Parameter | Type |
+| ------ | ------ |
+| `api_key` | `str` |
 
-- **api_key** (str): 
+**Returns**
 
-#### Returns
-
-RealtimeSTTConfig
+`RealtimeSTTConfig`
 
 ---
 
-## Class `WebhookAuthConfig`
+## WebhookAuthConfig
 
 Configuration for webhook authentication headers.
 
-### Attributes
+<a id="webhookauthconfig-properties"></a>
 
-- **name**: Expected header name (case-insensitive comparison).
+### Properties
 
-- **value**: Expected header value (exact match).
+| Property | Type |
+| ------ | ------ |
+| `name` | `str` |
+| `value` | `str` |
 
 ---
 
-## Class `WebhookEvent`
+## WebhookEvent
 
 Basic webhook event metadata.
 
-### Attributes
+<a id="webhookevent-properties"></a>
 
-- **id**: Transcription ID (UUID).
+### Properties
 
-- **status**: Transcription result status.
+| Property | Type |
+| ------ | ------ |
+| `id` | `str` |
+| `status` | `Literal['completed', 'error']` |

@@ -1,112 +1,103 @@
 ---
-title: soniox.types.realtime
-description: Description for realtime
-keywords: annotations, json, Enum, BaseModel, ConfigDict, Field, StructuredContext, TranslationConfig, Token, RealtimeEvent, RealtimeSTTConfig, RealtimeControlType
+title: "soniox.types.realtime"
+description: "Event payload received from the realtime STT websocket."
+keywords: "RealtimeControlType, RealtimeEvent, RealtimeSTTConfig"
 ---
 
-
 ---
 
-## Class `RealtimeEvent`
+## RealtimeEvent
 
 Event payload received from the realtime STT websocket.
 
-### Attributes
+<a id="realtimeevent-properties"></a>
 
-- **model_config**: 
+### Properties
 
-- **tokens**: Tokens in this result.
+| Property | Type |
+| ------ | ------ |
+| `model_config` | `-` |
+| `tokens` | `list[Token]` |
+| `final_audio_proc_ms` | `int \| None` |
+| `total_audio_proc_ms` | `int \| None` |
+| `finished` | `bool` |
+| `error_code` | `int \| None` |
+| `error_message` | `str \| None` |
 
-- **final_audio_proc_ms**: Milliseconds of audio that have been finalized.
+<a id="realtimeevent-validate_event"></a>
 
-- **total_audio_proc_ms**: Total milliseconds of audio processed.
-
-- **finished**: Whether this is the final result (session ending).
-
-- **error_code**: Error code if the realtime operation failed.
-
-- **error_message**: Human-readable description of the error.
-
-### `validate_event`
-
-#### Signature
+### validate_event()
 
 ```python
 validate_event(raw: str | bytes) -> RealtimeEvent
 ```
 
-#### Parameters
+**Parameters**
 
-- **cls** (None): 
+| Parameter | Type |
+| ------ | ------ |
+| `raw` | `str \| bytes` |
 
-- **raw** (str | bytes): 
+**Returns**
 
-#### Returns
-
-RealtimeEvent
+`RealtimeEvent`
 
 ---
 
-## Class `RealtimeSTTConfig`
+## RealtimeSTTConfig
 
 Configuration for initiating a realtime transcription session.
 
-### Attributes
+<a id="realtimesttconfig-properties"></a>
 
-- **api_key**: API key for real-time sessions.
+### Properties
 
-- **model**: Speech-to-text model to use.
+| Property | Type |
+| ------ | ------ |
+| `api_key` | `str \| None` |
+| `model` | `str` |
+| `audio_format` | `str` |
+| `num_channels` | `int \| None` |
+| `sample_rate` | `int \| None` |
+| `language_hints` | `list[str] \| None` |
+| `language_hints_strict` | `bool \| None` |
+| `context` | `StructuredContext \| None` |
+| `enable_speaker_diarization` | `bool \| None` |
+| `enable_language_identification` | `bool \| None` |
+| `enable_endpoint_detection` | `bool \| None` |
+| `translation` | `TranslationConfig \| None` |
+| `client_reference_id` | `str \| None` |
 
-- **audio_format**: Audio format. Use 'auto' for automatic detection of container formats.
+<a id="realtimesttconfig-build_payload"></a>
 
-- **num_channels**: Number of audio channels (required for raw audio formats).
-
-- **sample_rate**: Sample rate in Hz (required for PCM formats).
-
-- **language_hints**: Expected languages in the audio (ISO language codes).
-
-- **language_hints_strict**: When true, recognition is strongly biased toward language hints (best results when using one language in language_hints).
-
-- **context**: Additional context to improve transcription accuracy.
-
-- **enable_speaker_diarization**: Enable speaker identification.
-
-- **enable_language_identification**: Enable automatic language detection.
-
-- **enable_endpoint_detection**: Enable endpoint detection for utterance boundaries.
-
-- **translation**: Translation configuration.
-
-- **client_reference_id**: Optional tracking identifier (max 256 chars).
-
-### `build_payload`
-
-#### Signature
+### build_payload()
 
 ```python
 build_payload(api_key: str) -> RealtimeSTTConfig
 ```
 
-#### Parameters
+**Parameters**
 
-- **self** (None): 
+| Parameter | Type |
+| ------ | ------ |
+| `api_key` | `str` |
 
-- **api_key** (str): 
+**Returns**
 
-#### Returns
-
-RealtimeSTTConfig
+`RealtimeSTTConfig`
 
 ---
 
-## Class `RealtimeControlType`
+## RealtimeControlType
 
 Control messages that can be sent over a realtime session.
 
-### Attributes
+<a id="realtimecontroltype-properties"></a>
 
-- **FINISH**: 
+### Properties
 
-- **KEEP_ALIVE**: 
-
-- **FINALIZE**: 
+| Property | Type |
+| ------ | ------ |
+| `FINISH` | `-` |
+| `KEEP_ALIVE` | `-` |
+| `FINALIZE` | `-` |

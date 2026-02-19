@@ -301,7 +301,7 @@ wheels = [
 
 [[package]]
 name = "soniox"
-version = "2.0.0"
+version = "2.1.0"
 source = { editable = "." }
 dependencies = [
     { name = "httpx" },
@@ -316,6 +316,11 @@ dev = [
     { name = "ruff" },
 ]
 
+[package.dev-dependencies]
+dev = [
+    { name = "griffe" },
+]
+
 [package.metadata]
 requires-dist = [
     { name = "griffe", marker = "extra == 'dev'", specifier = ">=1.15.0" },
@@ -326,6 +331,9 @@ requires-dist = [
     { name = "websockets", specifier = ">11.0" },
 ]
 provides-extras = ["dev"]
+
+[package.metadata.requires-dev]
+dev = [{ name = "griffe", specifier = ">=1.15.0" }]
 
 [[package]]
 name = "typing-extensions"

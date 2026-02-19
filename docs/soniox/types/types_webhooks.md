@@ -1,30 +1,35 @@
 ---
-title: soniox.types.webhooks
-description: Description for webhooks
-keywords: annotations, Mapping, Literal, TypeAlias, BaseModel, Field, WebhookAuthConfig, WebhookEvent, Headers
+title: "soniox.types.webhooks"
+description: "Configuration for webhook authentication headers."
+keywords: "WebhookAuthConfig, WebhookEvent"
 ---
 
-
 ---
 
-## Class `WebhookAuthConfig`
+## WebhookAuthConfig
 
 Configuration for webhook authentication headers.
 
-### Attributes
+<a id="webhookauthconfig-properties"></a>
 
-- **name**: Expected header name (case-insensitive comparison).
+### Properties
 
-- **value**: Expected header value (exact match).
+| Property | Type |
+| ------ | ------ |
+| `name` | `str` |
+| `value` | `str` |
 
 ---
 
-## Class `WebhookEvent`
+## WebhookEvent
 
 Basic webhook event metadata.
 
-### Attributes
+<a id="webhookevent-properties"></a>
 
-- **id**: Transcription ID (UUID).
+### Properties
 
-- **status**: Transcription result status.
+| Property | Type |
+| ------ | ------ |
+| `id` | `str` |
+| `status` | `Literal['completed', 'error']` |

@@ -1,239 +1,252 @@
 ---
-title: soniox.api.files
-description: Description for files
-keywords: annotations, Generator, Path, TYPE_CHECKING, BinaryIO, SonioxNotFoundError, File, GetFilesPayload, GetFilesResponse, UploadFilePayload, ensure_success, normalize_file, parse_response, SonioxClient, FilesAPI
+title: "soniox.api.files"
+description: "Soniox Python SDK — soniox.api.files Reference"
+keywords: "FilesAPI"
 ---
 
-
 ---
 
-## Class `FilesAPI`
+## FilesAPI
 
-### Attributes
+<a id="filesapi-constructor"></a>
 
-- **_client**: 
-
-### `__init__`
-
-#### Signature
+### Constructor
 
 ```python
-__init__(client: SonioxClient) -> None
+FilesAPI(client: SonioxClient)
 ```
 
-#### Parameters
+**Parameters**
 
-- **self** (None): 
+| Parameter | Type |
+| ------ | ------ |
+| `client` | `SonioxClient` |
 
-- **client** (SonioxClient): 
+**Returns**
 
-#### Returns
+`None`
 
-None
+<a id="filesapi-list"></a>
 
-### `list`
-
-List uploaded files.
-
-Performs a GET request to ``/files`` with optional pagination.
-
-Raises:
-    SonioxAPIError: When the API returns an error.
-
-#### Signature
+### list()
 
 ```python
 list(limit: int = 100, cursor: str | None = None) -> GetFilesResponse
 ```
 
-#### Parameters
+List uploaded files.
 
-- **self** (None): 
+Performs a GET request to ``/files`` with optional pagination.
 
-- **limit** (int): 
+**Parameters**
 
-- **cursor** (str | None): 
+| Parameter | Type |
+| ------ | ------ |
+| `limit` | `int` |
+| `cursor` | `str \| None` |
 
-#### Returns
+**Returns**
 
-GetFilesResponse
+`GetFilesResponse`
 
-### `list_all`
+**Raises**
 
-Iterate through all uploaded files across all pages.
+- `SonioxAPIError` When the API returns an error.
 
-Yields:
-    File: The next file object from the API.
+***
 
-Raises:
-    SonioxAPIError: When the API returns an error.
+<a id="filesapi-list_all"></a>
 
-#### Signature
+### list_all()
 
 ```python
 list_all(limit: int = 100) -> Generator[File, None, None]
 ```
 
-#### Parameters
+Iterate through all uploaded files across all pages.
 
-- **self** (None): 
+**Parameters**
 
-- **limit** (int): 
+| Parameter | Type |
+| ------ | ------ |
+| `limit` | `int` |
 
-#### Returns
+**Yields**
 
-Generator[File, None, None]
+`Generator[File, None, None]`
 
-### `get`
+File: The next file object from the API.
 
-Retrieve a file by ID.
+**Raises**
 
-Performs a GET request to ``/files/{file_id}``.
+- `SonioxAPIError` When the API returns an error.
 
-Raises:
-    SonioxAPIError: When the API returns an error.
+***
 
-#### Signature
+<a id="filesapi-get"></a>
+
+### get()
 
 ```python
 get(file_id: str) -> File
 ```
 
-#### Parameters
-
-- **self** (None): 
-
-- **file_id** (str): 
-
-#### Returns
-
-File
-
-### `get_or_none`
-
 Retrieve a file by ID.
 
-Returns ``None`` if the file does not exist.
+Performs a GET request to ``/files/{file_id}``.
 
-Raises:
-    SonioxAPIError: When the API returns an error.
+**Parameters**
 
-#### Signature
+| Parameter | Type |
+| ------ | ------ |
+| `file_id` | `str` |
+
+**Returns**
+
+`File`
+
+**Raises**
+
+- `SonioxAPIError` When the API returns an error.
+
+***
+
+<a id="filesapi-get_or_none"></a>
+
+### get_or_none()
 
 ```python
 get_or_none(file_id: str) -> File | None
 ```
 
-#### Parameters
+Retrieve a file by ID.
 
-- **self** (None): 
+Returns ``None`` if the file does not exist.
 
-- **file_id** (str): 
+**Parameters**
 
-#### Returns
+| Parameter | Type |
+| ------ | ------ |
+| `file_id` | `str` |
 
-File | None
+**Returns**
 
-### `delete`
+`File | None`
 
-Delete a file by ID.
+**Raises**
 
-Performs a DELETE request to ``/files/{file_id}``.
+- `SonioxAPIError` When the API returns an error.
 
-Raises:
-    SonioxAPIError: When the API returns an error.
+***
 
-#### Signature
+<a id="filesapi-delete"></a>
+
+### delete()
 
 ```python
 delete(file_id: str) -> None
 ```
 
-#### Parameters
+Delete a file by ID.
 
-- **self** (None): 
+Performs a DELETE request to ``/files/{file_id}``.
 
-- **file_id** (str): 
+**Parameters**
 
-#### Returns
+| Parameter | Type |
+| ------ | ------ |
+| `file_id` | `str` |
 
-None
+**Returns**
 
-### `delete_if_exists`
+`None`
 
-Delete a file by ID if it exists.
+**Raises**
 
-Ignores missing files.
+- `SonioxAPIError` When the API returns an error.
 
-Raises:
-    SonioxAPIError: When the API returns an error.
+***
 
-#### Signature
+<a id="filesapi-delete_if_exists"></a>
+
+### delete_if_exists()
 
 ```python
 delete_if_exists(file_id: str) -> None
 ```
 
-#### Parameters
+Delete a file by ID if it exists.
 
-- **self** (None): 
+Ignores missing files.
 
-- **file_id** (str): 
+**Parameters**
 
-#### Returns
+| Parameter | Type |
+| ------ | ------ |
+| `file_id` | `str` |
 
-None
+**Returns**
 
-### `upload`
+`None`
 
-Upload a file.
+**Raises**
 
-Performs a multipart POST request to ``/files``.
+- `SonioxAPIError` When the API returns an error.
 
-Raises:
-    SonioxAPIError: When the API returns an error.
+***
 
-#### Signature
+<a id="filesapi-upload"></a>
+
+### upload()
 
 ```python
 upload(file: BinaryIO | bytes | Path | str, *, filename: str | None = None, client_reference_id: str | None = None) -> File
 ```
 
-#### Parameters
+Upload a file.
 
-- **self** (None): 
+Performs a multipart POST request to ``/files``.
 
-- **file** (BinaryIO | bytes | Path | str): 
+**Parameters**
 
-- **filename** (str | None): 
+| Parameter | Type |
+| ------ | ------ |
+| `file` | `BinaryIO \| bytes \| Path \| str` |
+| `filename` | `str \| None` |
+| `client_reference_id` | `str \| None` |
 
-- **client_reference_id** (str | None): 
+**Returns**
 
-#### Returns
+`File`
 
-File
+**Raises**
 
-### `delete_all`
+- `SonioxAPIError` When the API returns an error.
 
-Delete all files.
+***
 
-Iterates through all pages and deletes each file. Stops and raises on the first failed deletion.
+<a id="filesapi-delete_all"></a>
 
-Raises:
-    SonioxAPIError: When the API returns an error.
-
-#### Signature
+### delete_all()
 
 ```python
 delete_all(limit: int = 100) -> None
 ```
 
-#### Parameters
+Delete all files.
 
-- **self** (None): 
+Iterates through all pages and deletes each file. Stops and raises on the first failed deletion.
 
-- **limit** (int): 
+**Parameters**
 
-#### Returns
+| Parameter | Type |
+| ------ | ------ |
+| `limit` | `int` |
 
-None
+**Returns**
+
+`None`
+
+**Raises**
+
+- `SonioxAPIError` When the API returns an error.

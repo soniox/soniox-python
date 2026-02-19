@@ -1,152 +1,106 @@
 ---
-title: soniox.api.webhooks
-description: Description for webhooks
-keywords: annotations, json, os, InvalidWebhookSignatureError, Headers, WebhookAuthConfig, WebhookEvent, SONIOX_API_WEBHOOK_HEADER_ENV, SONIOX_API_WEBHOOK_SECRET_ENV, DEFAULT_WEBHOOK_HEADER, _get_header_value, _resolve_webhook_auth, SonioxWebhooksAPI
+title: "soniox.api.webhooks"
+description: "Soniox Python SDK — soniox.api.webhooks Reference"
+keywords: "SonioxWebhooksAPI"
 ---
 
-
 ---
 
-### `_get_header_value`
+## SonioxWebhooksAPI
 
-#### Signature
+<a id="sonioxwebhooksapi-constructor"></a>
+
+### Constructor
 
 ```python
-_get_header_value(headers: Headers, name: str) -> str | None
+SonioxWebhooksAPI(*, webhook_secret: str | None = None, webhook_header: str | None = None)
 ```
 
-#### Parameters
+**Parameters**
 
-- **headers** (Headers): 
+| Parameter | Type |
+| ------ | ------ |
+| `webhook_secret` | `str \| None` |
+| `webhook_header` | `str \| None` |
 
-- **name** (str): 
+**Returns**
 
-#### Returns
+`None`
 
-str | None
+<a id="sonioxwebhooksapi-verify_signature"></a>
 
----
-
-### `_resolve_webhook_auth`
-
-#### Signature
-
-```python
-_resolve_webhook_auth(header: str | None, secret: str | None) -> WebhookAuthConfig | None
-```
-
-#### Parameters
-
-- **header** (str | None): 
-
-- **secret** (str | None): 
-
-#### Returns
-
-WebhookAuthConfig | None
-
----
-
-## Class `SonioxWebhooksAPI`
-
-### Attributes
-
-- **_webhook_secret**: 
-
-- **_webhook_header**: 
-
-### `__init__`
-
-#### Signature
-
-```python
-__init__(*, webhook_secret: str | None = None, webhook_header: str | None = None) -> None
-```
-
-#### Parameters
-
-- **self** (None): 
-
-- **webhook_secret** (str | None): 
-
-- **webhook_header** (str | None): 
-
-#### Returns
-
-None
-
-### `verify_signature`
-
-Verify a webhook signature from headers.
-
-Raises:
-    InvalidWebhookSignatureError: When the webhook signature cannot be validated.
-
-#### Signature
+### verify_signature()
 
 ```python
 verify_signature(headers: Headers, *, auth: WebhookAuthConfig | None = None) -> None
 ```
 
-#### Parameters
+Verify a webhook signature from headers.
 
-- **self** (None): 
+**Parameters**
 
-- **headers** (Headers): 
+| Parameter | Type |
+| ------ | ------ |
+| `headers` | `Headers` |
+| `auth` | `WebhookAuthConfig \| None` |
 
-- **auth** (WebhookAuthConfig | None): 
+**Returns**
 
-#### Returns
+`None`
 
-None
+**Raises**
 
-### `unwrap`
+- `InvalidWebhookSignatureError` When the webhook signature cannot be validated.
 
-Validate and parse a webhook payload.
+***
 
-Returns a WebhookEvent.
+<a id="sonioxwebhooksapi-unwrap"></a>
 
-Raises:
-    InvalidWebhookSignatureError: When the webhook signature cannot be validated.
-
-#### Signature
+### unwrap()
 
 ```python
 unwrap(payload: str | bytes, headers: Headers, *, auth: WebhookAuthConfig | None = None) -> WebhookEvent
 ```
 
-#### Parameters
+Validate and parse a webhook payload.
 
-- **self** (None): 
+Returns a WebhookEvent.
 
-- **payload** (str | bytes): 
+**Parameters**
 
-- **headers** (Headers): 
+| Parameter | Type |
+| ------ | ------ |
+| `payload` | `str \| bytes` |
+| `headers` | `Headers` |
+| `auth` | `WebhookAuthConfig \| None` |
 
-- **auth** (WebhookAuthConfig | None): 
+**Returns**
 
-#### Returns
+`WebhookEvent`
 
-WebhookEvent
+**Raises**
 
-### `webhook_payload`
+- `InvalidWebhookSignatureError` When the webhook signature cannot be validated.
 
-Return fields for webhook configuration when creating a transcription.
+***
 
-#### Signature
+<a id="sonioxwebhooksapi-webhook_payload"></a>
+
+### webhook_payload()
 
 ```python
 webhook_payload(webhook_url: str, *, auth: WebhookAuthConfig | None = None) -> dict[str, str]
 ```
 
-#### Parameters
+Return fields for webhook configuration when creating a transcription.
 
-- **self** (None): 
+**Parameters**
 
-- **webhook_url** (str): 
+| Parameter | Type |
+| ------ | ------ |
+| `webhook_url` | `str` |
+| `auth` | `WebhookAuthConfig \| None` |
 
-- **auth** (WebhookAuthConfig | None): 
+**Returns**
 
-#### Returns
-
-dict[str, str]
+`dict[str, str]`

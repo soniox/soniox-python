@@ -1,1968 +1,1972 @@
 ---
-title: soniox.api
-description: Description for api
-keywords: AsyncAuthAPI, AsyncFilesAPI, AsyncModelsAPI, AsyncSttAPI, AsyncSonioxWebhooksAPI, AuthAPI, FilesAPI, ModelsAPI, SttAPI, SonioxWebhooksAPI, __all__, webhooks, files, async_files, stt, auth, models, async_webhooks, _utils, async_stt, async_auth, async_models
+title: "soniox.api"
+description: "Soniox Python SDK — soniox.api Reference"
+keywords: "AsyncAuthAPI, AsyncFilesAPI, AsyncModelsAPI, AsyncSonioxWebhooksAPI, AsyncSttAPI, AuthAPI, FilesAPI, ModelsAPI, SonioxWebhooksAPI, SttAPI"
 ---
 
-
 ---
 
-## Class `AsyncAuthAPI`
+## AsyncAuthAPI
 
-### Attributes
+<a id="asyncauthapi-constructor"></a>
 
-- **_client**: 
-
-### `__init__`
-
-#### Signature
+### Constructor
 
 ```python
-__init__(client: AsyncSonioxClient) -> None
+AsyncAuthAPI(client: AsyncSonioxClient)
 ```
 
-#### Parameters
+**Parameters**
 
-- **self** (None): 
+| Parameter | Type |
+| ------ | ------ |
+| `client` | `AsyncSonioxClient` |
 
-- **client** (AsyncSonioxClient): 
+**Returns**
 
-#### Returns
+`None`
 
-None
+<a id="asyncauthapi-create_temporary_api_key"></a>
 
-### `create_temporary_api_key`
-
-Create a temporary API key.
-
-Performs a POST request to ``/auth/temporary-api-key``.
-
-Raises:
-    SonioxAPIError: When the API returns an error.
-
-#### Signature
+### create_temporary_api_key()
 
 ```python
 create_temporary_api_key(*, usage_type: TemporaryApiKeyUsageType = 'transcribe_websocket', expires_in_seconds: int = 5 * 60, client_reference_id: str | None = None) -> CreateTemporaryApiKeyResponse
 ```
 
-#### Parameters
+Create a temporary API key.
 
-- **self** (None): 
+Performs a POST request to ``/auth/temporary-api-key``.
 
-- **usage_type** (TemporaryApiKeyUsageType): 
+**Parameters**
 
-- **expires_in_seconds** (int): 
+| Parameter | Type |
+| ------ | ------ |
+| `usage_type` | `TemporaryApiKeyUsageType` |
+| `expires_in_seconds` | `int` |
+| `client_reference_id` | `str \| None` |
 
-- **client_reference_id** (str | None): 
+**Returns**
 
-#### Returns
+`CreateTemporaryApiKeyResponse`
 
-CreateTemporaryApiKeyResponse
+**Raises**
+
+- `SonioxAPIError` When the API returns an error.
 
 ---
 
-## Class `AsyncFilesAPI`
+## AsyncFilesAPI
 
-### Attributes
+<a id="asyncfilesapi-constructor"></a>
 
-- **_client**: 
-
-### `__init__`
-
-#### Signature
+### Constructor
 
 ```python
-__init__(client: AsyncSonioxClient) -> None
+AsyncFilesAPI(client: AsyncSonioxClient)
 ```
 
-#### Parameters
+**Parameters**
 
-- **self** (None): 
+| Parameter | Type |
+| ------ | ------ |
+| `client` | `AsyncSonioxClient` |
 
-- **client** (AsyncSonioxClient): 
+**Returns**
 
-#### Returns
+`None`
 
-None
+<a id="asyncfilesapi-list"></a>
 
-### `list`
-
-List uploaded files.
-
-Performs a GET request to ``/files`` with optional pagination.
-
-Raises:
-    SonioxAPIError: When the API returns an error.
-
-#### Signature
+### list()
 
 ```python
 list(limit: int = 100, cursor: str | None = None) -> GetFilesResponse
 ```
 
-#### Parameters
+List uploaded files.
 
-- **self** (None): 
+Performs a GET request to ``/files`` with optional pagination.
 
-- **limit** (int): 
+**Parameters**
 
-- **cursor** (str | None): 
+| Parameter | Type |
+| ------ | ------ |
+| `limit` | `int` |
+| `cursor` | `str \| None` |
 
-#### Returns
+**Returns**
 
-GetFilesResponse
+`GetFilesResponse`
 
-### `list_all`
+**Raises**
 
-Iterate through all uploaded files across all pages.
+- `SonioxAPIError` When the API returns an error.
 
-Yields:
-    File: The next file object from the API.
+***
 
-Raises:
-    SonioxAPIError: When the API returns an error.
+<a id="asyncfilesapi-list_all"></a>
 
-#### Signature
+### list_all()
 
 ```python
 list_all(limit: int = 100) -> AsyncGenerator[File, None]
 ```
 
-#### Parameters
+Iterate through all uploaded files across all pages.
 
-- **self** (None): 
+**Parameters**
 
-- **limit** (int): 
+| Parameter | Type |
+| ------ | ------ |
+| `limit` | `int` |
 
-#### Returns
+**Yields**
 
-AsyncGenerator[File, None]
+`AsyncGenerator[File, None]`
 
-### `get`
+File: The next file object from the API.
 
-Retrieve a file by ID.
+**Raises**
 
-Performs a GET request to ``/files/{file_id}``.
+- `SonioxAPIError` When the API returns an error.
 
-Raises:
-    SonioxAPIError: When the API returns an error.
+***
 
-#### Signature
+<a id="asyncfilesapi-get"></a>
+
+### get()
 
 ```python
 get(file_id: str) -> File
 ```
 
-#### Parameters
-
-- **self** (None): 
-
-- **file_id** (str): 
-
-#### Returns
-
-File
-
-### `get_or_none`
-
 Retrieve a file by ID.
 
-Returns ``None`` if the file does not exist.
+Performs a GET request to ``/files/{file_id}``.
 
-Raises:
-    SonioxAPIError: When the API returns an error.
+**Parameters**
 
-#### Signature
+| Parameter | Type |
+| ------ | ------ |
+| `file_id` | `str` |
+
+**Returns**
+
+`File`
+
+**Raises**
+
+- `SonioxAPIError` When the API returns an error.
+
+***
+
+<a id="asyncfilesapi-get_or_none"></a>
+
+### get_or_none()
 
 ```python
 get_or_none(file_id: str) -> File | None
 ```
 
-#### Parameters
+Retrieve a file by ID.
 
-- **self** (None): 
+Returns ``None`` if the file does not exist.
 
-- **file_id** (str): 
+**Parameters**
 
-#### Returns
+| Parameter | Type |
+| ------ | ------ |
+| `file_id` | `str` |
 
-File | None
+**Returns**
 
-### `delete`
+`File | None`
 
-Delete a file by ID.
+**Raises**
 
-Performs a DELETE request to ``/files/{file_id}``.
+- `SonioxAPIError` When the API returns an error.
 
-Raises:
-    SonioxAPIError: When the API returns an error.
+***
 
-#### Signature
+<a id="asyncfilesapi-delete"></a>
+
+### delete()
 
 ```python
 delete(file_id: str) -> None
 ```
 
-#### Parameters
+Delete a file by ID.
 
-- **self** (None): 
+Performs a DELETE request to ``/files/{file_id}``.
 
-- **file_id** (str): 
+**Parameters**
 
-#### Returns
+| Parameter | Type |
+| ------ | ------ |
+| `file_id` | `str` |
 
-None
+**Returns**
 
-### `delete_if_exists`
+`None`
 
-Delete a file by ID if it exists.
+**Raises**
 
-Ignores missing files.
+- `SonioxAPIError` When the API returns an error.
 
-Raises:
-    SonioxAPIError: When the API returns an error.
+***
 
-#### Signature
+<a id="asyncfilesapi-delete_if_exists"></a>
+
+### delete_if_exists()
 
 ```python
 delete_if_exists(file_id: str) -> None
 ```
 
-#### Parameters
+Delete a file by ID if it exists.
 
-- **self** (None): 
+Ignores missing files.
 
-- **file_id** (str): 
+**Parameters**
 
-#### Returns
+| Parameter | Type |
+| ------ | ------ |
+| `file_id` | `str` |
 
-None
+**Returns**
 
-### `upload`
+`None`
 
-Upload a file.
+**Raises**
 
-Performs a multipart POST request to ``/files``.
+- `SonioxAPIError` When the API returns an error.
 
-Raises:
-    SonioxAPIError: When the API returns an error.
+***
 
-#### Signature
+<a id="asyncfilesapi-upload"></a>
+
+### upload()
 
 ```python
 upload(file: BinaryIO | bytes | Path | str, *, filename: str | None = None, client_reference_id: str | None = None) -> File
 ```
 
-#### Parameters
+Upload a file.
 
-- **self** (None): 
+Performs a multipart POST request to ``/files``.
 
-- **file** (BinaryIO | bytes | Path | str): 
+**Parameters**
 
-- **filename** (str | None): 
+| Parameter | Type |
+| ------ | ------ |
+| `file` | `BinaryIO \| bytes \| Path \| str` |
+| `filename` | `str \| None` |
+| `client_reference_id` | `str \| None` |
 
-- **client_reference_id** (str | None): 
+**Returns**
 
-#### Returns
+`File`
 
-File
+**Raises**
 
-### `delete_all`
+- `SonioxAPIError` When the API returns an error.
 
-Delete all files.
+***
 
-Iterates through all pages and deletes each file. Stops and raises on the first failed deletion.
+<a id="asyncfilesapi-delete_all"></a>
 
-Raises:
-    SonioxAPIError: When the API returns an error.
-
-#### Signature
+### delete_all()
 
 ```python
 delete_all(limit: int = 100) -> None
 ```
 
-#### Parameters
+Delete all files.
 
-- **self** (None): 
+Iterates through all pages and deletes each file. Stops and raises on the first failed deletion.
 
-- **limit** (int): 
+**Parameters**
 
-#### Returns
+| Parameter | Type |
+| ------ | ------ |
+| `limit` | `int` |
 
-None
+**Returns**
+
+`None`
+
+**Raises**
+
+- `SonioxAPIError` When the API returns an error.
 
 ---
 
-## Class `AsyncModelsAPI`
+## AsyncModelsAPI
 
-### Attributes
+<a id="asyncmodelsapi-constructor"></a>
 
-- **_client**: 
-
-### `__init__`
-
-#### Signature
+### Constructor
 
 ```python
-__init__(client: AsyncSonioxClient) -> None
+AsyncModelsAPI(client: AsyncSonioxClient)
 ```
 
-#### Parameters
+**Parameters**
 
-- **self** (None): 
+| Parameter | Type |
+| ------ | ------ |
+| `client` | `AsyncSonioxClient` |
 
-- **client** (AsyncSonioxClient): 
+**Returns**
 
-#### Returns
+`None`
 
-None
+<a id="asyncmodelsapi-list"></a>
 
-### `list`
-
-List available models.
-
-Performs a GET request to ``/models``.
-
-Raises:
-    SonioxAPIError: When the API returns an error.
-
-#### Signature
+### list()
 
 ```python
 list() -> GetModelsResponse
 ```
 
-#### Parameters
+List available models.
 
-- **self** (None): 
+Performs a GET request to ``/models``.
 
-#### Returns
+**Returns**
 
-GetModelsResponse
+`GetModelsResponse`
+
+**Raises**
+
+- `SonioxAPIError` When the API returns an error.
 
 ---
 
-## Class `AsyncSttAPI`
+## AsyncSttAPI
 
-### Attributes
+<a id="asyncsttapi-constructor"></a>
 
-- **_client**: 
-
-### `__init__`
-
-#### Signature
+### Constructor
 
 ```python
-__init__(client: AsyncSonioxClient) -> None
+AsyncSttAPI(client: AsyncSonioxClient)
 ```
 
-#### Parameters
+**Parameters**
 
-- **self** (None): 
+| Parameter | Type |
+| ------ | ------ |
+| `client` | `AsyncSonioxClient` |
 
-- **client** (AsyncSonioxClient): 
+**Returns**
 
-#### Returns
+`None`
 
-None
+<a id="asyncsttapi-list"></a>
 
-### `list`
-
-List transcriptions.
-
-Performs a GET request to ``/transcriptions`` with optional pagination.
-
-Raises:
-    SonioxAPIError: When the API returns an error.
-
-#### Signature
+### list()
 
 ```python
 list(limit: int = 100, cursor: str | None = None) -> GetTranscriptionsResponse
 ```
 
-#### Parameters
+List transcriptions.
 
-- **self** (None): 
+Performs a GET request to ``/transcriptions`` with optional pagination.
 
-- **limit** (int): 
+**Parameters**
 
-- **cursor** (str | None): 
+| Parameter | Type |
+| ------ | ------ |
+| `limit` | `int` |
+| `cursor` | `str \| None` |
 
-#### Returns
+**Returns**
 
-GetTranscriptionsResponse
+`GetTranscriptionsResponse`
 
-### `list_all`
+**Raises**
 
-Iterate through all transcriptions across all pages.
+- `SonioxAPIError` When the API returns an error.
 
-Yields:
-    File: The next transcription object from the API.
+***
 
-Raises:
-    SonioxAPIError: When the API returns an error.
+<a id="asyncsttapi-list_all"></a>
 
-#### Signature
+### list_all()
 
 ```python
 list_all(limit: int = 100) -> AsyncGenerator[Transcription, None]
 ```
 
-#### Parameters
+Iterate through all transcriptions across all pages.
 
-- **self** (None): 
+**Parameters**
 
-- **limit** (int): 
+| Parameter | Type |
+| ------ | ------ |
+| `limit` | `int` |
 
-#### Returns
+**Yields**
 
-AsyncGenerator[Transcription, None]
+`AsyncGenerator[Transcription, None]`
 
-### `delete_all`
+File: The next transcription object from the API.
 
-Delete all transcriptions.
+**Raises**
 
-Iterates through all pages and deletes each transcription. Stops and raises on the first failed deletion.
+- `SonioxAPIError` When the API returns an error.
 
-Raises:
-    SonioxAPIError: When the API returns an error.
+***
 
-#### Signature
+<a id="asyncsttapi-delete_all"></a>
+
+### delete_all()
 
 ```python
 delete_all(limit: int = 100) -> None
 ```
 
-#### Parameters
+Delete all transcriptions.
 
-- **self** (None): 
+Iterates through all pages and deletes each transcription. Stops and raises on the first failed deletion.
 
-- **limit** (int): 
+**Parameters**
 
-#### Returns
+| Parameter | Type |
+| ------ | ------ |
+| `limit` | `int` |
 
-None
+**Returns**
 
-### `create`
+`None`
 
-Create a transcription.
+**Raises**
 
-Performs a POST request to ``/transcriptions``.
+- `SonioxAPIError` When the API returns an error.
 
-Raises:
-    SonioxAPIError: When the API returns an error.
+***
 
-#### Signature
+<a id="asyncsttapi-create"></a>
+
+### create()
 
 ```python
 create(*, model: str = DEFAULT_MODEL, file_id: str | None = None, audio_url: str | None = None, client_reference_id: str | None = None, config: CreateTranscriptionConfig | None = None) -> Transcription
 ```
 
-#### Parameters
+Create a transcription.
 
-- **self** (None): 
+Performs a POST request to ``/transcriptions``.
 
-- **model** (str): 
+**Parameters**
 
-- **file_id** (str | None): 
+| Parameter | Type |
+| ------ | ------ |
+| `model` | `str` |
+| `file_id` | `str \| None` |
+| `audio_url` | `str \| None` |
+| `client_reference_id` | `str \| None` |
+| `config` | `CreateTranscriptionConfig \| None` |
 
-- **audio_url** (str | None): 
+**Returns**
 
-- **client_reference_id** (str | None): 
+`Transcription`
 
-- **config** (CreateTranscriptionConfig | None): 
+**Raises**
 
-#### Returns
+- `SonioxAPIError` When the API returns an error.
 
-Transcription
+***
 
-### `get`
+<a id="asyncsttapi-get"></a>
 
-Retrieve a transcription by ID.
-
-Performs a GET request to ``/transcriptions/{transcription_id}``.
-
-Raises:
-    SonioxAPIError: When the API returns an error.
-
-#### Signature
+### get()
 
 ```python
 get(transcription_id: str) -> Transcription
 ```
 
-#### Parameters
-
-- **self** (None): 
-
-- **transcription_id** (str): 
-
-#### Returns
-
-Transcription
-
-### `get_or_none`
-
 Retrieve a transcription by ID.
 
-Returns ``None`` if the transcription does not exist.
+Performs a GET request to ``/transcriptions/{transcription_id}``.
 
-Raises:
-    SonioxAPIError: When the API returns an error.
+**Parameters**
 
-#### Signature
+| Parameter | Type |
+| ------ | ------ |
+| `transcription_id` | `str` |
+
+**Returns**
+
+`Transcription`
+
+**Raises**
+
+- `SonioxAPIError` When the API returns an error.
+
+***
+
+<a id="asyncsttapi-get_or_none"></a>
+
+### get_or_none()
 
 ```python
 get_or_none(transcription_id: str) -> Transcription | None
 ```
 
-#### Parameters
+Retrieve a transcription by ID.
 
-- **self** (None): 
+Returns ``None`` if the transcription does not exist.
 
-- **transcription_id** (str): 
+**Parameters**
 
-#### Returns
+| Parameter | Type |
+| ------ | ------ |
+| `transcription_id` | `str` |
 
-Transcription | None
+**Returns**
 
-### `delete`
+`Transcription | None`
 
-Delete a transcription by ID.
+**Raises**
 
-Performs a DELETE request to ``/transcriptions/{transcription_id}``.
+- `SonioxAPIError` When the API returns an error.
 
-Raises:
-    SonioxAPIError: When the API returns an error.
+***
 
-#### Signature
+<a id="asyncsttapi-delete"></a>
+
+### delete()
 
 ```python
 delete(transcription_id: str) -> None
 ```
 
-#### Parameters
+Delete a transcription by ID.
 
-- **self** (None): 
+Performs a DELETE request to ``/transcriptions/{transcription_id}``.
 
-- **transcription_id** (str): 
+**Parameters**
 
-#### Returns
+| Parameter | Type |
+| ------ | ------ |
+| `transcription_id` | `str` |
 
-None
+**Returns**
 
-### `delete_if_exists`
+`None`
 
-Delete a transcription by ID if it exists.
+**Raises**
 
-Ignores missing transcriptions.
+- `SonioxAPIError` When the API returns an error.
 
-Raises:
-    SonioxAPIError: When the API returns an error.
+***
 
-#### Signature
+<a id="asyncsttapi-delete_if_exists"></a>
+
+### delete_if_exists()
 
 ```python
 delete_if_exists(transcription_id: str) -> None
 ```
 
-#### Parameters
+Delete a transcription by ID if it exists.
 
-- **self** (None): 
+Ignores missing transcriptions.
 
-- **transcription_id** (str): 
+**Parameters**
 
-#### Returns
+| Parameter | Type |
+| ------ | ------ |
+| `transcription_id` | `str` |
 
-None
+**Returns**
 
-### `destroy`
+`None`
 
-Delete a transcription and its associated uploaded file.
+**Raises**
 
-Raises:
-    SonioxAPIError: When the API returns an error.
+- `SonioxAPIError` When the API returns an error.
 
-#### Signature
+***
+
+<a id="asyncsttapi-destroy"></a>
+
+### destroy()
 
 ```python
 destroy(transcription_id: str) -> None
 ```
 
-#### Parameters
+Delete a transcription and its associated uploaded file.
 
-- **self** (None): 
+**Parameters**
 
-- **transcription_id** (str): 
+| Parameter | Type |
+| ------ | ------ |
+| `transcription_id` | `str` |
 
-#### Returns
+**Returns**
 
-None
+`None`
 
-### `destroy_all`
+**Raises**
 
-Delete all transcriptions and their associated files. Stops and raises on the first failed deletion.
+- `SonioxAPIError` When the API returns an error.
 
-Raises:
-    SonioxAPIError: When the API returns an error during listing.
+***
 
-#### Signature
+<a id="asyncsttapi-destroy_all"></a>
+
+### destroy_all()
 
 ```python
 destroy_all(limit: int = 100) -> None
 ```
 
-#### Parameters
+Delete all transcriptions and their associated files. Stops and raises on the first failed deletion.
 
-- **self** (None): 
+**Parameters**
 
-- **limit** (int): 
+| Parameter | Type |
+| ------ | ------ |
+| `limit` | `int` |
 
-#### Returns
+**Returns**
 
-None
+`None`
 
-### `get_transcript`
+**Raises**
 
-Retrieve the transcript for a transcription.
+- `SonioxAPIError` When the API returns an error during listing.
 
-Performs a GET request to ``/transcriptions/{transcription_id}/transcript``.
+***
 
-Raises:
-    SonioxAPIError: When the API returns an error.
+<a id="asyncsttapi-get_transcript"></a>
 
-#### Signature
+### get_transcript()
 
 ```python
 get_transcript(transcription_id: str) -> TranscriptionTranscript
 ```
 
-#### Parameters
+Retrieve the transcript for a transcription.
 
-- **self** (None): 
+Performs a GET request to ``/transcriptions/{transcription_id}/transcript``.
 
-- **transcription_id** (str): 
+**Parameters**
 
-#### Returns
+| Parameter | Type |
+| ------ | ------ |
+| `transcription_id` | `str` |
 
-TranscriptionTranscript
+**Returns**
 
-### `wait`
+`TranscriptionTranscript`
 
-Poll a transcription until it leaves the queued or processing state.
+**Raises**
 
-Raises:
-    SonioxAPIError: When the API returns an error.
-    TimeoutError: Waiting for the transcription to finish exceeded `timeout_sec`.
+- `SonioxAPIError` When the API returns an error.
 
-#### Signature
+***
+
+<a id="asyncsttapi-wait"></a>
+
+### wait()
 
 ```python
 wait(transcription_id: str, *, interval_sec: float = 5.0, timeout_sec: float | None = None) -> Transcription
 ```
 
-#### Parameters
+Poll a transcription until it leaves the queued or processing state.
 
-- **self** (None): 
+**Parameters**
 
-- **transcription_id** (str): 
+| Parameter | Type |
+| ------ | ------ |
+| `transcription_id` | `str` |
+| `interval_sec` | `float` |
+| `timeout_sec` | `float \| None` |
 
-- **interval_sec** (float): 
+**Returns**
 
-- **timeout_sec** (float | None): 
+`Transcription`
 
-#### Returns
+**Raises**
 
-Transcription
+- `SonioxAPIError` When the API returns an error.
+- `TimeoutError` Waiting for the transcription to finish exceeded `timeout_sec`.
 
-### `transcribe_from_url`
+***
 
-Create a transcription from an audio URL.
+<a id="asyncsttapi-transcribe_from_url"></a>
 
-Raises:
-    SonioxAPIError: When the API returns an error.
-
-#### Signature
+### transcribe_from_url()
 
 ```python
 transcribe_from_url(*, model: str = DEFAULT_MODEL, audio_url: str, client_reference_id: str | None = None, config: CreateTranscriptionConfig | None = None) -> Transcription
 ```
 
-#### Parameters
+Create a transcription from an audio URL.
 
-- **self** (None): 
+**Parameters**
 
-- **model** (str): 
+| Parameter | Type |
+| ------ | ------ |
+| `model` | `str` |
+| `audio_url` | `str` |
+| `client_reference_id` | `str \| None` |
+| `config` | `CreateTranscriptionConfig \| None` |
 
-- **audio_url** (str): 
+**Returns**
 
-- **client_reference_id** (str | None): 
+`Transcription`
 
-- **config** (CreateTranscriptionConfig | None): 
+**Raises**
 
-#### Returns
+- `SonioxAPIError` When the API returns an error.
 
-Transcription
+***
 
-### `transcribe_from_file_id`
+<a id="asyncsttapi-transcribe_from_file_id"></a>
 
-Create a transcription from an existing uploaded file.
-
-Raises:
-    SonioxAPIError: When the API returns an error.
-
-#### Signature
+### transcribe_from_file_id()
 
 ```python
 transcribe_from_file_id(*, model: str = DEFAULT_MODEL, file_id: str, client_reference_id: str | None = None, config: CreateTranscriptionConfig | None = None) -> Transcription
 ```
 
-#### Parameters
+Create a transcription from an existing uploaded file.
 
-- **self** (None): 
+**Parameters**
 
-- **model** (str): 
+| Parameter | Type |
+| ------ | ------ |
+| `model` | `str` |
+| `file_id` | `str` |
+| `client_reference_id` | `str \| None` |
+| `config` | `CreateTranscriptionConfig \| None` |
 
-- **file_id** (str): 
+**Returns**
 
-- **client_reference_id** (str | None): 
+`Transcription`
 
-- **config** (CreateTranscriptionConfig | None): 
+**Raises**
 
-#### Returns
+- `SonioxAPIError` When the API returns an error.
 
-Transcription
+***
 
-### `transcribe_from_file`
+<a id="asyncsttapi-transcribe_from_file"></a>
 
-Upload a file and create a transcription from it.
-
-Raises:
-    SonioxAPIError: When the API returns an error.
-
-#### Signature
+### transcribe_from_file()
 
 ```python
 transcribe_from_file(*, model: str = DEFAULT_MODEL, file: BinaryIO | bytes | Path | str, filename: str | None = None, client_reference_id: str | None = None, config: CreateTranscriptionConfig | None = None) -> Transcription
 ```
 
-#### Parameters
+Upload a file and create a transcription from it.
 
-- **self** (None): 
+**Parameters**
 
-- **model** (str): 
+| Parameter | Type |
+| ------ | ------ |
+| `model` | `str` |
+| `file` | `BinaryIO \| bytes \| Path \| str` |
+| `filename` | `str \| None` |
+| `client_reference_id` | `str \| None` |
+| `config` | `CreateTranscriptionConfig \| None` |
 
-- **file** (BinaryIO | bytes | Path | str): 
+**Returns**
 
-- **filename** (str | None): 
+`Transcription`
 
-- **client_reference_id** (str | None): 
+**Raises**
 
-- **config** (CreateTranscriptionConfig | None): 
+- `SonioxAPIError` When the API returns an error.
 
-#### Returns
+***
 
-Transcription
+<a id="asyncsttapi-transcribe"></a>
 
-### `transcribe`
-
-Create a transcription from a file, file ID, or audio URL.
-
-Validates mutually exclusive inputs before submission.
-
-Raises:
-    SonioxAPIError: When the API returns an error.
-    SonioxValidationError: When the payload fails validation.
-
-#### Signature
+### transcribe()
 
 ```python
 transcribe(*, model: str = DEFAULT_MODEL, audio_url: str | None = None, file_id: str | None = None, file: BinaryIO | bytes | Path | str | None = None, filename: str | None = None, client_reference_id: str | None = None, config: CreateTranscriptionConfig | None = None) -> Transcription
 ```
 
-#### Parameters
+Create a transcription from a file, file ID, or audio URL.
 
-- **self** (None): 
+Validates mutually exclusive inputs before submission.
 
-- **model** (str): 
+**Parameters**
 
-- **audio_url** (str | None): 
+| Parameter | Type |
+| ------ | ------ |
+| `model` | `str` |
+| `audio_url` | `str \| None` |
+| `file_id` | `str \| None` |
+| `file` | `BinaryIO \| bytes \| Path \| str \| None` |
+| `filename` | `str \| None` |
+| `client_reference_id` | `str \| None` |
+| `config` | `CreateTranscriptionConfig \| None` |
 
-- **file_id** (str | None): 
+**Returns**
 
-- **file** (BinaryIO | bytes | Path | str | None): 
+`Transcription`
 
-- **filename** (str | None): 
+**Raises**
 
-- **client_reference_id** (str | None): 
+- `SonioxAPIError` When the API returns an error.
+- `SonioxValidationError` When the payload fails validation.
 
-- **config** (CreateTranscriptionConfig | None): 
+***
 
-#### Returns
+<a id="asyncsttapi-transcribe_file_with_webhook"></a>
 
-Transcription
-
-### `transcribe_file_with_webhook`
-
-Upload a file, configure a webhook, and start transcription.
-
-Raises:
-    SonioxAPIError: When the API returns an error.
-
-#### Signature
+### transcribe_file_with_webhook()
 
 ```python
 transcribe_file_with_webhook(*, model: str = DEFAULT_MODEL, file: BinaryIO | bytes | Path | str, webhook_url: str, filename: str | None = None, client_reference_id: str | None = None, webhook_auth: WebhookAuthConfig | None = None, config: CreateTranscriptionConfig | None = None) -> Transcription
 ```
 
-#### Parameters
+Upload a file, configure a webhook, and start transcription.
 
-- **self** (None): 
+**Parameters**
 
-- **model** (str): 
+| Parameter | Type |
+| ------ | ------ |
+| `model` | `str` |
+| `file` | `BinaryIO \| bytes \| Path \| str` |
+| `webhook_url` | `str` |
+| `filename` | `str \| None` |
+| `client_reference_id` | `str \| None` |
+| `webhook_auth` | `WebhookAuthConfig \| None` |
+| `config` | `CreateTranscriptionConfig \| None` |
 
-- **file** (BinaryIO | bytes | Path | str): 
+**Returns**
 
-- **webhook_url** (str): 
+`Transcription`
 
-- **filename** (str | None): 
+**Raises**
 
-- **client_reference_id** (str | None): 
+- `SonioxAPIError` When the API returns an error.
 
-- **webhook_auth** (WebhookAuthConfig | None): 
+***
 
-- **config** (CreateTranscriptionConfig | None): 
+<a id="asyncsttapi-transcribe_and_wait"></a>
 
-#### Returns
+### transcribe_and_wait()
 
-Transcription
-
-### `transcribe_and_wait`
+```python
+transcribe_and_wait(*, model: str = DEFAULT_MODEL, audio_url: str | None = None, file_id: str | None = None, file: BinaryIO | bytes | Path | str | None = None, filename: str | None = None, client_reference_id: str | None = None, delete_after: bool = False, wait_interval_sec: float = 5.0, wait_timeout_sec: float | None = None, config: CreateTranscriptionConfig | None = None) -> Transcription
+```
 
 Create a transcription and wait for completion.
 
 Returns a Transcription object after it is completed. Optionally deletes
 the transcription and the uploaded file after completion.
 
-Raises:
-    SonioxAPIError: When the API returns an error.
-    SonioxValidationError: When the payload fails validation.
-    TimeoutError: Waiting for the transcription to finish exceeded `timeout_sec`.
+**Parameters**
 
-#### Signature
+| Parameter | Type |
+| ------ | ------ |
+| `model` | `str` |
+| `audio_url` | `str \| None` |
+| `file_id` | `str \| None` |
+| `file` | `BinaryIO \| bytes \| Path \| str \| None` |
+| `filename` | `str \| None` |
+| `client_reference_id` | `str \| None` |
+| `delete_after` | `bool` |
+| `wait_interval_sec` | `float` |
+| `wait_timeout_sec` | `float \| None` |
+| `config` | `CreateTranscriptionConfig \| None` |
 
-```python
-transcribe_and_wait(*, model: str = DEFAULT_MODEL, audio_url: str | None = None, file_id: str | None = None, file: BinaryIO | bytes | Path | str | None = None, filename: str | None = None, client_reference_id: str | None = None, delete_after: bool = False, wait_interval_sec: float = 5.0, wait_timeout_sec: float | None = None, config: CreateTranscriptionConfig | None = None) -> Transcription
-```
+**Returns**
 
-#### Parameters
+`Transcription`
 
-- **self** (None): 
+**Raises**
 
-- **model** (str): 
+- `SonioxAPIError` When the API returns an error.
+- `SonioxValidationError` When the payload fails validation.
+- `TimeoutError` Waiting for the transcription to finish exceeded `timeout_sec`.
 
-- **audio_url** (str | None): 
+***
 
-- **file_id** (str | None): 
+<a id="asyncsttapi-transcribe_and_wait_with_tokens"></a>
 
-- **file** (BinaryIO | bytes | Path | str | None): 
-
-- **filename** (str | None): 
-
-- **client_reference_id** (str | None): 
-
-- **delete_after** (bool): 
-
-- **wait_interval_sec** (float): 
-
-- **wait_timeout_sec** (float | None): 
-
-- **config** (CreateTranscriptionConfig | None): 
-
-#### Returns
-
-Transcription
-
-### `transcribe_and_wait_with_tokens`
-
-Create a transcription, wait for completion, and return the transcript.
-
-Optionally deletes the transcription and uploaded file after completion.
-
-Raises:
-    SonioxAPIError: When the API returns an error.
-    SonioxValidationError: When the payload fails validation.
-    TimeoutError: Waiting for the transcription to finish exceeded `timeout_sec`.
-
-#### Signature
+### transcribe_and_wait_with_tokens()
 
 ```python
 transcribe_and_wait_with_tokens(*, model: str = DEFAULT_MODEL, audio_url: str | None = None, file_id: str | None = None, file: BinaryIO | bytes | Path | str | None = None, filename: str | None = None, client_reference_id: str | None = None, delete_after: bool = False, wait_interval_sec: float = 5.0, wait_timeout_sec: float | None = None, config: CreateTranscriptionConfig | None = None) -> TranscriptionTranscript
 ```
 
-#### Parameters
+Create a transcription, wait for completion, and return the transcript.
 
-- **self** (None): 
+Optionally deletes the transcription and uploaded file after completion.
 
-- **model** (str): 
+**Parameters**
 
-- **audio_url** (str | None): 
+| Parameter | Type |
+| ------ | ------ |
+| `model` | `str` |
+| `audio_url` | `str \| None` |
+| `file_id` | `str \| None` |
+| `file` | `BinaryIO \| bytes \| Path \| str \| None` |
+| `filename` | `str \| None` |
+| `client_reference_id` | `str \| None` |
+| `delete_after` | `bool` |
+| `wait_interval_sec` | `float` |
+| `wait_timeout_sec` | `float \| None` |
+| `config` | `CreateTranscriptionConfig \| None` |
 
-- **file_id** (str | None): 
+**Returns**
 
-- **file** (BinaryIO | bytes | Path | str | None): 
+`TranscriptionTranscript`
 
-- **filename** (str | None): 
+**Raises**
 
-- **client_reference_id** (str | None): 
-
-- **delete_after** (bool): 
-
-- **wait_interval_sec** (float): 
-
-- **wait_timeout_sec** (float | None): 
-
-- **config** (CreateTranscriptionConfig | None): 
-
-#### Returns
-
-TranscriptionTranscript
-
----
-
-## Class `AsyncSonioxWebhooksAPI`
+- `SonioxAPIError` When the API returns an error.
+- `SonioxValidationError` When the payload fails validation.
+- `TimeoutError` Waiting for the transcription to finish exceeded `timeout_sec`.
 
 ---
 
-## Class `AuthAPI`
+## AsyncSonioxWebhooksAPI
 
-### Attributes
+---
 
-- **_client**: 
+## AuthAPI
 
-### `__init__`
+<a id="authapi-constructor"></a>
 
-#### Signature
+### Constructor
 
 ```python
-__init__(client: SonioxClient) -> None
+AuthAPI(client: SonioxClient)
 ```
 
-#### Parameters
+**Parameters**
 
-- **self** (None): 
+| Parameter | Type |
+| ------ | ------ |
+| `client` | `SonioxClient` |
 
-- **client** (SonioxClient): 
+**Returns**
 
-#### Returns
+`None`
 
-None
+<a id="authapi-create_temporary_api_key"></a>
 
-### `create_temporary_api_key`
-
-Create a temporary API key.
-
-Performs a POST request to ``/auth/temporary-api-key``.
-
-Raises:
-    SonioxAPIError: When the API returns an error.
-
-#### Signature
+### create_temporary_api_key()
 
 ```python
 create_temporary_api_key(*, usage_type: TemporaryApiKeyUsageType = 'transcribe_websocket', expires_in_seconds: int = 5 * 60, client_reference_id: str | None = None) -> CreateTemporaryApiKeyResponse
 ```
 
-#### Parameters
+Create a temporary API key.
 
-- **self** (None): 
+Performs a POST request to ``/auth/temporary-api-key``.
 
-- **usage_type** (TemporaryApiKeyUsageType): 
+**Parameters**
 
-- **expires_in_seconds** (int): 
+| Parameter | Type |
+| ------ | ------ |
+| `usage_type` | `TemporaryApiKeyUsageType` |
+| `expires_in_seconds` | `int` |
+| `client_reference_id` | `str \| None` |
 
-- **client_reference_id** (str | None): 
+**Returns**
 
-#### Returns
+`CreateTemporaryApiKeyResponse`
 
-CreateTemporaryApiKeyResponse
+**Raises**
+
+- `SonioxAPIError` When the API returns an error.
 
 ---
 
-## Class `FilesAPI`
+## FilesAPI
 
-### Attributes
+<a id="filesapi-constructor"></a>
 
-- **_client**: 
-
-### `__init__`
-
-#### Signature
+### Constructor
 
 ```python
-__init__(client: SonioxClient) -> None
+FilesAPI(client: SonioxClient)
 ```
 
-#### Parameters
+**Parameters**
 
-- **self** (None): 
+| Parameter | Type |
+| ------ | ------ |
+| `client` | `SonioxClient` |
 
-- **client** (SonioxClient): 
+**Returns**
 
-#### Returns
+`None`
 
-None
+<a id="filesapi-list"></a>
 
-### `list`
-
-List uploaded files.
-
-Performs a GET request to ``/files`` with optional pagination.
-
-Raises:
-    SonioxAPIError: When the API returns an error.
-
-#### Signature
+### list()
 
 ```python
 list(limit: int = 100, cursor: str | None = None) -> GetFilesResponse
 ```
 
-#### Parameters
+List uploaded files.
 
-- **self** (None): 
+Performs a GET request to ``/files`` with optional pagination.
 
-- **limit** (int): 
+**Parameters**
 
-- **cursor** (str | None): 
+| Parameter | Type |
+| ------ | ------ |
+| `limit` | `int` |
+| `cursor` | `str \| None` |
 
-#### Returns
+**Returns**
 
-GetFilesResponse
+`GetFilesResponse`
 
-### `list_all`
+**Raises**
 
-Iterate through all uploaded files across all pages.
+- `SonioxAPIError` When the API returns an error.
 
-Yields:
-    File: The next file object from the API.
+***
 
-Raises:
-    SonioxAPIError: When the API returns an error.
+<a id="filesapi-list_all"></a>
 
-#### Signature
+### list_all()
 
 ```python
 list_all(limit: int = 100) -> Generator[File, None, None]
 ```
 
-#### Parameters
+Iterate through all uploaded files across all pages.
 
-- **self** (None): 
+**Parameters**
 
-- **limit** (int): 
+| Parameter | Type |
+| ------ | ------ |
+| `limit` | `int` |
 
-#### Returns
+**Yields**
 
-Generator[File, None, None]
+`Generator[File, None, None]`
 
-### `get`
+File: The next file object from the API.
 
-Retrieve a file by ID.
+**Raises**
 
-Performs a GET request to ``/files/{file_id}``.
+- `SonioxAPIError` When the API returns an error.
 
-Raises:
-    SonioxAPIError: When the API returns an error.
+***
 
-#### Signature
+<a id="filesapi-get"></a>
+
+### get()
 
 ```python
 get(file_id: str) -> File
 ```
 
-#### Parameters
-
-- **self** (None): 
-
-- **file_id** (str): 
-
-#### Returns
-
-File
-
-### `get_or_none`
-
 Retrieve a file by ID.
 
-Returns ``None`` if the file does not exist.
+Performs a GET request to ``/files/{file_id}``.
 
-Raises:
-    SonioxAPIError: When the API returns an error.
+**Parameters**
 
-#### Signature
+| Parameter | Type |
+| ------ | ------ |
+| `file_id` | `str` |
+
+**Returns**
+
+`File`
+
+**Raises**
+
+- `SonioxAPIError` When the API returns an error.
+
+***
+
+<a id="filesapi-get_or_none"></a>
+
+### get_or_none()
 
 ```python
 get_or_none(file_id: str) -> File | None
 ```
 
-#### Parameters
+Retrieve a file by ID.
 
-- **self** (None): 
+Returns ``None`` if the file does not exist.
 
-- **file_id** (str): 
+**Parameters**
 
-#### Returns
+| Parameter | Type |
+| ------ | ------ |
+| `file_id` | `str` |
 
-File | None
+**Returns**
 
-### `delete`
+`File | None`
 
-Delete a file by ID.
+**Raises**
 
-Performs a DELETE request to ``/files/{file_id}``.
+- `SonioxAPIError` When the API returns an error.
 
-Raises:
-    SonioxAPIError: When the API returns an error.
+***
 
-#### Signature
+<a id="filesapi-delete"></a>
+
+### delete()
 
 ```python
 delete(file_id: str) -> None
 ```
 
-#### Parameters
+Delete a file by ID.
 
-- **self** (None): 
+Performs a DELETE request to ``/files/{file_id}``.
 
-- **file_id** (str): 
+**Parameters**
 
-#### Returns
+| Parameter | Type |
+| ------ | ------ |
+| `file_id` | `str` |
 
-None
+**Returns**
 
-### `delete_if_exists`
+`None`
 
-Delete a file by ID if it exists.
+**Raises**
 
-Ignores missing files.
+- `SonioxAPIError` When the API returns an error.
 
-Raises:
-    SonioxAPIError: When the API returns an error.
+***
 
-#### Signature
+<a id="filesapi-delete_if_exists"></a>
+
+### delete_if_exists()
 
 ```python
 delete_if_exists(file_id: str) -> None
 ```
 
-#### Parameters
+Delete a file by ID if it exists.
 
-- **self** (None): 
+Ignores missing files.
 
-- **file_id** (str): 
+**Parameters**
 
-#### Returns
+| Parameter | Type |
+| ------ | ------ |
+| `file_id` | `str` |
 
-None
+**Returns**
 
-### `upload`
+`None`
 
-Upload a file.
+**Raises**
 
-Performs a multipart POST request to ``/files``.
+- `SonioxAPIError` When the API returns an error.
 
-Raises:
-    SonioxAPIError: When the API returns an error.
+***
 
-#### Signature
+<a id="filesapi-upload"></a>
+
+### upload()
 
 ```python
 upload(file: BinaryIO | bytes | Path | str, *, filename: str | None = None, client_reference_id: str | None = None) -> File
 ```
 
-#### Parameters
+Upload a file.
 
-- **self** (None): 
+Performs a multipart POST request to ``/files``.
 
-- **file** (BinaryIO | bytes | Path | str): 
+**Parameters**
 
-- **filename** (str | None): 
+| Parameter | Type |
+| ------ | ------ |
+| `file` | `BinaryIO \| bytes \| Path \| str` |
+| `filename` | `str \| None` |
+| `client_reference_id` | `str \| None` |
 
-- **client_reference_id** (str | None): 
+**Returns**
 
-#### Returns
+`File`
 
-File
+**Raises**
 
-### `delete_all`
+- `SonioxAPIError` When the API returns an error.
+
+***
+
+<a id="filesapi-delete_all"></a>
+
+### delete_all()
+
+```python
+delete_all(limit: int = 100) -> None
+```
 
 Delete all files.
 
 Iterates through all pages and deletes each file. Stops and raises on the first failed deletion.
 
-Raises:
-    SonioxAPIError: When the API returns an error.
+**Parameters**
 
-#### Signature
+| Parameter | Type |
+| ------ | ------ |
+| `limit` | `int` |
 
-```python
-delete_all(limit: int = 100) -> None
-```
+**Returns**
 
-#### Parameters
+`None`
 
-- **self** (None): 
+**Raises**
 
-- **limit** (int): 
-
-#### Returns
-
-None
+- `SonioxAPIError` When the API returns an error.
 
 ---
 
-## Class `ModelsAPI`
+## ModelsAPI
 
-### Attributes
+<a id="modelsapi-constructor"></a>
 
-- **_client**: 
-
-### `__init__`
-
-#### Signature
+### Constructor
 
 ```python
-__init__(client: SonioxClient) -> None
+ModelsAPI(client: SonioxClient)
 ```
 
-#### Parameters
+**Parameters**
 
-- **self** (None): 
+| Parameter | Type |
+| ------ | ------ |
+| `client` | `SonioxClient` |
 
-- **client** (SonioxClient): 
+**Returns**
 
-#### Returns
+`None`
 
-None
+<a id="modelsapi-list"></a>
 
-### `list`
-
-List available models.
-
-Performs a GET request to ``/models``.
-
-Raises:
-    SonioxAPIError: When the API returns an error.
-
-#### Signature
+### list()
 
 ```python
 list() -> GetModelsResponse
 ```
 
-#### Parameters
+List available models.
 
-- **self** (None): 
+Performs a GET request to ``/models``.
 
-#### Returns
+**Returns**
 
-GetModelsResponse
+`GetModelsResponse`
+
+**Raises**
+
+- `SonioxAPIError` When the API returns an error.
 
 ---
 
-## Class `SttAPI`
+## SttAPI
 
-### Attributes
+<a id="sttapi-constructor"></a>
 
-- **_client**: 
-
-### `__init__`
-
-#### Signature
+### Constructor
 
 ```python
-__init__(client: SonioxClient) -> None
+SttAPI(client: SonioxClient)
 ```
 
-#### Parameters
+**Parameters**
 
-- **self** (None): 
+| Parameter | Type |
+| ------ | ------ |
+| `client` | `SonioxClient` |
 
-- **client** (SonioxClient): 
+**Returns**
 
-#### Returns
+`None`
 
-None
+<a id="sttapi-list"></a>
 
-### `list`
-
-List transcriptions.
-
-Performs a GET request to ``/transcriptions`` with optional pagination.
-
-Raises:
-    SonioxAPIError: When the API returns an error.
-
-#### Signature
+### list()
 
 ```python
 list(limit: int = 100, cursor: str | None = None) -> GetTranscriptionsResponse
 ```
 
-#### Parameters
+List transcriptions.
 
-- **self** (None): 
+Performs a GET request to ``/transcriptions`` with optional pagination.
 
-- **limit** (int): 
+**Parameters**
 
-- **cursor** (str | None): 
+| Parameter | Type |
+| ------ | ------ |
+| `limit` | `int` |
+| `cursor` | `str \| None` |
 
-#### Returns
+**Returns**
 
-GetTranscriptionsResponse
+`GetTranscriptionsResponse`
 
-### `list_all`
+**Raises**
 
-Iterate through all transcriptions across all pages.
+- `SonioxAPIError` When the API returns an error.
 
-Yields:
-    File: The next transcription object from the API.
+***
 
-Raises:
-    SonioxAPIError: When the API returns an error.
+<a id="sttapi-list_all"></a>
 
-#### Signature
+### list_all()
 
 ```python
 list_all(limit: int = 100) -> Generator[Transcription, None, None]
 ```
 
-#### Parameters
+Iterate through all transcriptions across all pages.
 
-- **self** (None): 
+**Parameters**
 
-- **limit** (int): 
+| Parameter | Type |
+| ------ | ------ |
+| `limit` | `int` |
 
-#### Returns
+**Yields**
 
-Generator[Transcription, None, None]
+`Generator[Transcription, None, None]`
 
-### `delete_all`
+File: The next transcription object from the API.
 
-Delete all transcriptions.
+**Raises**
 
-Iterates through all pages and deletes each transcription. Stops and raises on the first failed deletion.
+- `SonioxAPIError` When the API returns an error.
 
-Raises:
-    SonioxAPIError: When the API returns an error.
+***
 
-#### Signature
+<a id="sttapi-delete_all"></a>
+
+### delete_all()
 
 ```python
 delete_all(limit: int = 100) -> None
 ```
 
-#### Parameters
+Delete all transcriptions.
 
-- **self** (None): 
+Iterates through all pages and deletes each transcription. Stops and raises on the first failed deletion.
 
-- **limit** (int): 
+**Parameters**
 
-#### Returns
+| Parameter | Type |
+| ------ | ------ |
+| `limit` | `int` |
 
-None
+**Returns**
 
-### `create`
+`None`
 
-Create a transcription.
+**Raises**
 
-Performs a POST request to ``/transcriptions``.
+- `SonioxAPIError` When the API returns an error.
 
-Raises:
-    SonioxAPIError: When the API returns an error.
+***
 
-#### Signature
+<a id="sttapi-create"></a>
+
+### create()
 
 ```python
 create(*, model: str = DEFAULT_MODEL, file_id: str | None = None, audio_url: str | None = None, client_reference_id: str | None = None, config: CreateTranscriptionConfig | None = None) -> Transcription
 ```
 
-#### Parameters
+Create a transcription.
 
-- **self** (None): 
+Performs a POST request to ``/transcriptions``.
 
-- **model** (str): 
+**Parameters**
 
-- **file_id** (str | None): 
+| Parameter | Type |
+| ------ | ------ |
+| `model` | `str` |
+| `file_id` | `str \| None` |
+| `audio_url` | `str \| None` |
+| `client_reference_id` | `str \| None` |
+| `config` | `CreateTranscriptionConfig \| None` |
 
-- **audio_url** (str | None): 
+**Returns**
 
-- **client_reference_id** (str | None): 
+`Transcription`
 
-- **config** (CreateTranscriptionConfig | None): 
+**Raises**
 
-#### Returns
+- `SonioxAPIError` When the API returns an error.
 
-Transcription
+***
 
-### `get`
+<a id="sttapi-get"></a>
 
-Retrieve a transcription by ID.
-
-Performs a GET request to ``/transcriptions/{transcription_id}``.
-
-Raises:
-    SonioxAPIError: When the API returns an error.
-
-#### Signature
+### get()
 
 ```python
 get(transcription_id: str) -> Transcription
 ```
 
-#### Parameters
-
-- **self** (None): 
-
-- **transcription_id** (str): 
-
-#### Returns
-
-Transcription
-
-### `get_or_none`
-
 Retrieve a transcription by ID.
 
-Returns ``None`` if the transcription does not exist.
+Performs a GET request to ``/transcriptions/{transcription_id}``.
 
-Raises:
-    SonioxAPIError: When the API returns an error.
+**Parameters**
 
-#### Signature
+| Parameter | Type |
+| ------ | ------ |
+| `transcription_id` | `str` |
+
+**Returns**
+
+`Transcription`
+
+**Raises**
+
+- `SonioxAPIError` When the API returns an error.
+
+***
+
+<a id="sttapi-get_or_none"></a>
+
+### get_or_none()
 
 ```python
 get_or_none(transcription_id: str) -> Transcription | None
 ```
 
-#### Parameters
+Retrieve a transcription by ID.
 
-- **self** (None): 
+Returns ``None`` if the transcription does not exist.
 
-- **transcription_id** (str): 
+**Parameters**
 
-#### Returns
+| Parameter | Type |
+| ------ | ------ |
+| `transcription_id` | `str` |
 
-Transcription | None
+**Returns**
 
-### `delete`
+`Transcription | None`
 
-Delete a transcription by ID.
+**Raises**
 
-Performs a DELETE request to ``/transcriptions/{transcription_id}``.
+- `SonioxAPIError` When the API returns an error.
 
-Raises:
-    SonioxAPIError: When the API returns an error.
+***
 
-#### Signature
+<a id="sttapi-delete"></a>
+
+### delete()
 
 ```python
 delete(transcription_id: str) -> None
 ```
 
-#### Parameters
+Delete a transcription by ID.
 
-- **self** (None): 
+Performs a DELETE request to ``/transcriptions/{transcription_id}``.
 
-- **transcription_id** (str): 
+**Parameters**
 
-#### Returns
+| Parameter | Type |
+| ------ | ------ |
+| `transcription_id` | `str` |
 
-None
+**Returns**
 
-### `delete_if_exists`
+`None`
 
-Delete a transcription by ID if it exists.
+**Raises**
 
-Ignores missing transcriptions.
+- `SonioxAPIError` When the API returns an error.
 
-Raises:
-    SonioxAPIError: When the API returns an error.
+***
 
-#### Signature
+<a id="sttapi-delete_if_exists"></a>
+
+### delete_if_exists()
 
 ```python
 delete_if_exists(transcription_id: str) -> None
 ```
 
-#### Parameters
+Delete a transcription by ID if it exists.
 
-- **self** (None): 
+Ignores missing transcriptions.
 
-- **transcription_id** (str): 
+**Parameters**
 
-#### Returns
+| Parameter | Type |
+| ------ | ------ |
+| `transcription_id` | `str` |
 
-None
+**Returns**
 
-### `destroy`
+`None`
 
-Delete a transcription and its associated uploaded file.
+**Raises**
 
-Raises:
-    SonioxAPIError: When the API returns an error.
+- `SonioxAPIError` When the API returns an error.
 
-#### Signature
+***
+
+<a id="sttapi-destroy"></a>
+
+### destroy()
 
 ```python
 destroy(transcription_id: str) -> None
 ```
 
-#### Parameters
+Delete a transcription and its associated uploaded file.
 
-- **self** (None): 
+**Parameters**
 
-- **transcription_id** (str): 
+| Parameter | Type |
+| ------ | ------ |
+| `transcription_id` | `str` |
 
-#### Returns
+**Returns**
 
-None
+`None`
 
-### `destroy_all`
+**Raises**
 
-Delete all transcriptions and their associated files. Stops and raises on the first failed deletion.
+- `SonioxAPIError` When the API returns an error.
 
-Raises:
-    SonioxAPIError: When the API returns an error during listing.
+***
 
-#### Signature
+<a id="sttapi-destroy_all"></a>
+
+### destroy_all()
 
 ```python
 destroy_all(limit: int = 100) -> None
 ```
 
-#### Parameters
+Delete all transcriptions and their associated files. Stops and raises on the first failed deletion.
 
-- **self** (None): 
+**Parameters**
 
-- **limit** (int): 
+| Parameter | Type |
+| ------ | ------ |
+| `limit` | `int` |
 
-#### Returns
+**Returns**
 
-None
+`None`
 
-### `get_transcript`
+**Raises**
 
-Retrieve the transcript for a transcription.
+- `SonioxAPIError` When the API returns an error during listing.
 
-Performs a GET request to ``/transcriptions/{transcription_id}/transcript``.
+***
 
-Raises:
-    SonioxAPIError: When the API returns an error.
+<a id="sttapi-get_transcript"></a>
 
-#### Signature
+### get_transcript()
 
 ```python
 get_transcript(transcription_id: str) -> TranscriptionTranscript
 ```
 
-#### Parameters
+Retrieve the transcript for a transcription.
 
-- **self** (None): 
+Performs a GET request to ``/transcriptions/{transcription_id}/transcript``.
 
-- **transcription_id** (str): 
+**Parameters**
 
-#### Returns
+| Parameter | Type |
+| ------ | ------ |
+| `transcription_id` | `str` |
 
-TranscriptionTranscript
+**Returns**
 
-### `wait`
+`TranscriptionTranscript`
 
-Poll a transcription until it leaves the queued or processing state.
+**Raises**
 
-Raises:
-    SonioxAPIError: When the API returns an error.
-    TimeoutError: Waiting for the transcription to finish exceeded `timeout_sec`.
+- `SonioxAPIError` When the API returns an error.
 
-#### Signature
+***
+
+<a id="sttapi-wait"></a>
+
+### wait()
 
 ```python
 wait(transcription_id: str, *, interval_sec: float = 5.0, timeout_sec: float | None = None) -> Transcription
 ```
 
-#### Parameters
+Poll a transcription until it leaves the queued or processing state.
 
-- **self** (None): 
+**Parameters**
 
-- **transcription_id** (str): 
+| Parameter | Type |
+| ------ | ------ |
+| `transcription_id` | `str` |
+| `interval_sec` | `float` |
+| `timeout_sec` | `float \| None` |
 
-- **interval_sec** (float): 
+**Returns**
 
-- **timeout_sec** (float | None): 
+`Transcription`
 
-#### Returns
+**Raises**
 
-Transcription
+- `SonioxAPIError` When the API returns an error.
+- `TimeoutError` Waiting for the transcription to finish exceeded `timeout_sec`.
 
-### `transcribe_from_url`
+***
 
-Create a transcription from an audio URL.
+<a id="sttapi-transcribe_from_url"></a>
 
-Raises:
-    SonioxAPIError: When the API returns an error.
-
-#### Signature
+### transcribe_from_url()
 
 ```python
 transcribe_from_url(*, model: str = DEFAULT_MODEL, audio_url: str, client_reference_id: str | None = None, config: CreateTranscriptionConfig | None = None) -> Transcription
 ```
 
-#### Parameters
+Create a transcription from an audio URL.
 
-- **self** (None): 
+**Parameters**
 
-- **model** (str): 
+| Parameter | Type |
+| ------ | ------ |
+| `model` | `str` |
+| `audio_url` | `str` |
+| `client_reference_id` | `str \| None` |
+| `config` | `CreateTranscriptionConfig \| None` |
 
-- **audio_url** (str): 
+**Returns**
 
-- **client_reference_id** (str | None): 
+`Transcription`
 
-- **config** (CreateTranscriptionConfig | None): 
+**Raises**
 
-#### Returns
+- `SonioxAPIError` When the API returns an error.
 
-Transcription
+***
 
-### `transcribe_from_file_id`
+<a id="sttapi-transcribe_from_file_id"></a>
 
-Create a transcription from an existing uploaded file.
-
-Raises:
-    SonioxAPIError: When the API returns an error.
-
-#### Signature
+### transcribe_from_file_id()
 
 ```python
 transcribe_from_file_id(*, model: str = DEFAULT_MODEL, file_id: str, client_reference_id: str | None = None, config: CreateTranscriptionConfig | None = None) -> Transcription
 ```
 
-#### Parameters
+Create a transcription from an existing uploaded file.
 
-- **self** (None): 
+**Parameters**
 
-- **model** (str): 
+| Parameter | Type |
+| ------ | ------ |
+| `model` | `str` |
+| `file_id` | `str` |
+| `client_reference_id` | `str \| None` |
+| `config` | `CreateTranscriptionConfig \| None` |
 
-- **file_id** (str): 
+**Returns**
 
-- **client_reference_id** (str | None): 
+`Transcription`
 
-- **config** (CreateTranscriptionConfig | None): 
+**Raises**
 
-#### Returns
+- `SonioxAPIError` When the API returns an error.
 
-Transcription
+***
 
-### `transcribe_from_file`
+<a id="sttapi-transcribe_from_file"></a>
 
-Upload a file and create a transcription from it.
-
-Raises:
-    SonioxAPIError: When the API returns an error.
-
-#### Signature
+### transcribe_from_file()
 
 ```python
 transcribe_from_file(*, model: str = DEFAULT_MODEL, file: BinaryIO | bytes | Path | str, filename: str | None = None, client_reference_id: str | None = None, config: CreateTranscriptionConfig | None = None) -> Transcription
 ```
 
-#### Parameters
+Upload a file and create a transcription from it.
 
-- **self** (None): 
+**Parameters**
 
-- **model** (str): 
+| Parameter | Type |
+| ------ | ------ |
+| `model` | `str` |
+| `file` | `BinaryIO \| bytes \| Path \| str` |
+| `filename` | `str \| None` |
+| `client_reference_id` | `str \| None` |
+| `config` | `CreateTranscriptionConfig \| None` |
 
-- **file** (BinaryIO | bytes | Path | str): 
+**Returns**
 
-- **filename** (str | None): 
+`Transcription`
 
-- **client_reference_id** (str | None): 
+**Raises**
 
-- **config** (CreateTranscriptionConfig | None): 
+- `SonioxAPIError` When the API returns an error.
 
-#### Returns
+***
 
-Transcription
+<a id="sttapi-transcribe"></a>
 
-### `transcribe`
-
-Create a transcription from a file, file ID, or audio URL.
-
-Validates mutually exclusive inputs before submission.
-
-Raises:
-    SonioxAPIError: When the API returns an error.
-    SonioxValidationError: When the payload fails validation.
-
-#### Signature
+### transcribe()
 
 ```python
 transcribe(*, model: str = DEFAULT_MODEL, audio_url: str | None = None, file_id: str | None = None, file: BinaryIO | bytes | Path | str | None = None, filename: str | None = None, client_reference_id: str | None = None, config: CreateTranscriptionConfig | None = None) -> Transcription
 ```
 
-#### Parameters
+Create a transcription from a file, file ID, or audio URL.
 
-- **self** (None): 
+Validates mutually exclusive inputs before submission.
 
-- **model** (str): 
+**Parameters**
 
-- **audio_url** (str | None): 
+| Parameter | Type |
+| ------ | ------ |
+| `model` | `str` |
+| `audio_url` | `str \| None` |
+| `file_id` | `str \| None` |
+| `file` | `BinaryIO \| bytes \| Path \| str \| None` |
+| `filename` | `str \| None` |
+| `client_reference_id` | `str \| None` |
+| `config` | `CreateTranscriptionConfig \| None` |
 
-- **file_id** (str | None): 
+**Returns**
 
-- **file** (BinaryIO | bytes | Path | str | None): 
+`Transcription`
 
-- **filename** (str | None): 
+**Raises**
 
-- **client_reference_id** (str | None): 
+- `SonioxAPIError` When the API returns an error.
+- `SonioxValidationError` When the payload fails validation.
 
-- **config** (CreateTranscriptionConfig | None): 
+***
 
-#### Returns
+<a id="sttapi-transcribe_file_with_webhook"></a>
 
-Transcription
-
-### `transcribe_file_with_webhook`
-
-Upload a file, configure a webhook, and start transcription.
-
-Raises:
-    SonioxAPIError: When the API returns an error.
-
-#### Signature
+### transcribe_file_with_webhook()
 
 ```python
 transcribe_file_with_webhook(*, model: str = DEFAULT_MODEL, file: BinaryIO | bytes | Path | str, webhook_url: str, filename: str | None = None, client_reference_id: str | None = None, webhook_auth: WebhookAuthConfig | None = None, config: CreateTranscriptionConfig | None = None) -> Transcription
 ```
 
-#### Parameters
+Upload a file, configure a webhook, and start transcription.
 
-- **self** (None): 
+**Parameters**
 
-- **model** (str): 
+| Parameter | Type |
+| ------ | ------ |
+| `model` | `str` |
+| `file` | `BinaryIO \| bytes \| Path \| str` |
+| `webhook_url` | `str` |
+| `filename` | `str \| None` |
+| `client_reference_id` | `str \| None` |
+| `webhook_auth` | `WebhookAuthConfig \| None` |
+| `config` | `CreateTranscriptionConfig \| None` |
 
-- **file** (BinaryIO | bytes | Path | str): 
+**Returns**
 
-- **webhook_url** (str): 
+`Transcription`
 
-- **filename** (str | None): 
+**Raises**
 
-- **client_reference_id** (str | None): 
+- `SonioxAPIError` When the API returns an error.
 
-- **webhook_auth** (WebhookAuthConfig | None): 
+***
 
-- **config** (CreateTranscriptionConfig | None): 
+<a id="sttapi-transcribe_and_wait"></a>
 
-#### Returns
+### transcribe_and_wait()
 
-Transcription
-
-### `transcribe_and_wait`
+```python
+transcribe_and_wait(*, model: str = DEFAULT_MODEL, audio_url: str | None = None, file_id: str | None = None, file: BinaryIO | bytes | Path | str | None = None, filename: str | None = None, client_reference_id: str | None = None, delete_after: bool = False, wait_interval_sec: float = 5.0, wait_timeout_sec: float | None = None, config: CreateTranscriptionConfig | None = None) -> Transcription
+```
 
 Create a transcription and wait for completion.
 
 Returns a Transcription object after it is completed. Optionally deletes
 the transcription and the uploaded file after completion.
 
-Raises:
-    SonioxAPIError: When the API returns an error.
-    SonioxValidationError: When the payload fails validation.
-    TimeoutError: Waiting for the transcription to finish exceeded `timeout_sec`.
+**Parameters**
 
-#### Signature
+| Parameter | Type |
+| ------ | ------ |
+| `model` | `str` |
+| `audio_url` | `str \| None` |
+| `file_id` | `str \| None` |
+| `file` | `BinaryIO \| bytes \| Path \| str \| None` |
+| `filename` | `str \| None` |
+| `client_reference_id` | `str \| None` |
+| `delete_after` | `bool` |
+| `wait_interval_sec` | `float` |
+| `wait_timeout_sec` | `float \| None` |
+| `config` | `CreateTranscriptionConfig \| None` |
 
-```python
-transcribe_and_wait(*, model: str = DEFAULT_MODEL, audio_url: str | None = None, file_id: str | None = None, file: BinaryIO | bytes | Path | str | None = None, filename: str | None = None, client_reference_id: str | None = None, delete_after: bool = False, wait_interval_sec: float = 5.0, wait_timeout_sec: float | None = None, config: CreateTranscriptionConfig | None = None) -> Transcription
-```
+**Returns**
 
-#### Parameters
+`Transcription`
 
-- **self** (None): 
+**Raises**
 
-- **model** (str): 
+- `SonioxAPIError` When the API returns an error.
+- `SonioxValidationError` When the payload fails validation.
+- `TimeoutError` Waiting for the transcription to finish exceeded `timeout_sec`.
 
-- **audio_url** (str | None): 
+***
 
-- **file_id** (str | None): 
+<a id="sttapi-transcribe_and_wait_with_tokens"></a>
 
-- **file** (BinaryIO | bytes | Path | str | None): 
-
-- **filename** (str | None): 
-
-- **client_reference_id** (str | None): 
-
-- **delete_after** (bool): 
-
-- **wait_interval_sec** (float): 
-
-- **wait_timeout_sec** (float | None): 
-
-- **config** (CreateTranscriptionConfig | None): 
-
-#### Returns
-
-Transcription
-
-### `transcribe_and_wait_with_tokens`
-
-Create a transcription, wait for completion, and return the transcript.
-
-Optionally deletes the transcription and uploaded file after completion.
-
-Raises:
-    SonioxAPIError: When the API returns an error.
-    SonioxValidationError: When the payload fails validation.
-    TimeoutError: Waiting for the transcription to finish exceeded `timeout_sec`.
-
-#### Signature
+### transcribe_and_wait_with_tokens()
 
 ```python
 transcribe_and_wait_with_tokens(*, model: str = DEFAULT_MODEL, audio_url: str | None = None, file_id: str | None = None, file: BinaryIO | bytes | Path | str | None = None, filename: str | None = None, client_reference_id: str | None = None, delete_after: bool = False, wait_interval_sec: float = 5.0, wait_timeout_sec: float | None = None, config: CreateTranscriptionConfig | None = None) -> TranscriptionTranscript
 ```
 
-#### Parameters
+Create a transcription, wait for completion, and return the transcript.
 
-- **self** (None): 
+Optionally deletes the transcription and uploaded file after completion.
 
-- **model** (str): 
+**Parameters**
 
-- **audio_url** (str | None): 
+| Parameter | Type |
+| ------ | ------ |
+| `model` | `str` |
+| `audio_url` | `str \| None` |
+| `file_id` | `str \| None` |
+| `file` | `BinaryIO \| bytes \| Path \| str \| None` |
+| `filename` | `str \| None` |
+| `client_reference_id` | `str \| None` |
+| `delete_after` | `bool` |
+| `wait_interval_sec` | `float` |
+| `wait_timeout_sec` | `float \| None` |
+| `config` | `CreateTranscriptionConfig \| None` |
 
-- **file_id** (str | None): 
+**Returns**
 
-- **file** (BinaryIO | bytes | Path | str | None): 
+`TranscriptionTranscript`
 
-- **filename** (str | None): 
+**Raises**
 
-- **client_reference_id** (str | None): 
-
-- **delete_after** (bool): 
-
-- **wait_interval_sec** (float): 
-
-- **wait_timeout_sec** (float | None): 
-
-- **config** (CreateTranscriptionConfig | None): 
-
-#### Returns
-
-TranscriptionTranscript
+- `SonioxAPIError` When the API returns an error.
+- `SonioxValidationError` When the payload fails validation.
+- `TimeoutError` Waiting for the transcription to finish exceeded `timeout_sec`.
 
 ---
 
-## Class `SonioxWebhooksAPI`
+## SonioxWebhooksAPI
 
-### Attributes
+<a id="sonioxwebhooksapi-constructor"></a>
 
-- **_webhook_secret**: 
-
-- **_webhook_header**: 
-
-### `__init__`
-
-#### Signature
+### Constructor
 
 ```python
-__init__(*, webhook_secret: str | None = None, webhook_header: str | None = None) -> None
+SonioxWebhooksAPI(*, webhook_secret: str | None = None, webhook_header: str | None = None)
 ```
 
-#### Parameters
+**Parameters**
 
-- **self** (None): 
+| Parameter | Type |
+| ------ | ------ |
+| `webhook_secret` | `str \| None` |
+| `webhook_header` | `str \| None` |
 
-- **webhook_secret** (str | None): 
+**Returns**
 
-- **webhook_header** (str | None): 
+`None`
 
-#### Returns
+<a id="sonioxwebhooksapi-verify_signature"></a>
 
-None
-
-### `verify_signature`
-
-Verify a webhook signature from headers.
-
-Raises:
-    InvalidWebhookSignatureError: When the webhook signature cannot be validated.
-
-#### Signature
+### verify_signature()
 
 ```python
 verify_signature(headers: Headers, *, auth: WebhookAuthConfig | None = None) -> None
 ```
 
-#### Parameters
+Verify a webhook signature from headers.
 
-- **self** (None): 
+**Parameters**
 
-- **headers** (Headers): 
+| Parameter | Type |
+| ------ | ------ |
+| `headers` | `Headers` |
+| `auth` | `WebhookAuthConfig \| None` |
 
-- **auth** (WebhookAuthConfig | None): 
+**Returns**
 
-#### Returns
+`None`
 
-None
+**Raises**
 
-### `unwrap`
+- `InvalidWebhookSignatureError` When the webhook signature cannot be validated.
 
-Validate and parse a webhook payload.
+***
 
-Returns a WebhookEvent.
+<a id="sonioxwebhooksapi-unwrap"></a>
 
-Raises:
-    InvalidWebhookSignatureError: When the webhook signature cannot be validated.
-
-#### Signature
+### unwrap()
 
 ```python
 unwrap(payload: str | bytes, headers: Headers, *, auth: WebhookAuthConfig | None = None) -> WebhookEvent
 ```
 
-#### Parameters
+Validate and parse a webhook payload.
 
-- **self** (None): 
+Returns a WebhookEvent.
 
-- **payload** (str | bytes): 
+**Parameters**
 
-- **headers** (Headers): 
+| Parameter | Type |
+| ------ | ------ |
+| `payload` | `str \| bytes` |
+| `headers` | `Headers` |
+| `auth` | `WebhookAuthConfig \| None` |
 
-- **auth** (WebhookAuthConfig | None): 
+**Returns**
 
-#### Returns
+`WebhookEvent`
 
-WebhookEvent
+**Raises**
 
-### `webhook_payload`
+- `InvalidWebhookSignatureError` When the webhook signature cannot be validated.
 
-Return fields for webhook configuration when creating a transcription.
+***
 
-#### Signature
+<a id="sonioxwebhooksapi-webhook_payload"></a>
+
+### webhook_payload()
 
 ```python
 webhook_payload(webhook_url: str, *, auth: WebhookAuthConfig | None = None) -> dict[str, str]
 ```
 
-#### Parameters
+Return fields for webhook configuration when creating a transcription.
 
-- **self** (None): 
+**Parameters**
 
-- **webhook_url** (str): 
+| Parameter | Type |
+| ------ | ------ |
+| `webhook_url` | `str` |
+| `auth` | `WebhookAuthConfig \| None` |
 
-- **auth** (WebhookAuthConfig | None): 
+**Returns**
 
-#### Returns
-
-dict[str, str]
+`dict[str, str]`

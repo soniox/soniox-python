@@ -1,112 +1,114 @@
 ---
-title: soniox.api._utils
-description: Description for _utils
-keywords: annotations, io, Path, BinaryIO, TypeVar, httpx, BaseModel, SonioxAPIError, CreateTranscriptionConfig, CreateTranscriptionPayload, ModelT, ensure_success, parse_response, parse_async_response, normalize_file, build_create_payload
+title: "soniox.api._utils"
+description: "Soniox Python SDK — soniox.api._utils Reference"
+keywords: "build_create_payload, ensure_success, normalize_file, parse_async_response, parse_response"
 ---
 
-
 ---
 
-### `ensure_success`
+<a id="ensure_success"></a>
 
-#### Signature
+## ensure_success()
 
 ```python
 ensure_success(response: httpx.Response) -> None
 ```
 
-#### Parameters
+**Parameters**
 
-- **response** (httpx.Response): 
+| Parameter | Type |
+| ------ | ------ |
+| `response` | `httpx.Response` |
 
-#### Returns
+**Returns**
 
-None
+`None`
 
 ---
 
-### `parse_response`
+<a id="parse_response"></a>
 
-#### Signature
+## parse_response()
 
 ```python
 parse_response(response: httpx.Response, model: type[ModelT]) -> ModelT
 ```
 
-#### Parameters
+**Parameters**
 
-- **response** (httpx.Response): 
+| Parameter | Type |
+| ------ | ------ |
+| `response` | `httpx.Response` |
+| `model` | `type[ModelT]` |
 
-- **model** (type[ModelT]): 
+**Returns**
 
-#### Returns
-
-ModelT
+`ModelT`
 
 ---
 
-### `parse_async_response`
+<a id="parse_async_response"></a>
 
-#### Signature
+## parse_async_response()
 
 ```python
 parse_async_response(response: httpx.Response, model: type[ModelT]) -> ModelT
 ```
 
-#### Parameters
+**Parameters**
 
-- **response** (httpx.Response): 
+| Parameter | Type |
+| ------ | ------ |
+| `response` | `httpx.Response` |
+| `model` | `type[ModelT]` |
 
-- **model** (type[ModelT]): 
+**Returns**
 
-#### Returns
-
-ModelT
+`ModelT`
 
 ---
 
-### `normalize_file`
+<a id="normalize_file"></a>
 
-Return (file-like, filename, should_close) tuple for upload.
-
-#### Signature
+## normalize_file()
 
 ```python
 normalize_file(file: BinaryIO | bytes | Path | str, filename: str | None = None) -> tuple[BinaryIO, str, bool]
 ```
 
-#### Parameters
+Return (file-like, filename, should_close) tuple for upload.
 
-- **file** (BinaryIO | bytes | Path | str): 
+**Parameters**
 
-- **filename** (str | None): 
+| Parameter | Type |
+| ------ | ------ |
+| `file` | `BinaryIO \| bytes \| Path \| str` |
+| `filename` | `str \| None` |
 
-#### Returns
+**Returns**
 
-tuple[BinaryIO, str, bool]
+`tuple[BinaryIO, str, bool]`
 
 ---
 
-### `build_create_payload`
+<a id="build_create_payload"></a>
 
-#### Signature
+## build_create_payload()
 
 ```python
 build_create_payload(*, model: str, file_id: str | None, audio_url: str | None, client_reference_id: str | None, config: CreateTranscriptionConfig | None) -> CreateTranscriptionPayload
 ```
 
-#### Parameters
+**Parameters**
 
-- **model** (str): 
+| Parameter | Type |
+| ------ | ------ |
+| `model` | `str` |
+| `file_id` | `str \| None` |
+| `audio_url` | `str \| None` |
+| `client_reference_id` | `str \| None` |
+| `config` | `CreateTranscriptionConfig \| None` |
 
-- **file_id** (str | None): 
+**Returns**
 
-- **audio_url** (str | None): 
-
-- **client_reference_id** (str | None): 
-
-- **config** (CreateTranscriptionConfig | None): 
-
-#### Returns
-
-CreateTranscriptionPayload
+`CreateTranscriptionPayload`

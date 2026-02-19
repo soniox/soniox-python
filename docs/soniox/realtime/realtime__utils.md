@@ -1,194 +1,115 @@
 ---
-title: soniox.realtime._utils
-description: Description for _utils
-keywords: annotations, asyncio, threading, Awaitable, Callable, KEEP_ALIVE_INTERVAL_SEC, KeepaliveThread, KeepaliveTask
+title: "soniox.realtime._utils"
+description: "Background thread that periodically invokes a callback until stopped."
+keywords: "KeepaliveTask, KeepaliveThread"
 ---
 
-
 ---
 
-## Class `KeepaliveThread`
+## KeepaliveThread
 
 Background thread that periodically invokes a callback until stopped.
 
-### Attributes
+<a id="keepalivethread-constructor"></a>
 
-- **_callback**: 
-
-- **_interval**: 
-
-- **_stop_event**: 
-
-- **_thread**: 
-
-### `__init__`
-
-Args:
-    callback:
-        Callable invoked on each tick. If it raises, the loop exits.
-    interval:
-        Seconds between ticks.
-
-#### Signature
+### Constructor
 
 ```python
-__init__(callback: Callable[[], None], interval: float) -> None
+KeepaliveThread(callback: Callable[[], None], interval: float)
 ```
 
-#### Parameters
+**Parameters**
 
-- **self** (None): 
+| Parameter | Type |
+| ------ | ------ |
+| `callback` | `Callable[[], None]` |
+| `interval` | `float` |
 
-- **callback** (Callable[[], None]): 
+**Returns**
 
-- **interval** (float): 
+`None`
 
-#### Returns
+<a id="keepalivethread-start"></a>
 
-None
+### start()
 
-### `start`
+```python
+start() -> None
+```
 
 Start the background thread.
 
-#### Signature
+**Returns**
+
+`None`
+
+***
+
+<a id="keepalivethread-stop"></a>
+
+### stop()
 
 ```python
-start() -> None
+stop() -> None
 ```
-
-#### Parameters
-
-- **self** (None): 
-
-#### Returns
-
-None
-
-### `stop`
 
 Signal the thread to stop and block until it exits.
 
-#### Signature
+**Returns**
 
-```python
-stop() -> None
-```
-
-#### Parameters
-
-- **self** (None): 
-
-#### Returns
-
-None
-
-### `_loop`
-
-#### Signature
-
-```python
-_loop() -> None
-```
-
-#### Parameters
-
-- **self** (None): 
-
-#### Returns
-
-None
+`None`
 
 ---
 
-## Class `KeepaliveTask`
+## KeepaliveTask
 
 Async background task that periodically invokes a callback until stopped.
 
-### Attributes
+<a id="keepalivetask-constructor"></a>
 
-- **_callback**: 
-
-- **_interval**: 
-
-- **_stop_event**: 
-
-- **_task**: 
-
-### `__init__`
-
-Args:
-    callback:
-        Coroutine function invoked on each tick. If it raises, the loop exits.
-    interval:
-        Seconds between ticks.
-
-#### Signature
+### Constructor
 
 ```python
-__init__(callback: Callable[[], Awaitable[None]], interval: float) -> None
+KeepaliveTask(callback: Callable[[], Awaitable[None]], interval: float)
 ```
 
-#### Parameters
+**Parameters**
 
-- **self** (None): 
+| Parameter | Type |
+| ------ | ------ |
+| `callback` | `Callable[[], Awaitable[None]]` |
+| `interval` | `float` |
 
-- **callback** (Callable[[], Awaitable[None]]): 
+**Returns**
 
-- **interval** (float): 
+`None`
 
-#### Returns
+<a id="keepalivetask-start"></a>
 
-None
-
-### `start`
-
-Schedule the background task on the running event loop.
-
-#### Signature
+### start()
 
 ```python
 start() -> None
 ```
 
-#### Parameters
+Schedule the background task on the running event loop.
 
-- **self** (None): 
+**Returns**
 
-#### Returns
+`None`
 
-None
+***
 
-### `stop`
+<a id="keepalivetask-stop"></a>
 
-Signal the task to stop and wait for it to finish.
-
-#### Signature
+### stop()
 
 ```python
 stop() -> None
 ```
 
-#### Parameters
+Signal the task to stop and wait for it to finish.
 
-- **self** (None): 
+**Returns**
 
-#### Returns
-
-None
-
-### `_loop`
-
-#### Signature
-
-```python
-_loop() -> None
-```
-
-#### Parameters
-
-- **self** (None): 
-
-#### Returns
-
-None
+`None`

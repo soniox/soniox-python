@@ -1,89 +1,71 @@
 ---
-title: soniox.realtime
-description: Description for realtime
-keywords: annotations, cached_property, TYPE_CHECKING, RealtimeEvent, RealtimeSTTConfig, RealtimeSTTClient, RealtimeSTTSession, AsyncSonioxClient, SonioxClient, AsyncRealtimeSTTClient, AsyncRealtimeSTTSession, __all__, AsyncRealtimeAPI, RealtimeAPI, stt, _utils, async_stt
+title: "soniox.realtime"
+description: "Factory for creating synchronous realtime speech-to-text sessions."
+keywords: "AsyncRealtimeAPI, AsyncRealtimeSTTClient, AsyncRealtimeSTTSession, RealtimeAPI, RealtimeSTTClient, RealtimeSTTSession"
 ---
 
-
 ---
 
-## Class `RealtimeSTTClient`
+## RealtimeSTTClient
 
 Factory for creating synchronous realtime speech-to-text sessions.
 
 This class validates credentials and prepares session configuration,
 but does not itself manage WebSocket connections.
 
-### Attributes
+<a id="realtimesttclient-constructor"></a>
 
-- **_client**: 
+### Constructor
 
-### `__init__`
+```python
+RealtimeSTTClient(client: SonioxClient)
+```
 
 Create a realtime STT client bound to an existing API client.
 
-Args:
-    client:
-        Parent Soniox client providing configuration and credentials.
+**Parameters**
 
-#### Signature
+| Parameter | Type |
+| ------ | ------ |
+| `client` | `SonioxClient` |
+
+**Returns**
+
+`None`
+
+<a id="realtimesttclient-connect"></a>
+
+### connect()
 
 ```python
-__init__(client: SonioxClient) -> None
+connect(*, config: RealtimeSTTConfig, api_key: str | None = None) -> RealtimeSTTSession
 ```
-
-#### Parameters
-
-- **self** (None): 
-
-- **client** (SonioxClient): 
-
-#### Returns
-
-None
-
-### `connect`
 
 Create a new realtime STT session.
 
 The returned session is not connected until entered as a
 context manager.
 
-Args:
-    config:
-        Realtime transcription configuration.
-    api_key:
-        Optional API key override. If not provided, the client's
-        default API key is used.
+**Parameters**
 
-Returns:
-    A new RealtimeSTTSession instance.
+| Parameter | Type |
+| ------ | ------ |
+| `config` | `RealtimeSTTConfig` |
+| `api_key` | `str \| None` |
 
-Raises:
-    SonioxValidationError:
-        If no API key is available.
+**Returns**
 
-#### Signature
+`RealtimeSTTSession`
 
-```python
-connect(*, config: RealtimeSTTConfig, api_key: str | None = None) -> RealtimeSTTSession
-```
+A new RealtimeSTTSession instance.
 
-#### Parameters
+**Raises**
 
-- **self** (None): 
-
-- **config** (RealtimeSTTConfig): 
-
-- **api_key** (str | None): 
-
-#### Returns
-
-RealtimeSTTSession
+- `SonioxValidationError` If no API key is available.
 
 ---
 
-## Class `RealtimeSTTSession`
+## RealtimeSTTSession
 
 Synchronous WebSocket session for a single real-time speech-to-text stream.
 
@@ -94,169 +76,96 @@ exactly one streaming interaction with the Soniox realtime API.
 
 Instances are designed to be used as context managers.
 
-### Attributes
+<a id="realtimesttsession-constructor"></a>
 
-- **_url**: 
+### Constructor
 
-- **_config**: 
-
-- **_ws**: 
-
-- **_last_message**: 
-
-- **_paused**: 
-
-- **_keepalive**: 
-
-- **config**: Return the configuration used to initialize this session.
-
-- **paused**: Return True if the session is currently paused.
-
-- **last_message**: Return the most recently received realtime event, if any.
-
-- **enter**: 
-
-### `__init__`
+```python
+RealtimeSTTSession(url: str, config: RealtimeSTTConfig)
+```
 
 Create a new realtime STT session.
 
 This does not open a network connection. The WebSocket connection
 is established when entering the context manager.
 
-Args:
-    url:
-        WebSocket URL for the realtime transcription endpoint.
-    config:
-        Configuration describing the audio format and transcription
-        behavior for this session.
+**Parameters**
 
-#### Signature
+| Parameter | Type |
+| ------ | ------ |
+| `url` | `str` |
+| `config` | `RealtimeSTTConfig` |
 
-```python
-__init__(url: str, config: RealtimeSTTConfig) -> None
-```
+**Returns**
 
-#### Parameters
+`None`
 
-- **self** (None): 
+<a id="realtimesttsession-properties"></a>
 
-- **url** (str): 
+### Properties
 
-- **config** (RealtimeSTTConfig): 
+| Property | Type |
+| ------ | ------ |
+| `config` | `RealtimeSTTConfig` |
+| `paused` | `bool` |
+| `last_message` | `RealtimeEvent \| None` |
+| `enter` | `-` |
 
-#### Returns
+<a id="realtimesttsession-close"></a>
 
-None
-
-### `__enter__`
-
-Open the WebSocket connection and start the realtime session.
-
-The session configuration is sent immediately after connecting.
-If any step fails, the connection is closed and a
-SonioxRealtimeError is raised.
-
-Returns:
-    The active realtime session instance.
-
-Raises:
-    SonioxRealtimeError:
-        If the WebSocket connection or session initialization fails.
-
-#### Signature
+### close()
 
 ```python
-__enter__() -> RealtimeSTTSession
+close() -> None
 ```
-
-#### Parameters
-
-- **self** (None): 
-
-#### Returns
-
-RealtimeSTTSession
-
-### `__exit__`
-
-Close the realtime session and release network resources.
-
-This method is called automatically when exiting the
-context manager.
-
-#### Signature
-
-```python
-__exit__(_exc_type: type[BaseException] | None, _exc_value: BaseException | None, _traceback: TracebackType | None) -> None
-```
-
-#### Parameters
-
-- **self** (None): 
-
-- **_exc_type** (type[BaseException] | None): 
-
-- **_exc_value** (BaseException | None): 
-
-- **_traceback** (TracebackType | None): 
-
-#### Returns
-
-None
-
-### `close`
 
 Gracefully close the realtime session.
 
 Sends a final empty message to signal end-of-stream, then closes
 the WebSocket connection. Calling this method multiple times is safe.
 
-#### Signature
+**Returns**
+
+`None`
+
+***
+
+<a id="realtimesttsession-send_byte_chunk"></a>
+
+### send_byte_chunk()
 
 ```python
-close() -> None
+send_byte_chunk(chunk: bytes) -> None
 ```
-
-#### Parameters
-
-- **self** (None): 
-
-#### Returns
-
-None
-
-### `send_byte_chunk`
 
 Send a single chunk of raw audio bytes to the realtime stream.
 
 The audio data must match the format declared in the session
 configuration (sample rate, channels, encoding).
 
-Args:
-    chunk:
-        Raw audio bytes to send.
+**Parameters**
 
-Raises:
-    SonioxRealtimeError:
-        If the session is not connected or the send operation fails.
+| Parameter | Type |
+| ------ | ------ |
+| `chunk` | `bytes` |
 
-#### Signature
+**Returns**
+
+`None`
+
+**Raises**
+
+- `SonioxRealtimeError` If the session is not connected or the send operation fails.
+
+***
+
+<a id="realtimesttsession-send_bytes"></a>
+
+### send_bytes()
 
 ```python
-send_byte_chunk(chunk: bytes) -> None
+send_bytes(chunks: bytes | Iterator[bytes], *, finish: bool = True) -> None
 ```
-
-#### Parameters
-
-- **self** (None): 
-
-- **chunk** (bytes): 
-
-#### Returns
-
-None
-
-### `send_bytes`
 
 Send audio data to the realtime stream.
 
@@ -265,234 +174,210 @@ yielding audio chunks. When an iterator is provided, a FINISH
 control message is sent automatically after all chunks have
 been transmitted.
 
-Args:
-    chunks:
-        Audio data as raw bytes or an iterator of byte chunks.
+**Parameters**
 
-#### Signature
+| Parameter | Type |
+| ------ | ------ |
+| `chunks` | `bytes \| Iterator[bytes]` |
+| `finish` | `bool` |
+
+**Returns**
+
+`None`
+
+***
+
+<a id="realtimesttsession-send_control_message"></a>
+
+### send_control_message()
 
 ```python
-send_bytes(chunks: bytes | Iterator[bytes], *, finish: bool = True) -> None
+send_control_message(control_type: RealtimeControlType) -> None
 ```
-
-#### Parameters
-
-- **self** (None): 
-
-- **chunks** (bytes | Iterator[bytes]): 
-
-- **finish** (bool): 
-
-#### Returns
-
-None
-
-### `send_control_message`
 
 Send a control message to the realtime session.
 
 Control messages modify the state of the stream, such as signaling
 end-of-audio or requesting finalization.
 
-Args:
-    control_type:
-        The type of control message to send.
+**Parameters**
 
-Raises:
-    SonioxRealtimeError:
-        If the session is not connected or the message cannot be sent.
+| Parameter | Type |
+| ------ | ------ |
+| `control_type` | `RealtimeControlType` |
 
-#### Signature
+**Returns**
 
-```python
-send_control_message(control_type: RealtimeControlType) -> None
-```
+`None`
 
-#### Parameters
+**Raises**
 
-- **self** (None): 
+- `SonioxRealtimeError` If the session is not connected or the message cannot be sent.
 
-- **control_type** (RealtimeControlType): 
+***
 
-#### Returns
+<a id="realtimesttsession-finish"></a>
 
-None
-
-### `finish`
-
-Signal that no more audio will be sent for this session.
-
-#### Signature
+### finish()
 
 ```python
 finish() -> None
 ```
 
-#### Parameters
+Signal that no more audio will be sent for this session.
 
-- **self** (None): 
+**Returns**
 
-#### Returns
+`None`
 
-None
+***
 
-### `keep_alive`
+<a id="realtimesttsession-keep_alive"></a>
 
-Send a keep-alive message to prevent the session from timing out.
-
-#### Signature
+### keep_alive()
 
 ```python
 keep_alive() -> None
 ```
 
-#### Parameters
+Send a keep-alive message to prevent the session from timing out.
 
-- **self** (None): 
+**Returns**
 
-#### Returns
+`None`
 
-None
+***
 
-### `finalize`
+<a id="realtimesttsession-finalize"></a>
 
-Finalize all outstanding non-final tokens while keeping the session open.
-
-Subsequent tokens will be delivered with `is_final=True`.
-
-#### Signature
+### finalize()
 
 ```python
 finalize() -> None
 ```
 
-#### Parameters
+Finalize all outstanding non-final tokens while keeping the session open.
 
-- **self** (None): 
+Subsequent tokens will be delivered with `is_final=True`.
 
-#### Returns
+**Returns**
 
-None
+`None`
 
-### `recv_bytes`
+***
 
-Receive a raw message from the WebSocket connection.
+<a id="realtimesttsession-recv_bytes"></a>
 
-Returns:
-    The received message as bytes. An empty bytes object indicates
-    that the connection has been closed.
-
-#### Signature
+### recv_bytes()
 
 ```python
 recv_bytes() -> bytes
 ```
 
-#### Parameters
+Receive a raw message from the WebSocket connection.
 
-- **self** (None): 
+**Returns**
 
-#### Returns
+`bytes`
 
-bytes
+The received message as bytes. An empty bytes object indicates
+that the connection has been closed.
 
-### `parse_event`
+***
 
-Parse a raw WebSocket message into a structured realtime event.
+<a id="realtimesttsession-parse_event"></a>
 
-Args:
-    raw:
-        Raw message payload received from the server.
-
-Returns:
-    A validated RealtimeEvent instance.
-
-#### Signature
+### parse_event()
 
 ```python
 parse_event(raw: str | bytes) -> RealtimeEvent
 ```
 
-#### Parameters
+Parse a raw WebSocket message into a structured realtime event.
 
-- **self** (None): 
+**Parameters**
 
-- **raw** (str | bytes): 
+| Parameter | Type |
+| ------ | ------ |
+| `raw` | `str \| bytes` |
 
-#### Returns
+**Returns**
 
-RealtimeEvent
+`RealtimeEvent`
 
-### `receive_event`
+A validated RealtimeEvent instance.
 
-Receive and parse the next realtime event from the server.
+***
 
-Returns:
-    The next RealtimeEvent, or None if the connection has closed.
+<a id="realtimesttsession-receive_event"></a>
 
-Raises:
-    SonioxRealtimeError:
-        If the session is not connected.
-
-#### Signature
+### receive_event()
 
 ```python
 receive_event() -> RealtimeEvent | None
 ```
 
-#### Parameters
+Receive and parse the next realtime event from the server.
 
-- **self** (None): 
+**Returns**
 
-#### Returns
+`RealtimeEvent | None`
 
-RealtimeEvent | None
+The next RealtimeEvent, or None if the connection has closed.
 
-### `receive_events`
+**Raises**
 
-Yield realtime events as they are received from the server.
+- `SonioxRealtimeError` If the session is not connected.
 
-Iteration stops automatically when the connection is closed.
+***
 
-#### Signature
+<a id="realtimesttsession-receive_events"></a>
+
+### receive_events()
 
 ```python
 receive_events() -> Iterator[RealtimeEvent]
 ```
 
-#### Parameters
+Yield realtime events as they are received from the server.
 
-- **self** (None): 
+Iteration stops automatically when the connection is closed.
 
-#### Returns
+**Returns**
 
-Iterator[RealtimeEvent]
+`Iterator[RealtimeEvent]`
 
-### `handle_events`
+***
 
-Receive realtime events and dispatch them to a handler callback.
+<a id="realtimesttsession-handle_events"></a>
 
-Args:
-    handler:
-        Callable invoked for each received RealtimeEvent.
-
-#### Signature
+### handle_events()
 
 ```python
 handle_events(handler: Callable[[RealtimeEvent], None]) -> None
 ```
 
-#### Parameters
+Receive realtime events and dispatch them to a handler callback.
 
-- **self** (None): 
+**Parameters**
 
-- **handler** (Callable[[RealtimeEvent], None]): 
+| Parameter | Type |
+| ------ | ------ |
+| `handler` | `Callable[[RealtimeEvent], None]` |
 
-#### Returns
+**Returns**
 
-None
+`None`
 
-### `pause`
+***
+
+<a id="realtimesttsession-pause"></a>
+
+### pause()
+
+```python
+pause() -> None
+```
 
 Pause the session, suppressing outgoing audio and starting a
 background keepalive thread.
@@ -504,126 +389,99 @@ timing out the session.
 
 Calling `pause` on an already-paused session is a no-op.
 
-Raises:
-    SonioxRealtimeError: If the session is not connected.
+**Returns**
 
-#### Signature
+`None`
+
+**Raises**
+
+- `SonioxRealtimeError` If the session is not connected.
+
+***
+
+<a id="realtimesttsession-resume"></a>
+
+### resume()
 
 ```python
-pause() -> None
+resume() -> None
 ```
-
-#### Parameters
-
-- **self** (None): 
-
-#### Returns
-
-None
-
-### `resume`
 
 Resume a paused session, stopping the keepalive thread and
 allowing audio to be sent again.
 
 Calling `resume` on a session that is not paused is a no-op.
 
-Raises:
-    SonioxRealtimeError: If the session is not connected.
+**Returns**
 
-#### Signature
+`None`
 
-```python
-resume() -> None
-```
+**Raises**
 
-#### Parameters
-
-- **self** (None): 
-
-#### Returns
-
-None
+- `SonioxRealtimeError` If the session is not connected.
 
 ---
 
-## Class `AsyncRealtimeSTTClient`
+## AsyncRealtimeSTTClient
 
 Factory for creating asynchronous realtime speech-to-text sessions.
 
 This class validates credentials and prepares session configuration,
 but does not itself manage WebSocket connections.
 
-### Attributes
+<a id="asyncrealtimesttclient-constructor"></a>
 
-- **_client**: 
+### Constructor
 
-### `__init__`
+```python
+AsyncRealtimeSTTClient(client: AsyncSonioxClient)
+```
 
 Create a realtime STT client bound to an existing API client.
 
-Args:
-    client:
-        Parent Soniox client providing configuration and credentials.
+**Parameters**
 
-#### Signature
+| Parameter | Type |
+| ------ | ------ |
+| `client` | `AsyncSonioxClient` |
+
+**Returns**
+
+`None`
+
+<a id="asyncrealtimesttclient-connect"></a>
+
+### connect()
 
 ```python
-__init__(client: AsyncSonioxClient) -> None
+connect(*, config: RealtimeSTTConfig, api_key: str | None = None) -> AsyncRealtimeSTTSession
 ```
-
-#### Parameters
-
-- **self** (None): 
-
-- **client** (AsyncSonioxClient): 
-
-#### Returns
-
-None
-
-### `connect`
 
 Create a new realtime STT session.
 
 The returned session is not connected until entered as an async
 context manager.
 
-Args:
-    config:
-        Realtime transcription configuration.
-    api_key:
-        Optional API key override. If not provided, the client's
-        default API key is used.
+**Parameters**
 
-Returns:
-    A new AsyncRealtimeSTTSession instance.
+| Parameter | Type |
+| ------ | ------ |
+| `config` | `RealtimeSTTConfig` |
+| `api_key` | `str \| None` |
 
-Raises:
-    SonioxValidationError:
-        If no API key is available.
+**Returns**
 
-#### Signature
+`AsyncRealtimeSTTSession`
 
-```python
-connect(*, config: RealtimeSTTConfig, api_key: str | None = None) -> AsyncRealtimeSTTSession
-```
+A new AsyncRealtimeSTTSession instance.
 
-#### Parameters
+**Raises**
 
-- **self** (None): 
-
-- **config** (RealtimeSTTConfig): 
-
-- **api_key** (str | None): 
-
-#### Returns
-
-AsyncRealtimeSTTSession
+- `SonioxValidationError` If no API key is available.
 
 ---
 
-## Class `AsyncRealtimeSTTSession`
+## AsyncRealtimeSTTSession
 
 Asynchronous WebSocket session for a single real-time speech-to-text stream.
 
@@ -634,171 +492,97 @@ exactly one streaming interaction with the Soniox realtime API.
 
 Instances are designed to be used as async context managers.
 
-### Attributes
+<a id="asyncrealtimesttsession-constructor"></a>
 
-- **_url**: 
+### Constructor
 
-- **_config**: 
-
-- **_ws**: 
-
-- **_last_message**: 
-
-- **_paused**: 
-
-- **_keepalive**: 
-
-- **config**: Return the configuration used to initialize this session.
-
-- **paused**: Return True if the session is currently paused.
-
-- **last_message**: Return the most recently received realtime event, if any.
-
-- **enter**: 
-
-- **aenter**: 
-
-### `__init__`
+```python
+AsyncRealtimeSTTSession(url: str, config: RealtimeSTTConfig)
+```
 
 Create a new realtime STT session.
 
 This does not open a network connection. The WebSocket connection
 is established when entering the async context manager.
 
-Args:
-    url:
-        WebSocket URL for the realtime transcription endpoint.
-    config:
-        Configuration describing the audio format and transcription
-        behavior for this session.
+**Parameters**
 
-#### Signature
+| Parameter | Type |
+| ------ | ------ |
+| `url` | `str` |
+| `config` | `RealtimeSTTConfig` |
 
-```python
-__init__(url: str, config: RealtimeSTTConfig) -> None
-```
+**Returns**
 
-#### Parameters
+`None`
 
-- **self** (None): 
+<a id="asyncrealtimesttsession-properties"></a>
 
-- **url** (str): 
+### Properties
 
-- **config** (RealtimeSTTConfig): 
+| Property | Type |
+| ------ | ------ |
+| `config` | `RealtimeSTTConfig` |
+| `paused` | `bool` |
+| `last_message` | `RealtimeEvent \| None` |
+| `enter` | `-` |
+| `aenter` | `-` |
 
-#### Returns
+<a id="asyncrealtimesttsession-close"></a>
 
-None
-
-### `__aenter__`
-
-Open the WebSocket connection and start the realtime session.
-
-The session configuration is sent immediately after connecting.
-If any step fails, the connection is closed and a
-SonioxRealtimeError is raised.
-
-Returns:
-    The active realtime session instance.
-
-Raises:
-    SonioxRealtimeError:
-        If the WebSocket connection or session initialization fails.
-
-#### Signature
+### close()
 
 ```python
-__aenter__() -> AsyncRealtimeSTTSession
+close() -> None
 ```
-
-#### Parameters
-
-- **self** (None): 
-
-#### Returns
-
-AsyncRealtimeSTTSession
-
-### `__aexit__`
-
-Close the realtime session and release network resources.
-
-This method is called automatically when exiting the async
-context manager.
-
-#### Signature
-
-```python
-__aexit__(_exc_type: type[BaseException] | None, _exc_value: BaseException | None, _traceback: TracebackType | None) -> None
-```
-
-#### Parameters
-
-- **self** (None): 
-
-- **_exc_type** (type[BaseException] | None): 
-
-- **_exc_value** (BaseException | None): 
-
-- **_traceback** (TracebackType | None): 
-
-#### Returns
-
-None
-
-### `close`
 
 Gracefully close the realtime session.
 
 Sends a final empty message to signal end-of-stream, then closes
 the WebSocket connection. Calling this method multiple times is safe.
 
-#### Signature
+**Returns**
+
+`None`
+
+***
+
+<a id="asyncrealtimesttsession-send_byte_chunk"></a>
+
+### send_byte_chunk()
 
 ```python
-close() -> None
+send_byte_chunk(chunk: bytes) -> None
 ```
-
-#### Parameters
-
-- **self** (None): 
-
-#### Returns
-
-None
-
-### `send_byte_chunk`
 
 Send a single chunk of raw audio bytes to the realtime stream.
 
 The audio data must match the format declared in the session
 configuration (sample rate, channels, encoding).
 
-Args:
-    chunk:
-        Raw audio bytes to send.
+**Parameters**
 
-Raises:
-    SonioxRealtimeError:
-        If the session is not connected or the send operation fails.
+| Parameter | Type |
+| ------ | ------ |
+| `chunk` | `bytes` |
 
-#### Signature
+**Returns**
+
+`None`
+
+**Raises**
+
+- `SonioxRealtimeError` If the session is not connected or the send operation fails.
+
+***
+
+<a id="asyncrealtimesttsession-send_bytes"></a>
+
+### send_bytes()
 
 ```python
-send_byte_chunk(chunk: bytes) -> None
+send_bytes(chunks: bytes | AsyncIterator[bytes], *, finish: bool = True) -> None
 ```
-
-#### Parameters
-
-- **self** (None): 
-
-- **chunk** (bytes): 
-
-#### Returns
-
-None
-
-### `send_bytes`
 
 Send audio data to the realtime stream.
 
@@ -807,234 +591,210 @@ yielding audio chunks. When an iterator is provided, a
 FINISH control message is sent automatically after all chunks
 have been transmitted.
 
-Args:
-    chunks:
-        Audio data as raw bytes or an iterator of byte chunks.
+**Parameters**
 
-#### Signature
+| Parameter | Type |
+| ------ | ------ |
+| `chunks` | `bytes \| AsyncIterator[bytes]` |
+| `finish` | `bool` |
+
+**Returns**
+
+`None`
+
+***
+
+<a id="asyncrealtimesttsession-send_control_message"></a>
+
+### send_control_message()
 
 ```python
-send_bytes(chunks: bytes | AsyncIterator[bytes], *, finish: bool = True) -> None
+send_control_message(control_type: RealtimeControlType) -> None
 ```
-
-#### Parameters
-
-- **self** (None): 
-
-- **chunks** (bytes | AsyncIterator[bytes]): 
-
-- **finish** (bool): 
-
-#### Returns
-
-None
-
-### `send_control_message`
 
 Send a control message to the realtime session.
 
 Control messages modify the state of the stream, such as signaling
 end-of-audio or requesting finalization.
 
-Args:
-    control_type:
-        The type of control message to send.
+**Parameters**
 
-Raises:
-    SonioxRealtimeError:
-        If the session is not connected or the message cannot be sent.
+| Parameter | Type |
+| ------ | ------ |
+| `control_type` | `RealtimeControlType` |
 
-#### Signature
+**Returns**
 
-```python
-send_control_message(control_type: RealtimeControlType) -> None
-```
+`None`
 
-#### Parameters
+**Raises**
 
-- **self** (None): 
+- `SonioxRealtimeError` If the session is not connected or the message cannot be sent.
 
-- **control_type** (RealtimeControlType): 
+***
 
-#### Returns
+<a id="asyncrealtimesttsession-finish"></a>
 
-None
-
-### `finish`
-
-Signal that no more audio will be sent for this session.
-
-#### Signature
+### finish()
 
 ```python
 finish() -> None
 ```
 
-#### Parameters
+Signal that no more audio will be sent for this session.
 
-- **self** (None): 
+**Returns**
 
-#### Returns
+`None`
 
-None
+***
 
-### `keep_alive`
+<a id="asyncrealtimesttsession-keep_alive"></a>
 
-Send a keep-alive message to prevent the session from timing out.
-
-#### Signature
+### keep_alive()
 
 ```python
 keep_alive() -> None
 ```
 
-#### Parameters
+Send a keep-alive message to prevent the session from timing out.
 
-- **self** (None): 
+**Returns**
 
-#### Returns
+`None`
 
-None
+***
 
-### `finalize`
+<a id="asyncrealtimesttsession-finalize"></a>
 
-Finalize all outstanding non-final tokens while keeping the session open.
-
-Subsequent tokens will be delivered with `is_final=True`.
-
-#### Signature
+### finalize()
 
 ```python
 finalize() -> None
 ```
 
-#### Parameters
+Finalize all outstanding non-final tokens while keeping the session open.
 
-- **self** (None): 
+Subsequent tokens will be delivered with `is_final=True`.
 
-#### Returns
+**Returns**
 
-None
+`None`
 
-### `recv_bytes`
+***
 
-Receive a raw message from the WebSocket connection.
+<a id="asyncrealtimesttsession-recv_bytes"></a>
 
-Returns:
-    The received message as bytes. An empty bytes object indicates
-    that the connection has been closed.
-
-#### Signature
+### recv_bytes()
 
 ```python
 recv_bytes() -> bytes
 ```
 
-#### Parameters
+Receive a raw message from the WebSocket connection.
 
-- **self** (None): 
+**Returns**
 
-#### Returns
+`bytes`
 
-bytes
+The received message as bytes. An empty bytes object indicates
+that the connection has been closed.
 
-### `parse_event`
+***
 
-Parse a raw WebSocket message into a structured realtime event.
+<a id="asyncrealtimesttsession-parse_event"></a>
 
-Args:
-    raw:
-        Raw message payload received from the server.
-
-Returns:
-    A validated RealtimeEvent instance.
-
-#### Signature
+### parse_event()
 
 ```python
 parse_event(raw: str | bytes) -> RealtimeEvent
 ```
 
-#### Parameters
+Parse a raw WebSocket message into a structured realtime event.
 
-- **self** (None): 
+**Parameters**
 
-- **raw** (str | bytes): 
+| Parameter | Type |
+| ------ | ------ |
+| `raw` | `str \| bytes` |
 
-#### Returns
+**Returns**
 
-RealtimeEvent
+`RealtimeEvent`
 
-### `receive_event`
+A validated RealtimeEvent instance.
 
-Receive and parse the next realtime event from the server.
+***
 
-Returns:
-    The next RealtimeEvent, or None if the connection has closed.
+<a id="asyncrealtimesttsession-receive_event"></a>
 
-Raises:
-    SonioxRealtimeError:
-        If the session is not connected.
-
-#### Signature
+### receive_event()
 
 ```python
 receive_event() -> RealtimeEvent | None
 ```
 
-#### Parameters
+Receive and parse the next realtime event from the server.
 
-- **self** (None): 
+**Returns**
 
-#### Returns
+`RealtimeEvent | None`
 
-RealtimeEvent | None
+The next RealtimeEvent, or None if the connection has closed.
 
-### `receive_events`
+**Raises**
 
-Yield realtime events as they are received from the server.
+- `SonioxRealtimeError` If the session is not connected.
 
-Iteration stops automatically when the connection is closed.
+***
 
-#### Signature
+<a id="asyncrealtimesttsession-receive_events"></a>
+
+### receive_events()
 
 ```python
 receive_events() -> AsyncIterator[RealtimeEvent]
 ```
 
-#### Parameters
+Yield realtime events as they are received from the server.
 
-- **self** (None): 
+Iteration stops automatically when the connection is closed.
 
-#### Returns
+**Returns**
 
-AsyncIterator[RealtimeEvent]
+`AsyncIterator[RealtimeEvent]`
 
-### `handle_events`
+***
 
-Receive realtime events and dispatch them to a handler callback.
+<a id="asyncrealtimesttsession-handle_events"></a>
 
-Args:
-    handler:
-        Callable invoked for each received RealtimeEvent.
-
-#### Signature
+### handle_events()
 
 ```python
 handle_events(handler: Callable[[RealtimeEvent], Awaitable[None]]) -> None
 ```
 
-#### Parameters
+Receive realtime events and dispatch them to a handler callback.
 
-- **self** (None): 
+**Parameters**
 
-- **handler** (Callable[[RealtimeEvent], Awaitable[None]]): 
+| Parameter | Type |
+| ------ | ------ |
+| `handler` | `Callable[[RealtimeEvent], Awaitable[None]]` |
 
-#### Returns
+**Returns**
 
-None
+`None`
 
-### `pause`
+***
+
+<a id="asyncrealtimesttsession-pause"></a>
+
+### pause()
+
+```python
+pause() -> None
+```
 
 Pause the session, suppressing outgoing audio and starting a
 background keepalive task.
@@ -1046,103 +806,97 @@ timing out the session.
 
 Calling `pause` on an already-paused session is a no-op.
 
-Raises:
-    SonioxRealtimeError: If the session is not connected.
+**Returns**
 
-#### Signature
+`None`
+
+**Raises**
+
+- `SonioxRealtimeError` If the session is not connected.
+
+***
+
+<a id="asyncrealtimesttsession-resume"></a>
+
+### resume()
 
 ```python
-pause() -> None
+resume() -> None
 ```
-
-#### Parameters
-
-- **self** (None): 
-
-#### Returns
-
-None
-
-### `resume`
 
 Resume a paused session, stopping the keepalive task and
 allowing audio to be sent again.
 
 Calling `resume` on a session that is not paused is a no-op.
 
-Raises:
-    SonioxRealtimeError: If the session is not connected.
+**Returns**
 
-#### Signature
+`None`
 
-```python
-resume() -> None
-```
+**Raises**
 
-#### Parameters
-
-- **self** (None): 
-
-#### Returns
-
-None
+- `SonioxRealtimeError` If the session is not connected.
 
 ---
 
-## Class `AsyncRealtimeAPI`
+## AsyncRealtimeAPI
 
 Entrypoint for async realtime helpers on AsyncSonioxClient.
 
-### Attributes
+<a id="asyncrealtimeapi-constructor"></a>
 
-- **_client**: 
-
-- **stt**: 
-
-### `__init__`
-
-#### Signature
+### Constructor
 
 ```python
-__init__(client: AsyncSonioxClient) -> None
+AsyncRealtimeAPI(client: AsyncSonioxClient)
 ```
 
-#### Parameters
+**Parameters**
 
-- **self** (None): 
+| Parameter | Type |
+| ------ | ------ |
+| `client` | `AsyncSonioxClient` |
 
-- **client** (AsyncSonioxClient): 
+**Returns**
 
-#### Returns
+`None`
 
-None
+<a id="asyncrealtimeapi-properties"></a>
+
+### Properties
+
+| Property | Type |
+| ------ | ------ |
+| `stt` | `AsyncRealtimeSTTClient` |
 
 ---
 
-## Class `RealtimeAPI`
+## RealtimeAPI
 
 Entrypoint for realtime helpers on SonioxClient.
 
-### Attributes
+<a id="realtimeapi-constructor"></a>
 
-- **_client**: 
-
-- **stt**: 
-
-### `__init__`
-
-#### Signature
+### Constructor
 
 ```python
-__init__(client: SonioxClient) -> None
+RealtimeAPI(client: SonioxClient)
 ```
 
-#### Parameters
+**Parameters**
 
-- **self** (None): 
+| Parameter | Type |
+| ------ | ------ |
+| `client` | `SonioxClient` |
 
-- **client** (SonioxClient): 
+**Returns**
 
-#### Returns
+`None`
 
-None
+<a id="realtimeapi-properties"></a>
+
+### Properties
+
+| Property | Type |
+| ------ | ------ |
+| `stt` | `RealtimeSTTClient` |

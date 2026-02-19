@@ -1,34 +1,28 @@
 ---
-title: soniox.types.common
-description: Description for common
-keywords: annotations, BaseModel, ConfigDict, Token
+title: "soniox.types.common"
+description: "Token metadata emitted during realtime streaming transcriptions."
+keywords: "Token"
 ---
 
-
 ---
 
-## Class `Token`
+## Token
 
 Token metadata emitted during realtime streaming transcriptions.
 
-### Attributes
+<a id="token-properties"></a>
 
-- **model_config**: 
+### Properties
 
-- **text**: The transcribed text.
-
-- **start_ms**: Start time in milliseconds relative to audio start.
-
-- **end_ms**: End time in milliseconds relative to audio start.
-
-- **confidence**: Confidence score (0.0 to 1.0).
-
-- **is_final**: Whether this is a finalized token.
-
-- **speaker**: Speaker identifier (if diarization enabled).
-
-- **translation_status**: Translation status of this token.
-
-- **language**: Detected language code (if language identification enabled).
-
-- **source_language**: Source language for translated tokens.
+| Property | Type |
+| ------ | ------ |
+| `model_config` | `-` |
+| `text` | `str` |
+| `start_ms` | `int \| None` |
+| `end_ms` | `int \| None` |
+| `confidence` | `float \| None` |
+| `is_final` | `bool \| None` |
+| `speaker` | `str \| None` |
+| `translation_status` | `str \| None` |
+| `language` | `str \| None` |
+| `source_language` | `str \| None` |

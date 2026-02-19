@@ -1,204 +1,175 @@
 ---
-title: soniox.errors
-description: Description for errors
-keywords: annotations, httpx, ValidationError, ApiError, SonioxError, SonioxValidationError, SonioxAPIError, SonioxAuthenticationError, SonioxInvalidRequestError, SonioxNotFoundError, SonioxConflictError, SonioxRateLimitError, SonioxServerError, InvalidWebhookSignatureError, SonioxRealtimeError
+title: "soniox.errors"
+description: "Base exception for the SDK."
+keywords: "InvalidWebhookSignatureError, SonioxAPIError, SonioxAuthenticationError, SonioxConflictError, SonioxError, SonioxInvalidRequestError, SonioxNotFoundError, SonioxRateLimitError, SonioxRealtimeError, SonioxServerError, SonioxValidationError"
 ---
 
-
 ---
 
-## Class `SonioxError`
+## SonioxError
 
 Base exception for the SDK.
 
-### Attributes
+<a id="sonioxerror-constructor"></a>
 
-- **response**: 
-
-### `__init__`
-
-#### Signature
+### Constructor
 
 ```python
-__init__(message: str, *, response: httpx.Response | None = None) -> None
+SonioxError(message: str, *, response: httpx.Response | None = None)
 ```
 
-#### Parameters
+**Parameters**
 
-- **self** (None): 
+| Parameter | Type |
+| ------ | ------ |
+| `message` | `str` |
+| `response` | `httpx.Response \| None` |
 
-- **message** (str): 
+**Returns**
 
-- **response** (httpx.Response | None): 
+`None`
 
-#### Returns
+<a id="sonioxerror-properties"></a>
 
-None
+### Properties
+
+| Property | Type |
+| ------ | ------ |
+| `response` | `-` |
 
 ---
 
-## Class `SonioxValidationError`
+## SonioxValidationError
 
 Raised when Pydantic input validation fails on the client side.
 
-### Attributes
+<a id="sonioxvalidationerror-constructor"></a>
 
-- **errors**: 
-
-### `__init__`
-
-#### Signature
+### Constructor
 
 ```python
-__init__(message: str, *, errors: ValidationError | None = None) -> None
+SonioxValidationError(message: str, *, errors: ValidationError | None = None)
 ```
 
-#### Parameters
+**Parameters**
 
-- **self** (None): 
+| Parameter | Type |
+| ------ | ------ |
+| `message` | `str` |
+| `errors` | `ValidationError \| None` |
 
-- **message** (str): 
+**Returns**
 
-- **errors** (ValidationError | None): 
+`None`
 
-#### Returns
+<a id="sonioxvalidationerror-properties"></a>
 
-None
+### Properties
+
+| Property | Type |
+| ------ | ------ |
+| `errors` | `-` |
 
 ---
 
-## Class `SonioxAPIError`
+## SonioxAPIError
 
 Raised when the Soniox API replies with a non-2xx payload.
 
-### Attributes
+<a id="sonioxapierror-constructor"></a>
 
-- **api_error**: 
-
-- **status_code**: 
-
-- **request_id**: 
-
-### `__init__`
-
-#### Signature
+### Constructor
 
 ```python
-__init__(message: str, *, api_error: ApiError | None = None, response: httpx.Response | None = None) -> None
+SonioxAPIError(message: str, *, api_error: ApiError | None = None, response: httpx.Response | None = None)
 ```
 
-#### Parameters
+**Parameters**
 
-- **self** (None): 
+| Parameter | Type |
+| ------ | ------ |
+| `message` | `str` |
+| `api_error` | `ApiError \| None` |
+| `response` | `httpx.Response \| None` |
 
-- **message** (str): 
+**Returns**
 
-- **api_error** (ApiError | None): 
+`None`
 
-- **response** (httpx.Response | None): 
+<a id="sonioxapierror-properties"></a>
 
-#### Returns
+### Properties
 
-None
+| Property | Type |
+| ------ | ------ |
+| `api_error` | `ApiError \| None` |
+| `status_code` | `int \| None` |
+| `request_id` | `str \| None` |
 
-### `__str__`
+<a id="sonioxapierror-from_response"></a>
 
-#### Signature
-
-```python
-__str__() -> str
-```
-
-#### Parameters
-
-- **self** (None): 
-
-#### Returns
-
-str
-
-### `from_response`
-
-Parse an `httpx.Response` into a richer SDK error.
-
-#### Signature
+### from_response()
 
 ```python
 from_response(response: httpx.Response) -> SonioxAPIError
 ```
 
-#### Parameters
+Parse an `httpx.Response` into a richer SDK error.
 
-- **cls** (None): 
+**Parameters**
 
-- **response** (httpx.Response): 
+| Parameter | Type |
+| ------ | ------ |
+| `response` | `httpx.Response` |
 
-#### Returns
+**Returns**
 
-SonioxAPIError
-
-### `_map_status_to_exception`
-
-#### Signature
-
-```python
-_map_status_to_exception(status_code: int) -> type[SonioxAPIError]
-```
-
-#### Parameters
-
-- **cls** (None): 
-
-- **status_code** (int): 
-
-#### Returns
-
-type[SonioxAPIError]
+`SonioxAPIError`
 
 ---
 
-## Class `SonioxAuthenticationError`
+## SonioxAuthenticationError
 
 Authentication failures (`401`/`403`).
 
 ---
 
-## Class `SonioxInvalidRequestError`
+## SonioxInvalidRequestError
 
 Invalid request payloads (`400`).
 
 ---
 
-## Class `SonioxNotFoundError`
+## SonioxNotFoundError
 
 Resource not found.
 
 ---
 
-## Class `SonioxConflictError`
+## SonioxConflictError
 
 Conflict or invalid state (e.g., delete while processing).
 
 ---
 
-## Class `SonioxRateLimitError`
+## SonioxRateLimitError
 
 Rate limit (429).
 
 ---
 
-## Class `SonioxServerError`
+## SonioxServerError
 
 5xx responses.
 
 ---
 
-## Class `InvalidWebhookSignatureError`
+## InvalidWebhookSignatureError
 
 Raised when a webhook signature cannot be validated.
 
 ---
 
-## Class `SonioxRealtimeError`
+## SonioxRealtimeError
 
 Errors raised by realtime workflows.

@@ -1,61 +1,55 @@
 ---
-title: soniox.api.auth
-description: Description for auth
-keywords: annotations, TYPE_CHECKING, CreateTemporaryApiKeyPayload, CreateTemporaryApiKeyResponse, TemporaryApiKeyUsageType, parse_response, SonioxClient, AuthAPI
+title: "soniox.api.auth"
+description: "Soniox Python SDK — soniox.api.auth Reference"
+keywords: "AuthAPI"
 ---
 
-
 ---
 
-## Class `AuthAPI`
+## AuthAPI
 
-### Attributes
+<a id="authapi-constructor"></a>
 
-- **_client**: 
-
-### `__init__`
-
-#### Signature
+### Constructor
 
 ```python
-__init__(client: SonioxClient) -> None
+AuthAPI(client: SonioxClient)
 ```
 
-#### Parameters
+**Parameters**
 
-- **self** (None): 
+| Parameter | Type |
+| ------ | ------ |
+| `client` | `SonioxClient` |
 
-- **client** (SonioxClient): 
+**Returns**
 
-#### Returns
+`None`
 
-None
+<a id="authapi-create_temporary_api_key"></a>
 
-### `create_temporary_api_key`
-
-Create a temporary API key.
-
-Performs a POST request to ``/auth/temporary-api-key``.
-
-Raises:
-    SonioxAPIError: When the API returns an error.
-
-#### Signature
+### create_temporary_api_key()
 
 ```python
 create_temporary_api_key(*, usage_type: TemporaryApiKeyUsageType = 'transcribe_websocket', expires_in_seconds: int = 5 * 60, client_reference_id: str | None = None) -> CreateTemporaryApiKeyResponse
 ```
 
-#### Parameters
+Create a temporary API key.
 
-- **self** (None): 
+Performs a POST request to ``/auth/temporary-api-key``.
 
-- **usage_type** (TemporaryApiKeyUsageType): 
+**Parameters**
 
-- **expires_in_seconds** (int): 
+| Parameter | Type |
+| ------ | ------ |
+| `usage_type` | `TemporaryApiKeyUsageType` |
+| `expires_in_seconds` | `int` |
+| `client_reference_id` | `str \| None` |
 
-- **client_reference_id** (str | None): 
+**Returns**
 
-#### Returns
+`CreateTemporaryApiKeyResponse`
 
-CreateTemporaryApiKeyResponse
+**Raises**
+
+- `SonioxAPIError` When the API returns an error.

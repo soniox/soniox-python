@@ -1,55 +1,47 @@
 ---
-title: soniox.api.async_models
-description: Description for async_models
-keywords: annotations, TYPE_CHECKING, GetModelsResponse, parse_async_response, AsyncSonioxClient, AsyncModelsAPI
+title: "soniox.api.async_models"
+description: "Soniox Python SDK — soniox.api.async_models Reference"
+keywords: "AsyncModelsAPI"
 ---
 
-
 ---
 
-## Class `AsyncModelsAPI`
+## AsyncModelsAPI
 
-### Attributes
+<a id="asyncmodelsapi-constructor"></a>
 
-- **_client**: 
-
-### `__init__`
-
-#### Signature
+### Constructor
 
 ```python
-__init__(client: AsyncSonioxClient) -> None
+AsyncModelsAPI(client: AsyncSonioxClient)
 ```
 
-#### Parameters
+**Parameters**
 
-- **self** (None): 
+| Parameter | Type |
+| ------ | ------ |
+| `client` | `AsyncSonioxClient` |
 
-- **client** (AsyncSonioxClient): 
+**Returns**
 
-#### Returns
+`None`
 
-None
+<a id="asyncmodelsapi-list"></a>
 
-### `list`
-
-List available models.
-
-Performs a GET request to ``/models``.
-
-Raises:
-    SonioxAPIError: When the API returns an error.
-
-#### Signature
+### list()
 
 ```python
 list() -> GetModelsResponse
 ```
 
-#### Parameters
+List available models.
 
-- **self** (None): 
+Performs a GET request to ``/models``.
 
-#### Returns
+**Returns**
 
-GetModelsResponse
+`GetModelsResponse`
+
+**Raises**
+
+- `SonioxAPIError` When the API returns an error.

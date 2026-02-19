@@ -1,55 +1,47 @@
 ---
-title: soniox.api.models
-description: Description for models
-keywords: annotations, TYPE_CHECKING, GetModelsResponse, parse_response, SonioxClient, ModelsAPI
+title: "soniox.api.models"
+description: "Soniox Python SDK — soniox.api.models Reference"
+keywords: "ModelsAPI"
 ---
 
-
 ---
 
-## Class `ModelsAPI`
+## ModelsAPI
 
-### Attributes
+<a id="modelsapi-constructor"></a>
 
-- **_client**: 
-
-### `__init__`
-
-#### Signature
+### Constructor
 
 ```python
-__init__(client: SonioxClient) -> None
+ModelsAPI(client: SonioxClient)
 ```
 
-#### Parameters
+**Parameters**
 
-- **self** (None): 
+| Parameter | Type |
+| ------ | ------ |
+| `client` | `SonioxClient` |
 
-- **client** (SonioxClient): 
+**Returns**
 
-#### Returns
+`None`
 
-None
+<a id="modelsapi-list"></a>
 
-### `list`
-
-List available models.
-
-Performs a GET request to ``/models``.
-
-Raises:
-    SonioxAPIError: When the API returns an error.
-
-#### Signature
+### list()
 
 ```python
 list() -> GetModelsResponse
 ```
 
-#### Parameters
+List available models.
 
-- **self** (None): 
+Performs a GET request to ``/models``.
 
-#### Returns
+**Returns**
 
-GetModelsResponse
+`GetModelsResponse`
+
+**Raises**
+
+- `SonioxAPIError` When the API returns an error.

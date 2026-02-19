@@ -1,195 +1,152 @@
 ---
-title: soniox.utils
-description: Description for utils
-keywords: annotations, asyncio, threading, time, AsyncIterator, Iterable, Iterator, Path, BinaryIO, RealtimeSTTSession, Token, stream_audio, stream_audio_async, _async_iter_chunks, _iter_chunks, throttle_audio, throttle_audio_async, render_tokens, start_audio_thread
+title: "soniox.utils"
+description: "Soniox Python SDK — soniox.utils Reference"
+keywords: "render_tokens, start_audio_thread, stream_audio, stream_audio_async, throttle_audio, throttle_audio_async"
 ---
 
-
 ---
 
-### `stream_audio`
+<a id="stream_audio"></a>
+
+## stream_audio()
+
+```python
+stream_audio(file: Path | str | BinaryIO | bytes, *, chunk_size_bytes: int = 4 * 1024) -> Iterator[bytes]
+```
 
 Yield fixed-size chunks from an audio source.
 
 Supports bytes, file paths, or binary streams and slices them into
 `chunk_size_bytes` blocks for realtime transmission.
 
-#### Signature
+**Parameters**
 
-```python
-stream_audio(file: Path | str | BinaryIO | bytes, *, chunk_size_bytes: int = 4 * 1024) -> Iterator[bytes]
-```
+| Parameter | Type |
+| ------ | ------ |
+| `file` | `Path \| str \| BinaryIO \| bytes` |
+| `chunk_size_bytes` | `int` |
 
-#### Parameters
+**Returns**
 
-- **file** (Path | str | BinaryIO | bytes): 
-
-- **chunk_size_bytes** (int): 
-
-#### Returns
-
-Iterator[bytes]
+`Iterator[bytes]`
 
 ---
 
-### `stream_audio_async`
+<a id="stream_audio_async"></a>
 
-Asynchronously yield fixed-size chunks from an audio source.
-
-Mirrors `stream_audio` but produces an async iterator for later consumption.
-
-#### Signature
+## stream_audio_async()
 
 ```python
 stream_audio_async(file: Path | str | BinaryIO | bytes, *, chunk_size_bytes: int = 4 * 1024) -> AsyncIterator[bytes]
 ```
 
-#### Parameters
+Asynchronously yield fixed-size chunks from an audio source.
 
-- **file** (Path | str | BinaryIO | bytes): 
+Mirrors `stream_audio` but produces an async iterator for later consumption.
 
-- **chunk_size_bytes** (int): 
+**Parameters**
 
-#### Returns
+| Parameter | Type |
+| ------ | ------ |
+| `file` | `Path \| str \| BinaryIO \| bytes` |
+| `chunk_size_bytes` | `int` |
 
-AsyncIterator[bytes]
+**Returns**
 
----
-
-### `_async_iter_chunks`
-
-Asynchronously read a binary stream in fixed-size chunks.
-
-#### Signature
-
-```python
-_async_iter_chunks(handle: BinaryIO, chunk_size: int) -> AsyncIterator[bytes]
-```
-
-#### Parameters
-
-- **handle** (BinaryIO): 
-
-- **chunk_size** (int): 
-
-#### Returns
-
-AsyncIterator[bytes]
+`AsyncIterator[bytes]`
 
 ---
 
-### `_iter_chunks`
+<a id="throttle_audio"></a>
 
-Synchronously read a binary stream in fixed-size chunks.
-
-#### Signature
-
-```python
-_iter_chunks(handle: BinaryIO, chunk_size: int) -> Iterable[bytes]
-```
-
-#### Parameters
-
-- **handle** (BinaryIO): 
-
-- **chunk_size** (int): 
-
-#### Returns
-
-Iterable[bytes]
-
----
-
-### `throttle_audio`
-
-Yield audio chunks at a regulated pace, optionally sleeping between yields.
-
-#### Signature
+## throttle_audio()
 
 ```python
 throttle_audio(file: Path | str | BinaryIO | bytes, *, chunk_size_bytes: int = 4096, delay_seconds: float = 0.0) -> Iterator[bytes]
 ```
 
-#### Parameters
+Yield audio chunks at a regulated pace, optionally sleeping between yields.
 
-- **file** (Path | str | BinaryIO | bytes): 
+**Parameters**
 
-- **chunk_size_bytes** (int): 
+| Parameter | Type |
+| ------ | ------ |
+| `file` | `Path \| str \| BinaryIO \| bytes` |
+| `chunk_size_bytes` | `int` |
+| `delay_seconds` | `float` |
 
-- **delay_seconds** (float): 
+**Returns**
 
-#### Returns
-
-Iterator[bytes]
+`Iterator[bytes]`
 
 ---
 
-### `throttle_audio_async`
+<a id="throttle_audio_async"></a>
 
-Async counterpart of `throttle_audio`, yielding chunks with optional delay.
-
-#### Signature
+## throttle_audio_async()
 
 ```python
 throttle_audio_async(file: Path | str | BinaryIO | bytes, *, chunk_size_bytes: int = 32 * 1024, delay_seconds: float = 0.0) -> AsyncIterator[bytes]
 ```
 
-#### Parameters
+Async counterpart of `throttle_audio`, yielding chunks with optional delay.
 
-- **file** (Path | str | BinaryIO | bytes): 
+**Parameters**
 
-- **chunk_size_bytes** (int): 
+| Parameter | Type |
+| ------ | ------ |
+| `file` | `Path \| str \| BinaryIO \| bytes` |
+| `chunk_size_bytes` | `int` |
+| `delay_seconds` | `float` |
 
-- **delay_seconds** (float): 
+**Returns**
 
-#### Returns
-
-AsyncIterator[bytes]
+`AsyncIterator[bytes]`
 
 ---
 
-### `render_tokens`
+<a id="render_tokens"></a>
 
-Build a human-friendly transcript from token metadata.
-
-#### Signature
+## render_tokens()
 
 ```python
 render_tokens(final_tokens: list[Token], non_final_tokens: list[Token]) -> str
 ```
 
-#### Parameters
+Build a human-friendly transcript from token metadata.
 
-- **final_tokens** (list[Token]): 
+**Parameters**
 
-- **non_final_tokens** (list[Token]): 
+| Parameter | Type |
+| ------ | ------ |
+| `final_tokens` | `list[Token]` |
+| `non_final_tokens` | `list[Token]` |
 
-#### Returns
+**Returns**
 
-str
+`str`
 
 ---
 
-### `start_audio_thread`
+<a id="start_audio_thread"></a>
 
-Stream audio into the session on a background thread.
-
-#### Signature
+## start_audio_thread()
 
 ```python
 start_audio_thread(session: RealtimeSTTSession, chunks: bytes | Iterator[bytes], *, name: str | None = None, daemon: bool = True) -> threading.Thread
 ```
 
-#### Parameters
+Stream audio into the session on a background thread.
 
-- **session** (RealtimeSTTSession): 
+**Parameters**
 
-- **chunks** (bytes | Iterator[bytes]): 
+| Parameter | Type |
+| ------ | ------ |
+| `session` | `RealtimeSTTSession` |
+| `chunks` | `bytes \| Iterator[bytes]` |
+| `name` | `str \| None` |
+| `daemon` | `bool` |
 
-- **name** (str | None): 
+**Returns**
 
-- **daemon** (bool): 
-
-#### Returns
-
-threading.Thread
+`threading.Thread`
