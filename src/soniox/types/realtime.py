@@ -90,3 +90,8 @@ class RealtimeControlType(str, Enum):
     FINISH = "finish"
     KEEP_ALIVE = "keep_alive"
     FINALIZE = "finalize"
+
+
+# Protocol Constants
+TOKEN_TEXT_FIN = "<fin>"
+TOKEN_TEXT_END = "<end>"
