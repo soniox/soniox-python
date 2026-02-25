@@ -4,7 +4,7 @@ build-backend = "hatchling.build"
 
 [project]
 name = "soniox"
-version = "2.1.0"
+version = "2.2.0"
 dependencies = ["httpx>0.25.0", "websockets>11.0", "pydantic>2"]
 requires-python = ">=3.10"
 authors = [{ name = "Soniox", email = "support@soniox.com" }]
@@ -61,8 +61,3 @@ exclude = ["build", "dist", ".venv"]
 typeCheckingMode = "strict"
 reportMissingImports = true
 pythonVersion = "3.10"
-
-[dependency-groups]
-dev = [
-    "griffe>=1.15.0",
-]
