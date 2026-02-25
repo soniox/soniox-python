@@ -380,6 +380,18 @@ Configuration describing how translation should be performed.
 | `language_a` | `str \| None` | First language code (two_way). |
 | `language_b` | `str \| None` | Second language code (two_way). |
 
+<a id="translationconfig-validate_logic"></a>
+
+### validate_logic()
+
+```python
+validate_logic() -> TranslationConfig
+```
+
+**Returns**
+
+`TranslationConfig`
+
 ---
 
 ## TranslationTarget
@@ -494,6 +506,7 @@ Configuration for initiating a realtime transcription session.
 | `enable_speaker_diarization` | `bool \| None` | Enable speaker identification. |
 | `enable_language_identification` | `bool \| None` | Enable automatic language detection. |
 | `enable_endpoint_detection` | `bool \| None` | Enable endpoint detection for utterance boundaries. |
+| `max_endpoint_delay_ms` | `int \| None` | Maximum delay between the end of speech and returned endpoint. Allowed values for maximum delay are between 500ms and 3000ms. The default value is 2000ms |
 | `translation` | `TranslationConfig \| None` | Translation configuration. |
 | `client_reference_id` | `str \| None` | Optional tracking identifier (max 256 chars). |
 
