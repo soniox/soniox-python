@@ -40,6 +40,7 @@ format:
 
 # Build python package
 build:
+    rm -rf dist
     uv build
 
 # Publish python package
