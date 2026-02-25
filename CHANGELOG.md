@@ -77,6 +77,20 @@ Examples:
 
 ---
 
+## [2.2.0] - 25 feb 2026
+
+### Added
+
+- max_endpoint_delay_ms parameter (v4 model only)
+- fin (<fin>) and end (<end>) constants
+- validation for TranslationConfig
+
+### Changed
+
+- Improved docs generating script
+
+---
+
 ## [2.1.0] - 18 feb 2026
 
 ### Added

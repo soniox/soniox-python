@@ -74,6 +74,12 @@ class RealtimeSTTConfig(BaseModel):
     enable_endpoint_detection: bool | None = None
     """Enable endpoint detection for utterance boundaries."""
 
+    max_endpoint_delay_ms: int | None = Field(default=None, ge=500, le=3000)
+    """
+    Maximum delay between the end of speech and returned endpoint.
+    Allowed values for maximum delay are between 500ms and 3000ms. The default value is 2000ms
+    """
+
     translation: TranslationConfig | None = None
     """Translation configuration."""
 
@@ -90,3 +96,8 @@ class RealtimeControlType(str, Enum):
     FINISH = "finish"
     KEEP_ALIVE = "keep_alive"
     FINALIZE = "finalize"
+
+
+# Protocol Constants
+TOKEN_TEXT_FIN = "<fin>"
+TOKEN_TEXT_END = "<end>"

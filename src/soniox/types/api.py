@@ -151,14 +151,32 @@ class TranslationConfig(BaseModel):
     type: TranslationType
     """Translation type."""
 
-    target_language: str | None = None
+    target_language: str | None = Field(
+        default=None, min_length=2, max_length=2)
     """Target language code for translation (e.g., "fr", "es", "de") (one_way)."""
 
-    language_a: str | None = None
+    language_a: str | None = Field(default=None, min_length=2, max_length=2)
     """First language code (two_way)."""
 
-    language_b: str | None = None
+    language_b: str | None = Field(default=None, min_length=2, max_length=2)
     """Second language code (two_way)."""
+
+    @model_validator(mode="after")
+    def validate_logic(self) -> TranslationConfig:
+        if self.type == "one_way":
+            if not self.target_language:
+                raise ValueError("target_language is required for one_way")
+            # Clean up other fields if user passed them by accident
+            self.language_a = self.language_b = None
+
+        elif self.type == "two_way":
+            if not self.language_a or not self.language_b:
+                raise ValueError(
+                    "language_a and language_b are both required for two_way")
+            # Clean up other fields if user passed them by accident
+            self.target_language = None
+
+        return self
 
 
 class CreateTranscriptionPayload(BaseModel):
@@ -206,7 +224,8 @@ class CreateTranscriptionPayload(BaseModel):
     @model_validator(mode="after")
     def _validate_audio_source(self) -> Self:
         if self.audio_url and self.file_id:
-            raise ValueError("Only one of audio_url or file_id can be provided.")
+            raise ValueError(
+                "Only one of audio_url or file_id can be provided.")
         if not self.audio_url and not self.file_id:
             raise ValueError("Either audio_url or file_id must be provided.")
         return self
