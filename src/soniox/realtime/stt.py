@@ -321,6 +321,7 @@ class RealtimeSTTSession:
             raise SonioxRealtimeError("Realtime session is not connected")
         if self._paused:
             return
+        self.finalize()
         self._paused = True
         self._keepalive = KeepaliveThread(self.keep_alive, KEEP_ALIVE_INTERVAL_SEC)
         self._keepalive.start()
