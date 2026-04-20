@@ -1,7 +1,7 @@
 ---
 title: "Types"
 description: "Soniox Python SDK - Types Reference"
-keywords: "Token, ApiError, ApiErrorValidationError, CreateTemporaryApiKeyPayload, CreateTemporaryApiKeyResponse, CreateTranscriptionPayload, CreateTranscriptionConfig, File, GetFilesPayload, GetFilesResponse, GetModelsResponse, GetTranscriptionsPayload, GetTranscriptionsResponse, Model, StructuredContext, StructuredContextGeneralItem, StructuredContextTranslationTerm, Transcription, TranscriptionStatus, TranscriptionTranscript, TranslationConfig, TranslationTarget, TranslationType, TemporaryApiKeyUsageType, UploadFilePayload, RealtimeEvent, RealtimeSTTConfig, Headers, WebhookAuthConfig, WebhookEvent"
+keywords: "Token, ApiError, ApiErrorValidationError, CreateTemporaryApiKeyPayload, CreateTemporaryApiKeyResponse, CreateTtsPayload, CreateTtsConfig, CreateTranscriptionPayload, CreateTranscriptionConfig, File, GetFilesPayload, GetFilesResponse, GetModelsResponse, GetTtsModelsResponse, GetTranscriptionsPayload, GetTranscriptionsResponse, Model, StructuredContext, StructuredContextGeneralItem, StructuredContextTranslationTerm, Transcription, TranscriptionStatus, TranscriptionTranscript, TranslationConfig, TranslationTarget, TranslationType, TtsAudioFormat, TtsBitrate, TtsModel, TtsSampleRate, TtsVoice, TemporaryApiKeyUsageType, UploadFilePayload, RealtimeEvent, RealtimeSTTConfig, RealtimeTTSConfig, RealtimeTTSEvent, RealtimeTTSTextMessage, Headers, WebhookAuthConfig, WebhookEvent"
 ---
 
 ---
@@ -90,6 +90,45 @@ Response data for a temp API key request.
 | ------ | ------ | ------ |
 | `api_key` | `str` | Created temporary API key. |
 | `expires_at` | `datetime` | UTC timestamp indicating when generated temporary API key will expire |
+
+---
+
+## CreateTtsPayload
+
+Payload sent to generate speech audio from text via REST.
+
+<a id="createttspayload-properties"></a>
+
+### Properties
+
+| Property | Type | Description |
+| ------ | ------ | ------ |
+| `model` | `str` | Text-to-Speech model to use. |
+| `language` | `str` | Language code for Text-to-Speech (e.g., "en"). |
+| `voice` | `str` | Voice identifier to generate speech audio with. |
+| `audio_format` | `TtsAudioFormat` | Requested output audio format. |
+| `sample_rate` | `TtsSampleRate \| None` | Output sample rate in Hz. |
+| `bitrate` | `TtsBitrate \| None` | Output bitrate in bits-per-second for compressed formats. |
+| `text` | `str` | Input text to generate into speech. |
+
+---
+
+## CreateTtsConfig
+
+Helper config used when building Text-to-Speech payloads.
+
+<a id="createttsconfig-properties"></a>
+
+### Properties
+
+| Property | Type | Description |
+| ------ | ------ | ------ |
+| `model` | `str \| None` | Text-to-Speech model to use. |
+| `language` | `str \| None` | Language code for Text-to-Speech (e.g., "en"). |
+| `voice` | `str \| None` | Voice identifier to generate speech audio with. |
+| `audio_format` | `TtsAudioFormat \| None` | Requested output audio format. |
+| `sample_rate` | `TtsSampleRate \| None` | Output sample rate in Hz. |
+| `bitrate` | `TtsBitrate \| None` | Output bitrate in bits-per-second for compressed formats. |
 
 ---
 
@@ -202,6 +241,20 @@ Response returned when listing available models.
 | Property | Type | Description |
 | ------ | ------ | ------ |
 | `models` | `list[Model]` | List of all available models. |
+
+---
+
+## GetTtsModelsResponse
+
+Response returned when listing available Text-to-Speech models.
+
+<a id="getttsmodelsresponse-properties"></a>
+
+### Properties
+
+| Property | Type | Description |
+| ------ | ------ | ------ |
+| `models` | `list[TtsModel]` | List of available Text-to-Speech models. |
 
 ---
 
@@ -422,6 +475,83 @@ Supported translation configuration types.
 
 ---
 
+<a id="ttsaudioformat"></a>
+
+## TtsAudioFormat
+
+```python
+TtsAudioFormat = Literal[
+    "pcm_f32le",
+    "pcm_s16le",
+    "pcm_mulaw",
+    "pcm_alaw",
+    "wav",
+    "aac",
+    "mp3",
+    "opus",
+    "flac",
+]
+```
+
+Allowed audio formats for Text-to-Speech output.
+
+---
+
+<a id="ttsbitrate"></a>
+
+## TtsBitrate
+
+```python
+TtsBitrate = Literal[32000, 64000, 96000, 128000, 192000, 256000, 320000]
+```
+
+Allowed output bitrates in bits-per-second for compressed Text-to-Speech formats.
+
+---
+
+## TtsModel
+
+Represents a Text-to-Speech model.
+
+<a id="ttsmodel-properties"></a>
+
+### Properties
+
+| Property | Type | Description |
+| ------ | ------ | ------ |
+| `id` | `str` | Unique identifier of the model. |
+| `aliased_model_id` | `str \| None` | If this is an alias, the id of the aliased model. None for non-alias models. |
+| `name` | `str` | Name of the model. |
+| `voices` | `list[TtsVoice]` | Voices supported by this model. |
+
+---
+
+<a id="ttssamplerate"></a>
+
+## TtsSampleRate
+
+```python
+TtsSampleRate = Literal[8000, 16000, 24000, 44100, 48000]
+```
+
+Allowed output sample rates in Hz for Text-to-Speech.
+
+---
+
+## TtsVoice
+
+Represents a Text-to-Speech voice.
+
+<a id="ttsvoice-properties"></a>
+
+### Properties
+
+| Property | Type | Description |
+| ------ | ------ | ------ |
+| `id` | `str` | Unique identifier of the voice. |
+
+---
+
 <a id="temporaryapikeyusagetype"></a>
 
 ## TemporaryApiKeyUsageType
@@ -527,6 +657,114 @@ build_payload(api_key: str) -> RealtimeSTTConfig
 **Returns**
 
 `RealtimeSTTConfig`
+
+---
+
+## RealtimeTTSConfig
+
+Configuration for initiating a realtime Text-to-Speech stream.
+
+<a id="realtimettsconfig-properties"></a>
+
+### Properties
+
+| Property | Type | Description |
+| ------ | ------ | ------ |
+| `api_key` | `str \| None` | API key for real-time sessions. |
+| `stream_id` | `str` | Client stream identifier unique among active streams on a connection. |
+| `model` | `str` | Text-to-Speech model to use. |
+| `language` | `str` | Language code for Text-to-Speech (e.g., "en"). |
+| `voice` | `str` | Voice identifier to generate speech audio with. |
+| `audio_format` | `TtsAudioFormat` | Requested output audio format. |
+| `sample_rate` | `TtsSampleRate \| None` | Output sample rate in Hz. |
+| `bitrate` | `TtsBitrate \| None` | Output bitrate in bits-per-second for compressed formats. |
+
+<a id="realtimettsconfig-build_payload"></a>
+
+### build_payload()
+
+```python
+build_payload(api_key: str) -> RealtimeTTSConfig
+```
+
+**Parameters**
+
+| Parameter | Type | Description |
+| ------ | ------ | ------ |
+| `api_key` | `str` | API key used for authentication. |
+
+**Returns**
+
+`RealtimeTTSConfig`
+
+---
+
+## RealtimeTTSEvent
+
+Event payload received from the realtime Text-to-Speech websocket.
+
+<a id="realtimettsevent-properties"></a>
+
+### Properties
+
+| Property | Type | Description |
+| ------ | ------ | ------ |
+| `stream_id` | `str \| None` | Stream identifier associated with this event. |
+| `audio` | `str \| None` | Base64 encoded audio chunk, when present. |
+| `audio_end` | `bool` | Whether this event contains the last audio payload for the stream. |
+| `terminated` | `bool` | Whether the stream has been fully terminated. |
+| `error_code` | `int \| None` | Error code if the Text-to-Speech stream failed. |
+| `error_message` | `str \| None` | Human-readable error message. |
+
+<a id="realtimettsevent-validate_event"></a>
+
+### validate_event()
+
+```python
+validate_event(raw: str | bytes) -> RealtimeTTSEvent
+```
+
+**Parameters**
+
+| Parameter | Type | Description |
+| ------ | ------ | ------ |
+| `raw` | `str \| bytes` | Raw event payload from the realtime API. |
+
+**Returns**
+
+`RealtimeTTSEvent`
+
+***
+
+<a id="realtimettsevent-audio_bytes"></a>
+
+### audio_bytes()
+
+```python
+audio_bytes() -> bytes | None
+```
+
+Decode and return the audio bytes for this event, if present.
+
+**Returns**
+
+`bytes | None`
+
+---
+
+## RealtimeTTSTextMessage
+
+Text chunk message sent over realtime Text-to-Speech websocket.
+
+<a id="realtimettstextmessage-properties"></a>
+
+### Properties
+
+| Property | Type | Description |
+| ------ | ------ | ------ |
+| `text` | `str` | Text chunk to generate into speech. |
+| `text_end` | `bool` | Whether this message marks the final text chunk for the stream. |
+| `stream_id` | `str` | Stream identifier the chunk belongs to. |
 
 ---
 

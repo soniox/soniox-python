@@ -20,6 +20,25 @@ TranslationType = Literal["one_way", "two_way"]
 TemporaryApiKeyUsageType = Literal["transcribe_websocket"]
 """Intended usage for temporary API keys."""
 
+TtsAudioFormat = Literal[
+    "pcm_f32le",
+    "pcm_s16le",
+    "pcm_mulaw",
+    "pcm_alaw",
+    "wav",
+    "aac",
+    "mp3",
+    "opus",
+    "flac",
+]
+"""Allowed audio formats for Text-to-Speech output."""
+
+TtsSampleRate = Literal[8000, 16000, 24000, 44100, 48000]
+"""Allowed output sample rates in Hz for Text-to-Speech."""
+
+TtsBitrate = Literal[32000, 64000, 96000, 128000, 192000, 256000, 320000]
+"""Allowed output bitrates in bits-per-second for compressed Text-to-Speech formats."""
+
 
 class ApiErrorValidationError(BaseModel):
     """Details a single validation error reported by the Soniox API."""
@@ -268,6 +287,53 @@ class CreateTranscriptionConfig(BaseModel):
     """Optional tracking identifier"""
 
 
+class CreateTtsPayload(BaseModel):
+    """Payload sent to generate speech audio from text via REST."""
+
+    model: str = Field(min_length=1, max_length=50)
+    """Text-to-Speech model to use."""
+
+    language: str = Field(min_length=1, max_length=50)
+    """Language code for Text-to-Speech (e.g., "en")."""
+
+    voice: str = Field(min_length=1, max_length=50)
+    """Voice identifier to generate speech audio with."""
+
+    audio_format: TtsAudioFormat
+    """Requested output audio format."""
+
+    sample_rate: TtsSampleRate | None = Field(default=None)
+    """Output sample rate in Hz."""
+
+    bitrate: TtsBitrate | None = Field(default=None)
+    """Output bitrate in bits-per-second for compressed formats."""
+
+    text: str = Field(min_length=1, max_length=5000)
+    """Input text to generate into speech."""
+
+
+class CreateTtsConfig(BaseModel):
+    """Helper config used when building Text-to-Speech payloads."""
+
+    model: str | None = Field(default=None, min_length=1, max_length=50)
+    """Text-to-Speech model to use."""
+
+    language: str | None = Field(default=None, min_length=1, max_length=50)
+    """Language code for Text-to-Speech (e.g., "en")."""
+
+    voice: str | None = Field(default=None, min_length=1, max_length=50)
+    """Voice identifier to generate speech audio with."""
+
+    audio_format: TtsAudioFormat | None = Field(default=None)
+    """Requested output audio format."""
+
+    sample_rate: TtsSampleRate | None = Field(default=None)
+    """Output sample rate in Hz."""
+
+    bitrate: TtsBitrate | None = Field(default=None)
+    """Output bitrate in bits-per-second for compressed formats."""
+
+
 class CreateTemporaryApiKeyPayload(BaseModel):
     """Payload for requesting a temporary API key (e.g., websocket)."""
 
@@ -351,6 +417,36 @@ class GetModelsResponse(BaseModel):
 
     models: list[Model]
     """List of all available models."""
+
+
+class TtsVoice(BaseModel):
+    """Represents a Text-to-Speech voice."""
+
+    id: str
+    """Unique identifier of the voice."""
+
+
+class TtsModel(BaseModel):
+    """Represents a Text-to-Speech model."""
+
+    id: str
+    """Unique identifier of the model."""
+
+    aliased_model_id: str | None = None
+    """If this is an alias, the id of the aliased model. None for non-alias models."""
+
+    name: str
+    """Name of the model."""
+
+    voices: list[TtsVoice]
+    """Voices supported by this model."""
+
+
+class GetTtsModelsResponse(BaseModel):
+    """Response returned when listing available Text-to-Speech models."""
+
+    models: list[TtsModel]
+    """List of available Text-to-Speech models."""
 
 
 class TranscriptionTranscript(BaseModel):

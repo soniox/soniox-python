@@ -1,11 +1,12 @@
 from __future__ import annotations
 
 import json
+from base64 import b64decode
 from enum import Enum
 
 from pydantic import BaseModel, ConfigDict, Field
 
-from .api import StructuredContext, TranslationConfig
+from .api import StructuredContext, TranslationConfig, TtsAudioFormat, TtsBitrate, TtsSampleRate
 from .common import Token
 
 
@@ -88,6 +89,107 @@ class RealtimeSTTConfig(BaseModel):
 
     def build_payload(self, api_key: str) -> RealtimeSTTConfig:
         return self.model_copy(update={"api_key": api_key})
+
+
+class RealtimeTTSConfig(BaseModel):
+    """Configuration for initiating a realtime Text-to-Speech stream."""
+
+    api_key: str | None = None
+    """API key for real-time sessions."""
+
+    stream_id: str = Field(min_length=1, max_length=256)
+    """Client stream identifier unique among active streams on a connection."""
+
+    model: str = Field(min_length=1, max_length=50)
+    """Text-to-Speech model to use."""
+
+    language: str = Field(min_length=1, max_length=50)
+    """Language code for Text-to-Speech (e.g., "en")."""
+
+    voice: str = Field(min_length=1, max_length=50)
+    """Voice identifier to generate speech audio with."""
+
+    audio_format: TtsAudioFormat
+    """Requested output audio format."""
+
+    sample_rate: TtsSampleRate | None = Field(default=None)
+    """Output sample rate in Hz."""
+
+    bitrate: TtsBitrate | None = Field(default=None)
+    """Output bitrate in bits-per-second for compressed formats."""
+
+    def build_payload(self, api_key: str) -> RealtimeTTSConfig:
+        return self.model_copy(update={"api_key": api_key})
+
+
+class RealtimeTTSTextMessage(BaseModel):
+    """Text chunk message sent over realtime Text-to-Speech websocket."""
+
+    text: str = Field(default="", max_length=5000)
+    """Text chunk to generate into speech."""
+
+    text_end: bool = False
+    """Whether this message marks the final text chunk for the stream."""
+
+    stream_id: str = Field(min_length=1, max_length=256)
+    """Stream identifier the chunk belongs to."""
+
+
+class RealtimeTTSCancelMessage(BaseModel):
+    """Cancel a realtime Text-to-Speech stream."""
+
+    stream_id: str = Field(min_length=1, max_length=256)
+    """Stream identifier to cancel."""
+
+    cancel: bool = True
+    """Whether to cancel the stream."""
+
+
+class RealtimeTTSKeepAliveMessage(BaseModel):
+    """Keepalive message for realtime Text-to-Speech websocket sessions."""
+
+    keep_alive: bool = True
+    """Whether to send a keepalive control message."""
+
+
+class RealtimeTTSEvent(BaseModel):
+    """Event payload received from the realtime Text-to-Speech websocket."""
+
+    model_config = ConfigDict(extra="allow")
+
+    stream_id: str | None = None
+    """Stream identifier associated with this event."""
+
+    audio: str | None = None
+    """Base64 encoded audio chunk, when present."""
+
+    audio_end: bool = False
+    """Whether this event contains the last audio payload for the stream."""
+
+    terminated: bool = False
+    """Whether the stream has been fully terminated."""
+
+    error_code: int | None = None
+    """Error code if the Text-to-Speech stream failed."""
+
+    error_message: str | None = None
+    """Human-readable error message."""
+
+    @classmethod
+    def validate_event(cls, raw: str | bytes) -> RealtimeTTSEvent:
+        payload = raw.decode("utf-8") if isinstance(raw, bytes | bytearray) else raw
+        return cls.model_validate(json.loads(payload))
+
+    def audio_bytes(self) -> bytes | None:
+        """Decode and return the audio bytes for this event, if present."""
+        if self.audio is None:
+            return None
+        try:
+            return b64decode(self.audio, validate=True)
+        except ValueError as exc:
+            raise ValueError(
+                "Invalid base64 audio payload in realtime Text-to-Speech event"
+            ) from exc
 
 
 class RealtimeControlType(str, Enum):

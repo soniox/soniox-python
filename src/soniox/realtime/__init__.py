@@ -3,8 +3,14 @@ from __future__ import annotations
 from functools import cached_property
 from typing import TYPE_CHECKING
 
-from ..types.realtime import RealtimeEvent, RealtimeSTTConfig
+from ..types.realtime import RealtimeEvent, RealtimeSTTConfig, RealtimeTTSConfig, RealtimeTTSEvent
 from .stt import RealtimeSTTClient, RealtimeSTTSession
+from .tts import (
+    RealtimeTTSClient,
+    RealtimeTTSConnection,
+    RealtimeTTSMultiplexedConnection,
+    RealtimeTTSStream,
+)
 
 if TYPE_CHECKING:
     from ..client import AsyncSonioxClient, SonioxClient
@@ -12,7 +18,19 @@ if TYPE_CHECKING:
         AsyncRealtimeSTTClient,
         AsyncRealtimeSTTSession,
     )
+    from .async_tts import (
+        AsyncRealtimeTTSClient,
+        AsyncRealtimeTTSConnection,
+        AsyncRealtimeTTSMultiplexedConnection,
+        AsyncRealtimeTTSStream,
+    )
     from .stt import RealtimeSTTClient, RealtimeSTTSession
+    from .tts import (
+        RealtimeTTSClient,
+        RealtimeTTSConnection,
+        RealtimeTTSMultiplexedConnection,
+        RealtimeTTSStream,
+    )
 
 __all__ = [
     "RealtimeAPI",
@@ -20,9 +38,19 @@ __all__ = [
     "RealtimeSTTClient",
     "RealtimeSTTSession",
     "RealtimeSTTConfig",
+    "RealtimeTTSClient",
+    "RealtimeTTSConnection",
+    "RealtimeTTSMultiplexedConnection",
+    "RealtimeTTSStream",
+    "RealtimeTTSConfig",
+    "RealtimeTTSEvent",
     "AsyncRealtimeAPI",
     "AsyncRealtimeSTTClient",
     "AsyncRealtimeSTTSession",
+    "AsyncRealtimeTTSClient",
+    "AsyncRealtimeTTSConnection",
+    "AsyncRealtimeTTSMultiplexedConnection",
+    "AsyncRealtimeTTSStream",
 ]
 
 
@@ -38,6 +66,12 @@ class AsyncRealtimeAPI:
 
         return AsyncRealtimeSTTClient(self._client)
 
+    @cached_property
+    def tts(self) -> AsyncRealtimeTTSClient:
+        from .async_tts import AsyncRealtimeTTSClient
+
+        return AsyncRealtimeTTSClient(self._client)
+
 
 class RealtimeAPI:
     """Entrypoint for realtime helpers on SonioxClient."""
@@ -50,3 +84,9 @@ class RealtimeAPI:
         from .stt import RealtimeSTTClient
 
         return RealtimeSTTClient(self._client)
+
+    @cached_property
+    def tts(self) -> RealtimeTTSClient:
+        from .tts import RealtimeTTSClient
+
+        return RealtimeTTSClient(self._client)

@@ -15,16 +15,22 @@ if TYPE_CHECKING:
     from .api.async_files import AsyncFilesAPI
     from .api.async_models import AsyncModelsAPI
     from .api.async_stt import AsyncSttAPI
+    from .api.async_tts import AsyncTtsAPI
+    from .api.async_tts_models import AsyncTtsModelsAPI
     from .api.async_webhooks import AsyncSonioxWebhooksAPI
     from .api.auth import AuthAPI
     from .api.files import FilesAPI
     from .api.models import ModelsAPI
     from .api.stt import SttAPI
+    from .api.tts import TtsAPI
+    from .api.tts_models import TtsModelsAPI
     from .api.webhooks import SonioxWebhooksAPI
     from .realtime import AsyncRealtimeAPI, RealtimeAPI
 
 _DEFAULT_API_BASE_URL = "https://api.soniox.com/v1"
 _DEFAULT_WEBSOCKET_BASE_URL = "wss://stt-rt.soniox.com/transcribe-websocket"
+_DEFAULT_TTS_API_BASE_URL = "https://tts-rt.soniox.com"
+_DEFAULT_TTS_WEBSOCKET_BASE_URL = "wss://tts-rt.soniox.com/tts-websocket"
 _DEFAULT_TIMEOUT_SEC = 30.0
 
 
@@ -37,6 +43,8 @@ class _BaseSonioxClient:
         api_key: str | None = None,
         api_base_url: str | None = None,
         websocket_base_url: str | None = None,
+        tts_api_base_url: str | None = None,
+        tts_websocket_base_url: str | None = None,
         timeout_sec: float | None = None,
         webhook_secret: str | None = None,
         webhook_signature_header: str | None = None,
@@ -47,6 +55,8 @@ class _BaseSonioxClient:
         self.api_key = api_key
         self.api_base_url = api_base_url or _DEFAULT_API_BASE_URL
         self.websocket_base_url = websocket_base_url or _DEFAULT_WEBSOCKET_BASE_URL
+        self.tts_api_base_url = tts_api_base_url or _DEFAULT_TTS_API_BASE_URL
+        self.tts_websocket_base_url = tts_websocket_base_url or _DEFAULT_TTS_WEBSOCKET_BASE_URL
         self.timeout_sec = timeout_sec if timeout_sec is not None else _DEFAULT_TIMEOUT_SEC
         self.webhook_secret = webhook_secret
         self.webhook_signature_header = webhook_signature_header
@@ -66,6 +76,8 @@ class SonioxClient(_BaseSonioxClient):
         api_key: str | None = None,
         api_base_url: str | None = None,
         websocket_base_url: str | None = None,
+        tts_api_base_url: str | None = None,
+        tts_websocket_base_url: str | None = None,
         timeout_sec: float | None = None,
         webhook_secret: str | None = None,
         webhook_signature_header: str | None = None,
@@ -75,6 +87,8 @@ class SonioxClient(_BaseSonioxClient):
             api_key=api_key,
             api_base_url=api_base_url,
             websocket_base_url=websocket_base_url,
+            tts_api_base_url=tts_api_base_url,
+            tts_websocket_base_url=tts_websocket_base_url,
             timeout_sec=timeout_sec,
             webhook_secret=webhook_secret,
             webhook_signature_header=webhook_signature_header,
@@ -119,10 +133,22 @@ class SonioxClient(_BaseSonioxClient):
         return SttAPI(self)
 
     @cached_property
+    def tts(self) -> TtsAPI:
+        from .api.tts import TtsAPI
+
+        return TtsAPI(self)
+
+    @cached_property
     def models(self) -> ModelsAPI:
         from .api.models import ModelsAPI
 
         return ModelsAPI(self)
+
+    @cached_property
+    def tts_models(self) -> TtsModelsAPI:
+        from .api.tts_models import TtsModelsAPI
+
+        return TtsModelsAPI(self)
 
     @cached_property
     def auth(self) -> AuthAPI:
@@ -170,6 +196,8 @@ class AsyncSonioxClient(_BaseSonioxClient):
         api_key: str | None = None,
         api_base_url: str | None = None,
         websocket_base_url: str | None = None,
+        tts_api_base_url: str | None = None,
+        tts_websocket_base_url: str | None = None,
         timeout_sec: float | None = None,
         webhook_secret: str | None = None,
         webhook_signature_header: str | None = None,
@@ -179,6 +207,8 @@ class AsyncSonioxClient(_BaseSonioxClient):
             api_key=api_key,
             api_base_url=api_base_url,
             websocket_base_url=websocket_base_url,
+            tts_api_base_url=tts_api_base_url,
+            tts_websocket_base_url=tts_websocket_base_url,
             timeout_sec=timeout_sec,
             webhook_secret=webhook_secret,
             webhook_signature_header=webhook_signature_header,
@@ -223,10 +253,22 @@ class AsyncSonioxClient(_BaseSonioxClient):
         return AsyncSttAPI(self)
 
     @cached_property
+    def tts(self) -> AsyncTtsAPI:
+        from .api.async_tts import AsyncTtsAPI
+
+        return AsyncTtsAPI(self)
+
+    @cached_property
     def models(self) -> AsyncModelsAPI:
         from .api.async_models import AsyncModelsAPI
 
         return AsyncModelsAPI(self)
+
+    @cached_property
+    def tts_models(self) -> AsyncTtsModelsAPI:
+        from .api.async_tts_models import AsyncTtsModelsAPI
+
+        return AsyncTtsModelsAPI(self)
 
     @cached_property
     def auth(self) -> AsyncAuthAPI:
