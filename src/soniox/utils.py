@@ -8,8 +8,26 @@ from pathlib import Path
 from typing import BinaryIO
 
 from soniox.realtime.stt import RealtimeSTTSession
+from soniox.realtime.tts import RealtimeTTSConnection, RealtimeTTSStream
 
 from .types import Token
+
+
+def output_file_for_audio_format(audio_format: str, prefix: str) -> Path:
+    """Build an output file path with extension and datetime suffix."""
+    ext_map = {
+        "pcm_f32le": "pcm",
+        "pcm_s16le": "pcm",
+        "pcm_mulaw": "pcm",
+        "pcm_alaw": "pcm",
+        "wav": "wav",
+        "aac": "aac",
+        "mp3": "mp3",
+        "opus": "opus",
+        "flac": "flac",
+    }
+    extension = ext_map.get(audio_format, "bin")
+    return Path(f"{prefix}.{extension}")
 
 
 def stream_audio(
@@ -161,6 +179,24 @@ def start_audio_thread(
 
     def _stream() -> None:
         session.send_bytes(chunks)
+
+    thread = threading.Thread(target=_stream, daemon=daemon, name=name)
+    thread.start()
+    return thread
+
+
+def start_text_thread(
+    session: RealtimeTTSConnection | RealtimeTTSStream,
+    chunks: str | Iterator[str],
+    *,
+    text_end: bool = True,
+    name: str | None = None,
+    daemon: bool = True,
+) -> threading.Thread:
+    """Stream text into a realtime TTS session on a background thread."""
+
+    def _stream() -> None:
+        session.send_text_chunks(chunks, text_end=text_end)
 
     thread = threading.Thread(target=_stream, daemon=daemon, name=name)
     thread.start()

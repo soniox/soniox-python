@@ -77,6 +77,14 @@ Examples:
 
 ---
 
+## [3.0.0] - 22 apr 2026
+
+### Added
+
+- Added TTS support for REST and websocket APIs.
+
+---
+
 ## [2.2.0] - 25 feb 2026
 
 ### Added

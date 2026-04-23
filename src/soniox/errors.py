@@ -65,7 +65,26 @@ class SonioxAPIError(SonioxError):
             try:
                 api_error = ApiError.model_validate(payload)
             except ValidationError as exc:
-                raise SonioxAPIError("Unable to parse API error schema", response=response) from exc
+                if isinstance(payload, dict):
+                    error_code = payload.get("error_code")
+                    error_message = payload.get("error_message")
+                    if isinstance(error_message, str):
+                        status_code = (
+                            int(error_code) if isinstance(error_code, int) else response.status_code
+                        )
+                        api_error = ApiError(
+                            status_code=status_code,
+                            error_type="api_error",
+                            message=error_message,
+                        )
+                    else:
+                        raise SonioxAPIError(
+                            "Unable to parse API error schema", response=response
+                        ) from exc
+                else:
+                    raise SonioxAPIError(
+                        "Unable to parse API error schema", response=response
+                    ) from exc
         error_cls = cls._map_status_to_exception(response.status_code)
         if api_error:
             message = api_error.message
