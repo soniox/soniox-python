@@ -85,7 +85,7 @@ realtime()
 
 See [`examples/soniox_client/realtime_example.py`](https://github.com/soniox/soniox-python/blob/main/examples/soniox_client/realtime_example.py) for the full flow.
 
-4. **Realtime TTS streaming**: send text chunks and read synthesized audio chunks from the session.
+4. **Realtime TTS streaming**: send text chunks and read generated audio chunks from the session.
 
 ```python
 from uuid import uuid4
