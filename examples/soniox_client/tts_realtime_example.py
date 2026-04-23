@@ -9,7 +9,7 @@ from soniox.utils import output_file_for_audio_format, start_text_thread
 
 MODEL = "tts-rt-v1-preview"
 LANGUAGE = "en"
-VOICE = "Henry"
+VOICE = "Adrian"
 AUDIO_FORMAT: TtsAudioFormat = "wav"
 
 TEXT_CHUNKS = [

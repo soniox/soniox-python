@@ -5,7 +5,7 @@ from soniox.utils import output_file_for_audio_format
 
 MODEL = "tts-rt-v1-preview"
 LANGUAGE = "en"
-VOICE = "Luke"
+VOICE = "Adrian"
 AUDIO_FORMAT: TtsAudioFormat = "wav"
 
 
