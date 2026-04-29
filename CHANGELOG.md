@@ -77,11 +77,25 @@ Examples:
 
 ---
 
-## [3.0.0] - 22 apr 2026
+## [2.3.1] - 29 apr 2026
+
+### Changed
+
+- Default TTS model is now `tts-rt-v1` (previously `tts-rt-v1-preview`).
+
+---
+
+## [2.3.0] - 22 apr 2026
 
 ### Added
 
-- Added TTS support for REST and websocket APIs.
+- Text-to-Speech (TTS) support, available on both `SonioxClient` and `AsyncSonioxClient`.
+- REST TTS API via `client.tts`: `generate()` returns audio bytes, `generate_to_file()` writes audio to a path or file-like object. Configurable `voice`, `model`, `language`, `audio_format`, `sample_rate`, and `bitrate`.
+- TTS model listing via `client.tts_models.list()`.
+- Realtime TTS over websocket via `client.realtime.tts.connect(...)`: stream text in with `send_text_chunk` / `send_text_chunks` / `finish`, receive audio with `receive_audio_chunks` or raw events with `receive_events`, plus `cancel`, `pause`, `resume`, and `keep_alive`.
+- Multiplexed realtime TTS via `client.realtime.tts.connect_multi_stream()`: run multiple concurrent TTS streams over a single websocket connection using `open_stream`.
+- New TTS examples for sync and async clients (REST, realtime, and multiplexed realtime).
+- `tts_api_base_url` and `tts_websocket_base_url` client options for overriding TTS endpoints.
 
 ---
 
