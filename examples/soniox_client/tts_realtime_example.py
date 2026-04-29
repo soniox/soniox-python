@@ -7,7 +7,7 @@ from soniox.errors import SonioxRealtimeError
 from soniox.types import RealtimeTTSConfig, TtsAudioFormat
 from soniox.utils import output_file_for_audio_format, start_text_thread
 
-MODEL = "tts-rt-v1-preview"
+MODEL = "tts-rt-v1"
 LANGUAGE = "en"
 VOICE = "Adrian"
 AUDIO_FORMAT: TtsAudioFormat = "wav"

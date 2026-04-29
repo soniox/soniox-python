@@ -43,7 +43,7 @@ output_file = output_file_for_audio_format("wav", "tts_sync_output")
 written = client.tts.generate_to_file(
     output_file,
     text="Hello from Soniox Python SDK Text-to-Speech.",
-    model="tts-rt-v1-preview",
+    model="tts-rt-v1",
     language="en",
     voice="Adrian",
     audio_format="wav",
@@ -96,7 +96,7 @@ from soniox.types import RealtimeTTSConfig
 client = SonioxClient()
 config = RealtimeTTSConfig(
     stream_id=f"sync-{uuid4()}",
-    model="tts-rt-v1-preview",
+    model="tts-rt-v1",
     language="en",
     voice="Adrian",
     audio_format="wav",

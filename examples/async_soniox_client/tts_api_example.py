@@ -5,7 +5,7 @@ from soniox.errors import SonioxAPIError
 from soniox.types import TtsAudioFormat
 from soniox.utils import output_file_for_audio_format
 
-MODEL = "tts-rt-v1-preview"
+MODEL = "tts-rt-v1"
 LANGUAGE = "en"
 VOICE = "Adrian"
 AUDIO_FORMAT: TtsAudioFormat = "wav"
