@@ -75,6 +75,8 @@ Payload for requesting a temporary API key (e.g., websocket).
 | `usage_type` | `TemporaryApiKeyUsageType` | Intended usage of the temporary API key. |
 | `expires_in_seconds` | `int` | Duration in seconds until the temporary API key expires |
 | `client_reference_id` | `str \| None` | Optional tracking identifier string. Does not need to be unique |
+| `single_use` | `bool \| None` | When true, restricts the temporary API key to a single use. |
+| `max_session_duration_seconds` | `int \| None` | Maximum connection duration in seconds for WebSocket and TTS HTTP streaming endpoints. |
 
 ---
 
@@ -557,7 +559,7 @@ Represents a Text-to-Speech voice.
 ## TemporaryApiKeyUsageType
 
 ```python
-TemporaryApiKeyUsageType = Literal["transcribe_websocket"]
+TemporaryApiKeyUsageType = Literal["transcribe_websocket", "tts_rt"]
 ```
 
 Intended usage for temporary API keys.

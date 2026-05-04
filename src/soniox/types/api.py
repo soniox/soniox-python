@@ -17,7 +17,7 @@ TranscriptionMode = Literal["real_time", "async"]
 TranslationType = Literal["one_way", "two_way"]
 """Supported translation configuration types."""
 
-TemporaryApiKeyUsageType = Literal["transcribe_websocket"]
+TemporaryApiKeyUsageType = Literal["transcribe_websocket", "tts_rt"]
 """Intended usage for temporary API keys."""
 
 TtsAudioFormat = Literal[
@@ -345,6 +345,12 @@ class CreateTemporaryApiKeyPayload(BaseModel):
 
     client_reference_id: str | None = Field(default=None, max_length=256)
     """Optional tracking identifier string. Does not need to be unique"""
+
+    single_use: bool | None = None
+    """When true, restricts the temporary API key to a single use."""
+
+    max_session_duration_seconds: int | None = Field(default=None, ge=1, le=18000)
+    """Maximum connection duration in seconds for WebSocket and TTS HTTP streaming endpoints."""
 
 
 class CreateTemporaryApiKeyResponse(BaseModel):
