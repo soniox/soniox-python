@@ -77,6 +77,15 @@ Examples:
 
 ---
 
+## [2.3.2] - 4 may 2026
+
+### Added
+
+- `single_use` and `max_session_duration_seconds` parameters on `client.auth.create_temporary_api_key()` (and the async variant).
+- `tts_rt` value for `TemporaryApiKeyUsageType`, allowing temporary API keys to be scoped to realtime TTS.
+
+---
+
 ## [2.3.1] - 29 apr 2026
 
 ### Changed
