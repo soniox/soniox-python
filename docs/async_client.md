@@ -1129,7 +1129,7 @@ AsyncAuthAPI(client: AsyncSonioxClient)
 ### create_temporary_api_key()
 
 ```python
-create_temporary_api_key(*, usage_type: TemporaryApiKeyUsageType = 'transcribe_websocket', expires_in_seconds: int = 5 * 60, client_reference_id: str | None = None) -> CreateTemporaryApiKeyResponse
+create_temporary_api_key(*, usage_type: TemporaryApiKeyUsageType = 'transcribe_websocket', expires_in_seconds: int = 5 * 60, client_reference_id: str | None = None, single_use: bool | None = None, max_session_duration_seconds: int | None = None) -> CreateTemporaryApiKeyResponse
 ```
 
 Create a temporary API key.
@@ -1143,6 +1143,8 @@ Performs a POST request to ``/auth/temporary-api-key``.
 | `usage_type` | `TemporaryApiKeyUsageType` | Intended usage of the temporary API key. |
 | `expires_in_seconds` | `int` | Duration in seconds until the temporary API key expires |
 | `client_reference_id` | `str \| None` | Optional tracking identifier string. Does not need to be unique |
+| `single_use` | `bool \| None` | When true, restricts the temporary API key to a single use. |
+| `max_session_duration_seconds` | `int \| None` | Maximum connection duration in seconds for WebSocket and TTS HTTP streaming endpoints. |
 
 **Returns**
 
