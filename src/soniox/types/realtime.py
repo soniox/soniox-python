@@ -6,7 +6,13 @@ from enum import Enum
 
 from pydantic import BaseModel, ConfigDict, Field
 
-from .api import StructuredContext, TranslationConfig, TtsAudioFormat, TtsBitrate, TtsSampleRate
+from .api import (
+    StructuredContextInput,
+    TranslationConfigInput,
+    TtsAudioFormat,
+    TtsBitrate,
+    TtsSampleRate,
+)
 from .common import Token
 
 
@@ -63,7 +69,7 @@ class RealtimeSTTConfig(BaseModel):
     language_hints_strict: bool | None = None
     """When true, recognition is strongly biased toward language hints (best results when using one language in language_hints)."""
 
-    context: StructuredContext | None = None
+    context: StructuredContextInput | None = None
     """Additional context to improve transcription accuracy."""
 
     enable_speaker_diarization: bool | None = None
@@ -81,7 +87,7 @@ class RealtimeSTTConfig(BaseModel):
     Allowed values for maximum delay are between 500ms and 3000ms. The default value is 2000ms
     """
 
-    translation: TranslationConfig | None = None
+    translation: TranslationConfigInput | None = None
     """Translation configuration."""
 
     client_reference_id: str | None = Field(default=None, max_length=256)

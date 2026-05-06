@@ -1,9 +1,9 @@
 from __future__ import annotations
 
 from datetime import datetime
-from typing import Literal
+from typing import Annotated, Any, Literal, TypeAlias
 
-from pydantic import BaseModel, Field, model_validator
+from pydantic import BaseModel, Field, field_validator, model_validator
 from typing_extensions import Self
 
 from .common import Token
@@ -148,10 +148,38 @@ class StructuredContextTranslationTerm(BaseModel):
     """The target translation for the term."""
 
 
-class StructuredContext(BaseModel):
-    """Optional structured context provided to the transcription engine."""
+StructuredContextGeneralInput: TypeAlias = (
+    list[StructuredContextGeneralItem]
+    | dict[str, str]
+    | list[tuple[str, str]]
+    | list[dict[str, str]]
+)
+"""Accepted input shapes for ``StructuredContext.general``."""
 
-    general: list[StructuredContextGeneralItem] | None = None
+StructuredContextTranslationTermsInput: TypeAlias = (
+    list[StructuredContextTranslationTerm]
+    | dict[str, str]
+    | list[tuple[str, str]]
+    | list[dict[str, str]]
+)
+"""Accepted input shapes for ``StructuredContext.translation_terms``."""
+
+
+class StructuredContext(BaseModel):
+    """Optional structured context provided to the transcription engine.
+
+    For ergonomics, the ``general`` and ``translation_terms`` fields accept
+    several shorthand forms in addition to the typed item lists:
+
+    - ``general={"domain": "Healthcare"}`` (dict of key -> value)
+    - ``general=[("domain", "Healthcare")]`` (list of tuples)
+    - ``translation_terms={"Mr. Smith": "Sr. Smith"}`` (dict of source -> target)
+    - ``translation_terms=[("Mr. Smith", "Sr. Smith")]`` (list of tuples)
+    """
+
+    general: Annotated[
+        StructuredContextGeneralInput, Field(union_mode="left_to_right")
+    ] | None = None
     """Structured key-value pairs describing domain, topic, intent, participant names, etc."""
 
     text: str | None = None
@@ -160,8 +188,38 @@ class StructuredContext(BaseModel):
     terms: list[str] | None = None
     """Domain-specific or uncommon words to recognize."""
 
-    translation_terms: list[StructuredContextTranslationTerm] | None = None
+    translation_terms: Annotated[
+        StructuredContextTranslationTermsInput, Field(union_mode="left_to_right")
+    ] | None = None
     """Custom translations for ambiguous terms."""
+
+    @field_validator("general", mode="before")
+    @classmethod
+    def _coerce_general(cls, v: Any) -> Any:
+        if isinstance(v, dict):
+            return [{"key": k, "value": val} for k, val in v.items()]
+        if isinstance(v, list):
+            return [
+                {"key": item[0], "value": item[1]} if isinstance(item, tuple) else item
+                for item in v
+            ]
+        return v
+
+    @field_validator("translation_terms", mode="before")
+    @classmethod
+    def _coerce_translation_terms(cls, v: Any) -> Any:
+        if isinstance(v, dict):
+            return [{"source": k, "target": val} for k, val in v.items()]
+        if isinstance(v, list):
+            return [
+                {"source": item[0], "target": item[1]} if isinstance(item, tuple) else item
+                for item in v
+            ]
+        return v
+
+
+StructuredContextInput: TypeAlias = StructuredContext | dict[str, Any]
+"""Accepted input for the ``context`` field — typed object or a plain dict."""
 
 
 class TranslationConfig(BaseModel):
@@ -198,6 +256,10 @@ class TranslationConfig(BaseModel):
         return self
 
 
+TranslationConfigInput: TypeAlias = TranslationConfig | dict[str, Any]
+"""Accepted input for the ``translation`` field — typed object or a plain dict."""
+
+
 class CreateTranscriptionPayload(BaseModel):
     """Payload sent to create an asynchronous transcription job."""
 
@@ -222,10 +284,10 @@ class CreateTranscriptionPayload(BaseModel):
     enable_language_identification: bool | None = None
     """Enable automatic language identification."""
 
-    translation: TranslationConfig | None = None
+    translation: TranslationConfigInput | None = None
     """Translation configuration."""
 
-    context: StructuredContext | None = None
+    context: StructuredContextInput | None = None
     """Additional context to improve transcription accuracy and formatting of specialized terms."""
 
     webhook_url: str | None = Field(default=None, max_length=256)
@@ -268,10 +330,10 @@ class CreateTranscriptionConfig(BaseModel):
     enable_language_identification: bool | None = None
     """Enable automatic language identification"""
 
-    translation: TranslationConfig | None = None
+    translation: TranslationConfigInput | None = None
     """Translation configuration"""
 
-    context: StructuredContext | None = None
+    context: StructuredContextInput | None = None
     """Additional context to improve transcription accuracy and formatting of specialized terms."""
 
     webhook_url: str | None = Field(default=None, max_length=256)
