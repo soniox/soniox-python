@@ -111,6 +111,19 @@ class GetFilesResponse(BaseModel):
     """A pagination token that references the next page of results. When None, no additional results are available."""
 
 
+class GetFilesCountResponse(BaseModel):
+    """Breakdown of uploaded file counts by source."""
+
+    total: int
+    """Total number of files across all sources."""
+
+    public_api: int
+    """Number of files uploaded via Public API."""
+
+    playground: int
+    """Number of files uploaded via the Playground."""
+
+
 class UploadFilePayload(BaseModel):
     """Optional metadata supplied at upload time."""
 
@@ -596,3 +609,16 @@ class GetTranscriptionsResponse(BaseModel):
 
     next_page_cursor: str | None = None
     """A pagination token that references the next page of results. When None, no additional results are available."""
+
+
+class GetTranscriptionsCountResponse(BaseModel):
+    """Breakdown of transcription counts by scope."""
+
+    total: int
+    """Total number of transcriptions across all scopes."""
+
+    public_api: int
+    """Number of transcriptions created via Public API."""
+
+    playground: int
+    """Number of transcriptions created via the Playground."""

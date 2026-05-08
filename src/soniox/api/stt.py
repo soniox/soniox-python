@@ -8,6 +8,7 @@ from typing import TYPE_CHECKING, BinaryIO
 from ..errors import SonioxNotFoundError, SonioxValidationError
 from ..types import (
     CreateTranscriptionConfig,
+    GetTranscriptionsCountResponse,
     GetTranscriptionsPayload,
     GetTranscriptionsResponse,
     Transcription,
@@ -39,6 +40,18 @@ class SttAPI:
         params = payload.model_dump(exclude_none=True)
         response = self._client.request("GET", "/transcriptions", params=params)
         return parse_response(response, GetTranscriptionsResponse)
+
+    def count(self) -> GetTranscriptionsCountResponse:
+        """
+        Return a breakdown of transcription counts.
+
+        Performs a GET request to ``/transcriptions/count``.
+
+        Raises:
+            SonioxAPIError: When the API returns an error.
+        """
+        response = self._client.request("GET", "/transcriptions/count")
+        return parse_response(response, GetTranscriptionsCountResponse)
 
     def list_all(self, limit: int = 100) -> Generator[Transcription, None, None]:
         """
