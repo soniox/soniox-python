@@ -58,6 +58,13 @@ from .webhooks import (
     WebhookEvent,
 )
 
+# Aliases matching the OpenAPI schema casing (TTS uppercase). The SDK uses
+# ``Tts`` casing internally; these aliases let schema-driven tooling resolve
+# the schema names without a separate lookup table.
+GetTTSModelsResponse = GetTtsModelsResponse
+TTSModel = TtsModel
+TTSVoice = TtsVoice
+
 __all__ = [
     # common.py
     "Token",
@@ -75,6 +82,7 @@ __all__ = [
     "GetFilesPayload",
     "GetFilesResponse",
     "GetModelsResponse",
+    "GetTTSModelsResponse",
     "GetTtsModelsResponse",
     "GetTranscriptionsCountResponse",
     "GetTranscriptionsPayload",
@@ -95,6 +103,8 @@ __all__ = [
     "TranslationConfigInput",
     "TranslationTarget",
     "TranslationType",
+    "TTSModel",
+    "TTSVoice",
     "TtsAudioFormat",
     "TtsBitrate",
     "TtsModel",

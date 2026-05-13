@@ -74,6 +74,9 @@ class ApiError(BaseModel):
     request_id: str | None = None
     """Unique identifier for the request, useful for troubleshooting."""
 
+    more_info: str | None = None
+    """Optional URL pointing to documentation for resolving this error."""
+
 
 class GetFilesPayload(BaseModel):
     """Parameters accepted by the file listing endpoint."""
@@ -483,6 +486,9 @@ class Model(BaseModel):
     supports_language_hints_strict: bool
     """If model supports 'language_hints_strict' option."""
 
+    supports_max_endpoint_delay: bool = False
+    """If model supports 'max_endpoint_delay_ms' option."""
+
     translation_targets: list[TranslationTarget]
     """List of supported one-way translation targets. If list is empty, check for one_way_translation field."""
 
@@ -516,7 +522,7 @@ class TtsModel(BaseModel):
     id: str
     """Unique identifier of the model."""
 
-    aliased_model_id: str | None = None
+    aliased_model_id: str | None
     """If this is an alias, the id of the aliased model. None for non-alias models."""
 
     name: str
@@ -524,6 +530,9 @@ class TtsModel(BaseModel):
 
     voices: list[TtsVoice]
     """Voices supported by this model."""
+
+    languages: list[Language]
+    """Languages supported by this model."""
 
 
 class GetTtsModelsResponse(BaseModel):
