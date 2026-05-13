@@ -531,7 +531,7 @@ class TtsModel(BaseModel):
     voices: list[TtsVoice]
     """Voices supported by this model."""
 
-    languages: list[Language]
+    languages: list[Language] = Field(default_factory=list)
     """Languages supported by this model."""
 
 

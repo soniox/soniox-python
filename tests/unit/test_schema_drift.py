@@ -35,6 +35,7 @@ KNOWN_REQUIRED_DRIFT: set[str] = {
     "Model.aliased_model_id",
     "Model.supports_max_endpoint_delay",
     "TTSModel.aliased_model_id",
+    "TTSModel.languages",
 }
 
 
