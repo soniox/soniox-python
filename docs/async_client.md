@@ -47,6 +47,7 @@ AsyncSonioxClient(api_key: str | None = None, api_base_url: str | None = None, w
 | `tts` | `AsyncTtsAPI` | Text-to-Speech API namespace |
 | `models` | `AsyncModelsAPI` | List of available Text-to-Speech models. |
 | `tts_models` | `AsyncTtsModelsAPI` | - |
+| `usage_logs` | `AsyncUsageLogsAPI` | Per-request usage log entries ordered by end_time. |
 | `auth` | `AsyncAuthAPI` | Authentication API namespace. |
 | `webhooks` | `AsyncSonioxWebhooksAPI` | Webhook utilities API namespace. |
 | `realtime` | `AsyncRealtimeAPI` | Entrypoint for async realtime helpers on AsyncSonioxClient. |
@@ -136,6 +137,28 @@ Performs a GET request to ``/files`` with optional pagination.
 **Returns**
 
 `GetFilesResponse`
+
+**Raises**
+
+- `SonioxAPIError` When the API returns an error.
+
+***
+
+<a id="asyncfilesapi-count"></a>
+
+### count()
+
+```python
+count() -> GetFilesCountResponse
+```
+
+Return a breakdown of uploaded file counts.
+
+Performs a GET request to ``/files/count``.
+
+**Returns**
+
+`GetFilesCountResponse`
 
 **Raises**
 
@@ -383,6 +406,28 @@ Performs a GET request to ``/transcriptions`` with optional pagination.
 **Returns**
 
 `GetTranscriptionsResponse`
+
+**Raises**
+
+- `SonioxAPIError` When the API returns an error.
+
+***
+
+<a id="asyncsttapi-count"></a>
+
+### count()
+
+```python
+count() -> GetTranscriptionsCountResponse
+```
+
+Return a breakdown of transcription counts.
+
+Performs a GET request to ``/transcriptions/count``.
+
+**Returns**
+
+`GetTranscriptionsCountResponse`
 
 **Raises**
 

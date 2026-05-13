@@ -441,7 +441,7 @@ Receive realtime events and dispatch them to a handler callback.
 ### pause()
 
 ```python
-pause() -> None
+pause(*, finalize: bool = True) -> None
 ```
 
 Pause the session, suppressing outgoing audio and starting a
@@ -453,6 +453,12 @@ A background thread sends a keepalive message every
 timing out the session.
 
 Calling `pause` on an already-paused session is a no-op.
+
+**Parameters**
+
+| Parameter | Type | Description |
+| ------ | ------ | ------ |
+| `finalize` | `bool` | If True (default), call `finalize()` before pausing. |
 
 **Returns**
 
@@ -1503,7 +1509,7 @@ Receive realtime events and dispatch them to a handler callback.
 ### pause()
 
 ```python
-pause() -> None
+pause(*, finalize: bool = True) -> None
 ```
 
 Pause the session, suppressing outgoing audio and starting a
@@ -1515,6 +1521,12 @@ A background task sends a keepalive message every
 timing out the session.
 
 Calling `pause` on an already-paused session is a no-op.
+
+**Parameters**
+
+| Parameter | Type | Description |
+| ------ | ------ | ------ |
+| `finalize` | `bool` | If True (default), call `finalize()` before pausing. |
 
 **Returns**
 
