@@ -33,12 +33,22 @@ classifiers = [
 ]
 
 [project.urls]
-Homepage = "https://sonoix.com"
+Homepage = "https://soniox.com"
 Documentation = "https://soniox.com/docs"
 Repository = "https://github.com/soniox/soniox-python"
 
 [project.optional-dependencies]
-dev = ["ruff>=0.0.0", "pyright>=1.1.0", "griffe>=1.15.0"]
+dev = [
+    "ruff>=0.0.0",
+    "pyright>=1.1.0",
+    "griffe>=1.15.0",
+    "pytest>=8.0.0",
+    "pytest-asyncio>=0.23",
+    "pytest-cov>=5.0",
+    "pytest-timeout>=2.3",
+    "respx>=0.21.1",
+    "polyfactory>=2.15.0",
+]
 
 [tool.hatch.build.targets.wheel]
 packages = ["src/soniox"]
@@ -54,10 +64,43 @@ exclude = ["build", "dist", ".venv", "tests"]
 "__init__.py" = ["F401"]
 
 [tool.pyright]
-include = ["src"]
+include = ["src", "tests"]
+extraPaths = ["."]
 venvPath = "."
 venv = ".venv"
 exclude = ["build", "dist", ".venv"]
 typeCheckingMode = "strict"
 reportMissingImports = true
 pythonVersion = "3.10"
+
+# Pytest fixtures and polyfactory defeat static narrowing — loosen tests/ only.
+executionEnvironments = [
+    { root = "tests", reportUnknownMemberType = "none", reportUnknownVariableType = "none", reportUnknownParameterType = "none", reportUnknownArgumentType = "none", reportUnknownLambdaType = "none", reportMissingParameterType = "none", reportMissingTypeArgument = "none", reportUntypedFunctionDecorator = "none" },
+]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+python_files = ["test_*.py"]
+python_classes = ["Test*"]
+python_functions = ["test_*"]
+asyncio_mode = "auto"
+addopts = "--cov --cov-report=term-missing"
+markers = [
+    "live_ws: tests that spin up a real local WebSocket server (slower)",
+]
+
+[tool.coverage.run]
+source = ["src/soniox"]
+branch = true
+
+[tool.coverage.report]
+show_missing = true
+skip_covered = false
+fail_under = 90
+exclude_lines = [
+    "pragma: no cover",
+    "raise NotImplementedError",
+    "if TYPE_CHECKING:",
+    "if __name__ == .__main__.:",
+    "\\.\\.\\.",
+]

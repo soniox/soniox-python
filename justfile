@@ -38,13 +38,38 @@ lint:
 format:
     uv run ruff format .
 
+# Run pyright type checker
+typecheck:
+    uv run pyright
+
 # Build python package
 build:
+    rm -rf dist
     uv build
 
 # Publish python package
 publish:
     uv publish
+
+# Run all tests
+test:
+    uv run pytest -v tests/unit tests/realtime
+
+# Run unit tests
+test-unit:
+    uv run pytest tests/unit -v
+
+# Run realtime websocket tests
+test-realtime:
+    uv run pytest tests/realtime/ -v
+
+# Run tests with coverage report (HTML output in htmlcov/)
+cov:
+    uv run pytest --cov --cov-report=term-missing --cov-report=html tests/
+
+# Download latest OpenAPI schema from Soniox
+download-schema:
+    curl -sSL https://api.soniox.com/v1/openapi.json -o tests/data/openapi.json
 
 # Clean caches
 clean-cache:

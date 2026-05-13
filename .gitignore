@@ -1,3 +1,15 @@
 dist
+build
 __pycache__
 generated-docs
+
+# Virtualenv
+.venv
+
+# Test / coverage artifacts
+.coverage
+.pytest_cache
+htmlcov
+
+# Local audio scratch
+*.wav
