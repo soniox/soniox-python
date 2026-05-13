@@ -468,7 +468,7 @@ class Model(BaseModel):
     id: str
     """Unique identifier of the model."""
 
-    aliased_model_id: str | None
+    aliased_model_id: str | None = None
     """If this is an alias, the id of the aliased model. None for non-alias models."""
 
     name: str
@@ -522,7 +522,7 @@ class TtsModel(BaseModel):
     id: str
     """Unique identifier of the model."""
 
-    aliased_model_id: str | None
+    aliased_model_id: str | None = None
     """If this is an alias, the id of the aliased model. None for non-alias models."""
 
     name: str
