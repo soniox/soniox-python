@@ -5,7 +5,7 @@ import threading
 import time
 from collections.abc import AsyncIterator, Iterable, Iterator
 from pathlib import Path
-from typing import BinaryIO
+from typing import BinaryIO, cast
 
 from soniox.realtime.stt import RealtimeSTTSession
 from soniox.realtime.tts import RealtimeTTSConnection, RealtimeTTSStream
@@ -56,8 +56,7 @@ def stream_audio(
             yield from _iter_chunks(handle, chunk_size_bytes)
         return
 
-    assert isinstance(file, BinaryIO)
-    yield from _iter_chunks(file, chunk_size_bytes)
+    yield from _iter_chunks(cast(BinaryIO, file), chunk_size_bytes)
 
 
 async def stream_audio_async(
@@ -86,8 +85,7 @@ async def stream_audio_async(
                 yield chunk
         return
 
-    assert isinstance(file, BinaryIO)
-    async for chunk in _async_iter_chunks(file, chunk_size_bytes):
+    async for chunk in _async_iter_chunks(cast(BinaryIO, file), chunk_size_bytes):
         yield chunk
 
 
