@@ -63,8 +63,7 @@ Examples:
 
 ### Added
 
-- `client.concurrency_limits.get()` (and async variant) returning current and configured concurrency limits for realtime STT and TTS, scoped to project and organization.
-- `TtsVoice.description` and `TtsVoice.gender` (`"male" | "female" | "neutral"`) fields, exposing richer voice metadata from the server. Enables programmatic voice filtering.
+-
 
 ### Changed
 
@@ -75,6 +74,31 @@ Examples:
 -
 
 ### Removed
+
+---
+
+## [2.4.0] - 13 may 2026
+
+### Added
+
+- `client.files.count()` and `client.stt.count()` endpoints (and async variants) returning the total count of files and transcriptions.
+- `client.usage_logs.list()` and `list_all()` (and async variants) for retrieving per-request usage logs over a time window.
+- `client.concurrency_limits.get()` (and async variant) returning current and configured concurrency limits for realtime STT and TTS, scoped to project and organization.
+- `TtsVoice.description` and `TtsVoice.gender` (`"male" | "female" | "neutral"`) fields, exposing richer voice metadata from the server. Enables programmatic voice filtering.
+- `RealtimeSTTAudioFormat`, `RealtimeSTTHeaderFormat`, `RealtimeSTTRawFormat` literal types covering the 30 audio formats accepted by realtime STT.
+- `py.typed` marker (PEP 561): downstream type-checkers now consume the SDK's inline type annotations.
+- `StructuredContext.general` and `StructuredContext.translation_terms` now accept a plain dict in addition to the typed item lists.
+- `finalize: bool = True` keyword-only parameter on realtime STT `pause()` (sync and async). When `False`, pause without emitting a finalize.
+- `TtsModel.languages` field listing the languages supported by the model. Defaults to an empty list for backward compatibility with direct construction.
+- `Language` type exported from `soniox.types` (previously only reachable via `soniox.types.api`).
+- `ApiError.more_info` field - optional URL pointing to documentation for resolving an error.
+- `Model.supports_max_endpoint_delay` flag indicating whether a model supports the `max_endpoint_delay_ms` option.
+- Internal test suite (pytest + respx + polyfactory) covering REST, realtime websocket, schema drift, and sync/async parity. Not shipped to users; runnable via `just test`.
+
+### Changed
+
+- `RealtimeSTTConfig.audio_format` is now typed as a Literal union instead of bare `str`. Passing an unrecognized value raises at validation time instead of failing on the wire.
+- Raw realtime STT audio formats (`pcm_*`, `mulaw`, `alaw`) now require `sample_rate` and `num_channels` on `RealtimeSTTConfig`. Previously these were silently accepted client-side and rejected by the server.
 
 ---
 
