@@ -303,7 +303,7 @@ class AsyncRealtimeSTTSession:
         async for event in self.receive_events():
             await handler(event)
 
-    async def pause(self) -> None:
+    async def pause(self, *, finalize: bool = True) -> None:
         """
         Pause the session, suppressing outgoing audio and starting a
         background keepalive task.
@@ -315,6 +315,9 @@ class AsyncRealtimeSTTSession:
 
         Calling `pause` on an already-paused session is a no-op.
 
+        Args:
+            finalize: If True (default), call `finalize()` before pausing.
+
         Raises:
             SonioxRealtimeError: If the session is not connected.
         """
@@ -322,6 +325,8 @@ class AsyncRealtimeSTTSession:
             raise SonioxRealtimeError("Realtime session is not connected")
         if self._paused:
             return
+        if finalize:
+            await self.finalize()
         self._paused = True
         self._keepalive = KeepaliveTask(self.keep_alive, KEEP_ALIVE_INTERVAL_SEC)
         self._keepalive.start()
