@@ -18,6 +18,8 @@ from .api import (
     GetTranscriptionsPayload,
     GetTranscriptionsResponse,
     GetTtsModelsResponse,
+    GetUsageLogsPayload,
+    GetUsageLogsResponse,
     Model,
     StructuredContext,
     StructuredContextGeneralInput,
@@ -39,6 +41,8 @@ from .api import (
     TtsSampleRate,
     TtsVoice,
     UploadFilePayload,
+    UsageLogEntry,
+    UsageLogsSort,
 )
 from .common import Token
 from .realtime import (
@@ -75,6 +79,8 @@ __all__ = [
     "GetTranscriptionsCountResponse",
     "GetTranscriptionsPayload",
     "GetTranscriptionsResponse",
+    "GetUsageLogsPayload",
+    "GetUsageLogsResponse",
     "Model",
     "StructuredContext",
     "StructuredContextGeneralInput",
@@ -96,6 +102,8 @@ __all__ = [
     "TtsVoice",
     "TemporaryApiKeyUsageType",
     "UploadFilePayload",
+    "UsageLogEntry",
+    "UsageLogsSort",
     # realtime.py
     "RealtimeEvent",
     "RealtimeSTTConfig",

@@ -4,6 +4,7 @@ from .async_models import AsyncModelsAPI
 from .async_stt import AsyncSttAPI
 from .async_tts import AsyncTtsAPI
 from .async_tts_models import AsyncTtsModelsAPI
+from .async_usage_logs import AsyncUsageLogsAPI
 from .async_webhooks import AsyncSonioxWebhooksAPI
 from .auth import AuthAPI
 from .files import FilesAPI
@@ -11,6 +12,7 @@ from .models import ModelsAPI
 from .stt import SttAPI
 from .tts import TtsAPI
 from .tts_models import TtsModelsAPI
+from .usage_logs import UsageLogsAPI
 from .webhooks import SonioxWebhooksAPI
 
 __all__ = [
@@ -28,4 +30,6 @@ __all__ = [
     "AsyncAuthAPI",
     "SonioxWebhooksAPI",
     "AsyncSonioxWebhooksAPI",
+    "UsageLogsAPI",
+    "AsyncUsageLogsAPI",
 ]

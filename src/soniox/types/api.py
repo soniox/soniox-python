@@ -20,6 +20,9 @@ TranslationType = Literal["one_way", "two_way"]
 TemporaryApiKeyUsageType = Literal["transcribe_websocket", "tts_rt"]
 """Intended usage for temporary API keys."""
 
+UsageLogsSort = Literal["end_time_asc", "end_time_desc"]
+"""Sort order for usage-log entries by end_time."""
+
 TtsAudioFormat = Literal[
     "pcm_f32le",
     "pcm_s16le",
@@ -622,3 +625,69 @@ class GetTranscriptionsCountResponse(BaseModel):
 
     playground: int
     """Number of transcriptions created via the Playground."""
+
+
+class GetUsageLogsPayload(BaseModel):
+    """Parameters accepted by the usage logs listing endpoint."""
+
+    start_time: str
+    """Start of the time window (inclusive). Filters by request end time."""
+
+    end_time: str
+    """End of the time window (exclusive). Filters by request end time."""
+
+    limit: int = Field(default=1000, ge=1, le=1000)
+    """Maximum number of usage log entries to return."""
+
+    sort: UsageLogsSort = "end_time_asc"
+    """Sort order by end_time. Use `end_time_desc` to get the most recent entries first."""
+
+    cursor: str | None = None
+    """Pagination cursor for the next page of results."""
+
+
+class UsageLogEntry(BaseModel):
+    """A single usage-log entry describing one API request."""
+
+    uuid: str
+    """Unique identifier of the request."""
+
+    request_scope: str
+    """Scope of the request (api / playground)."""
+
+    client_reference_id: str
+    """Client reference ID supplied on the original request. Empty string if none."""
+
+    model: str
+    """Model identifier."""
+
+    start_time: datetime
+    """When the request started."""
+
+    end_time: datetime
+    """When the request ended."""
+
+    input_text_tokens: int
+    input_audio_tokens: int
+    input_audio_duration_ms: int
+    output_text_tokens: int
+    output_audio_tokens: int
+    output_audio_duration_ms: int
+
+    cost_usd: str
+    input_cost_usd: str
+    input_text_cost_usd: str
+    input_audio_cost_usd: str
+    output_cost_usd: str
+    output_text_cost_usd: str
+    output_audio_cost_usd: str
+
+
+class GetUsageLogsResponse(BaseModel):
+    """Paginated response for usage-log listings."""
+
+    usage_logs: list[UsageLogEntry]
+    """Per-request usage log entries ordered by end_time."""
+
+    next_page_cursor: str | None = None
+    """Pagination cursor for the next page of results. None if no more pages."""
