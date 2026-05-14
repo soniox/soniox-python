@@ -3,10 +3,14 @@ from __future__ import annotations
 import json
 from base64 import b64decode
 from enum import Enum
+from typing import get_args
 
-from pydantic import BaseModel, ConfigDict, Field
+from pydantic import BaseModel, ConfigDict, Field, model_validator
+from typing_extensions import Self
 
 from .api import (
+    RealtimeSTTAudioFormat,
+    RealtimeSTTRawFormat,
     StructuredContextInput,
     TranslationConfigInput,
     TtsAudioFormat,
@@ -14,6 +18,8 @@ from .api import (
     TtsSampleRate,
 )
 from .common import Token
+
+_RAW_FORMAT_VALUES = set(get_args(RealtimeSTTRawFormat))
 
 
 class RealtimeEvent(BaseModel):
@@ -54,7 +60,7 @@ class RealtimeSTTConfig(BaseModel):
     model: str
     """Speech-to-text model to use."""
 
-    audio_format: str = "auto"
+    audio_format: RealtimeSTTAudioFormat = "auto"
     """Audio format. Use 'auto' for automatic detection of container formats."""
 
     num_channels: int | None = None
@@ -92,6 +98,22 @@ class RealtimeSTTConfig(BaseModel):
 
     client_reference_id: str | None = Field(default=None, max_length=256)
     """Optional tracking identifier (max 256 chars)."""
+
+    @model_validator(mode="after")
+    def _raw_formats_require_rate_and_channels(self) -> Self:
+        if self.audio_format not in _RAW_FORMAT_VALUES:
+            return self
+        missing: list[str] = []
+        if self.sample_rate is None:
+            missing.append("sample_rate")
+        if self.num_channels is None:
+            missing.append("num_channels")
+        if missing:
+            raise ValueError(
+                f"audio_format={self.audio_format!r} has no header and requires "
+                f"{' and '.join(missing)} to be set explicitly"
+            )
+        return self
 
     def build_payload(self, api_key: str) -> RealtimeSTTConfig:
         return self.model_copy(update={"api_key": api_key})

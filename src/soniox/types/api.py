@@ -20,6 +20,31 @@ TranslationType = Literal["one_way", "two_way"]
 TemporaryApiKeyUsageType = Literal["transcribe_websocket", "tts_rt"]
 """Intended usage for temporary API keys."""
 
+
+RealtimeSTTHeaderFormat = Literal[
+    "aac", "aiff", "amr", "asf", "flac", "mp3", "ogg", "wav", "webm",
+]
+"""Container formats whose header carries sample rate and channels."""
+
+RealtimeSTTRawFormat = Literal[
+    "pcm_s8",
+    "pcm_s16le", "pcm_s16be",
+    "pcm_s24le", "pcm_s24be",
+    "pcm_s32le", "pcm_s32be",
+    "pcm_u8",
+    "pcm_u16le", "pcm_u16be",
+    "pcm_u24le", "pcm_u24be",
+    "pcm_u32le", "pcm_u32be",
+    "pcm_f32le", "pcm_f32be",
+    "pcm_f64le", "pcm_f64be",
+    "mulaw", "alaw",
+]
+"""Raw formats with no header - require ``sample_rate`` and ``num_channels``."""
+
+RealtimeSTTAudioFormat = Literal["auto"] | RealtimeSTTHeaderFormat | RealtimeSTTRawFormat
+"""Audio formats accepted by the realtime STT websocket."""
+
+
 UsageLogsSort = Literal["end_time_asc", "end_time_desc"]
 """Sort order for usage-log entries by end_time."""
 
