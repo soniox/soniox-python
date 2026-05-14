@@ -15,11 +15,14 @@ OUTPUT_DIR = Path("./docs")
 ASYNC_DOC_PATH = OUTPUT_DIR / "async_client.md"
 REALTIME_DOC_PATH = OUTPUT_DIR / "realtime_client.md"
 TYPES_DOC_PATH = OUTPUT_DIR / "types.md"
+UTILS_DOC_PATH = OUTPUT_DIR / "utils.md"
 
 ASYNC_CLASS_SPECS = [
     ("soniox.client", "AsyncSonioxClient"),
     ("soniox.api.async_files", "AsyncFilesAPI"),
     ("soniox.api.async_stt", "AsyncSttAPI"),
+    ("soniox.api.async_tts", "AsyncTtsAPI"),
+    ("soniox.api.async_tts_models", "AsyncTtsModelsAPI"),
     ("soniox.api.async_models", "AsyncModelsAPI"),
     ("soniox.api.async_auth", "AsyncAuthAPI"),
     ("soniox.api.async_webhooks", "AsyncSonioxWebhooksAPI"),
@@ -30,11 +33,20 @@ REALTIME_CLASS_SPECS = [
     ("soniox.realtime", "AsyncRealtimeAPI"),
     ("soniox.realtime.stt", "RealtimeSTTClient"),
     ("soniox.realtime.stt", "RealtimeSTTSession"),
+    ("soniox.realtime.tts", "RealtimeTTSClient"),
+    ("soniox.realtime.tts", "RealtimeTTSConnection"),
+    ("soniox.realtime.tts", "RealtimeTTSMultiplexedConnection"),
+    ("soniox.realtime.tts", "RealtimeTTSStream"),
     ("soniox.realtime.async_stt", "AsyncRealtimeSTTClient"),
     ("soniox.realtime.async_stt", "AsyncRealtimeSTTSession"),
+    ("soniox.realtime.async_tts", "AsyncRealtimeTTSClient"),
+    ("soniox.realtime.async_tts", "AsyncRealtimeTTSConnection"),
+    ("soniox.realtime.async_tts", "AsyncRealtimeTTSMultiplexedConnection"),
+    ("soniox.realtime.async_tts", "AsyncRealtimeTTSStream"),
 ]
 
 TYPES_INIT_PATH = Path("./src/soniox/types/__init__.py")
+UTILS_INIT_PATH = Path("./src/soniox/utils.py")
 
 
 @dataclass
@@ -80,6 +92,8 @@ DESCRIPTION_HINTS: dict[str, str] = {
     "api_key": "API key used for authentication.",
     "api_base_url": "Base URL for Soniox REST API requests.",
     "websocket_base_url": "Base URL for Soniox realtime WebSocket endpoint.",
+    "tts_api_base_url": "Base URL for Soniox Text-to-Speech REST API requests.",
+    "tts_websocket_base_url": "Base URL for Soniox Text-to-Speech realtime WebSocket endpoint.",
     "audio_url": "Publicly accessible audio URL.",
     "auth": "Authentication API namespace.",
     "client": "Soniox client instance.",
@@ -117,6 +131,7 @@ DESCRIPTION_HINTS: dict[str, str] = {
     "num_channels": "Number of audio channels.",
     "sample_rate": "Audio sample rate in Hz.",
     "stt": "Speech-to-text API namespace.",
+    "tts": "Text-to-Speech API namespace",
     "wait_interval_sec": "Polling interval in seconds while waiting.",
     "wait_timeout_sec": "Maximum wait time in seconds while polling.",
     "webhooks": "Webhook utilities API namespace.",
@@ -1041,13 +1056,15 @@ def resolve_class_specs(loader: GriffeLoader, specs: list[tuple[str, str]]) -> l
     return selected
 
 
-def collect_type_exports(loader: GriffeLoader, export_names: list[str]) -> list[tuple[str, Object]]:
-    types_module = load_module_cached(loader, "soniox.types")
+def collect_module_exports(
+    loader: GriffeLoader, module_name: str, export_names: list[str]
+) -> list[tuple[str, Object]]:
+    module = load_module_cached(loader, module_name)
     collected: list[tuple[str, Object]] = []
     for export_name in export_names:
-        member = resolve_alias(types_module.members.get(export_name))
+        member = resolve_alias(module.members.get(export_name))
         if member is None:
-            print(f"Warning: export {export_name} not found in soniox.types")
+            print(f"Warning: export {export_name} not found in {module_name}")
             continue
         collected.append((export_name, member))
     return collected
@@ -1059,7 +1076,12 @@ def cleanup_legacy_docs() -> None:
     if legacy_tree.exists():
         shutil.rmtree(legacy_tree)
 
-    keep_names = {ASYNC_DOC_PATH.name, REALTIME_DOC_PATH.name, TYPES_DOC_PATH.name}
+    keep_names = {
+        ASYNC_DOC_PATH.name,
+        REALTIME_DOC_PATH.name,
+        TYPES_DOC_PATH.name,
+        UTILS_DOC_PATH.name,
+    }
     for markdown_file in OUTPUT_DIR.glob("*.md"):
         if markdown_file.name not in keep_names:
             markdown_file.unlink()
@@ -1091,7 +1113,7 @@ def build_realtime_client_doc(loader: GriffeLoader) -> None:
 
 def build_types_doc(loader: GriffeLoader) -> None:
     export_names = parse_dunder_all(TYPES_INIT_PATH)
-    exports = collect_type_exports(loader, export_names)
+    exports = collect_module_exports(loader, "soniox.types", export_names)
     sections: list[str] = []
     for export_name, symbol in exports:
         if isinstance(symbol, Class):
@@ -1110,12 +1132,26 @@ def build_types_doc(loader: GriffeLoader) -> None:
     )
 
 
+def build_utils_doc(loader: GriffeLoader) -> None:
+    export_names = parse_dunder_all(UTILS_INIT_PATH)
+    exports = collect_module_exports(loader, "soniox.utils", export_names)
+    sections = [render_module_function(sym) for _, sym in exports if isinstance(sym, Function)]
+    write_document(
+        UTILS_DOC_PATH,
+        title="Helpers",
+        description="Soniox Python SDK - Helper Functions Reference",
+        keywords=export_names,
+        sections=sections,
+    )
+
+
 def main() -> None:
     cleanup_legacy_docs()
     loader = GriffeLoader(search_paths=["./src", "../src"])
     build_async_client_doc(loader)
     build_realtime_client_doc(loader)
     build_types_doc(loader)
+    build_utils_doc(loader)
 
 
 if __name__ == "__main__":

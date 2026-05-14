@@ -5,11 +5,40 @@ import threading
 import time
 from collections.abc import AsyncIterator, Iterable, Iterator
 from pathlib import Path
-from typing import BinaryIO
+from typing import BinaryIO, cast
 
 from soniox.realtime.stt import RealtimeSTTSession
+from soniox.realtime.tts import RealtimeTTSConnection, RealtimeTTSStream
 
 from .types import Token
+
+__all__ = [
+    "output_file_for_audio_format",
+    "render_tokens",
+    "start_audio_thread",
+    "start_text_thread",
+    "stream_audio",
+    "stream_audio_async",
+    "throttle_audio",
+    "throttle_audio_async",
+]
+
+
+def output_file_for_audio_format(audio_format: str, prefix: str) -> Path:
+    """Build an output file path with extension and datetime suffix."""
+    ext_map = {
+        "pcm_f32le": "pcm",
+        "pcm_s16le": "pcm",
+        "pcm_mulaw": "pcm",
+        "pcm_alaw": "pcm",
+        "wav": "wav",
+        "aac": "aac",
+        "mp3": "mp3",
+        "opus": "opus",
+        "flac": "flac",
+    }
+    extension = ext_map.get(audio_format, "bin")
+    return Path(f"{prefix}.{extension}")
 
 
 def stream_audio(
@@ -38,8 +67,7 @@ def stream_audio(
             yield from _iter_chunks(handle, chunk_size_bytes)
         return
 
-    assert isinstance(file, BinaryIO)
-    yield from _iter_chunks(file, chunk_size_bytes)
+    yield from _iter_chunks(cast(BinaryIO, file), chunk_size_bytes)
 
 
 async def stream_audio_async(
@@ -68,8 +96,7 @@ async def stream_audio_async(
                 yield chunk
         return
 
-    assert isinstance(file, BinaryIO)
-    async for chunk in _async_iter_chunks(file, chunk_size_bytes):
+    async for chunk in _async_iter_chunks(cast(BinaryIO, file), chunk_size_bytes):
         yield chunk
 
 
@@ -161,6 +188,24 @@ def start_audio_thread(
 
     def _stream() -> None:
         session.send_bytes(chunks)
+
+    thread = threading.Thread(target=_stream, daemon=daemon, name=name)
+    thread.start()
+    return thread
+
+
+def start_text_thread(
+    session: RealtimeTTSConnection | RealtimeTTSStream,
+    chunks: str | Iterator[str],
+    *,
+    text_end: bool = True,
+    name: str | None = None,
+    daemon: bool = True,
+) -> threading.Thread:
+    """Stream text into a realtime TTS session on a background thread."""
+
+    def _stream() -> None:
+        session.send_text_chunks(chunks, text_end=text_end)
 
     thread = threading.Thread(target=_stream, daemon=daemon, name=name)
     thread.start()

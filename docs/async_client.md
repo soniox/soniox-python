@@ -1,7 +1,7 @@
 ---
 title: "Async Client"
 description: "Soniox Python SDK - Async Client Reference"
-keywords: "AsyncSonioxClient, AsyncFilesAPI, AsyncSttAPI, AsyncModelsAPI, AsyncAuthAPI, AsyncSonioxWebhooksAPI"
+keywords: "AsyncSonioxClient, AsyncFilesAPI, AsyncSttAPI, AsyncTtsAPI, AsyncTtsModelsAPI, AsyncModelsAPI, AsyncAuthAPI, AsyncSonioxWebhooksAPI"
 ---
 
 ---
@@ -15,7 +15,7 @@ Asynchronous Soniox REST client exposing HTTP and realtime helpers.
 ### Constructor
 
 ```python
-AsyncSonioxClient(api_key: str | None = None, api_base_url: str | None = None, websocket_base_url: str | None = None, timeout_sec: float | None = None, webhook_secret: str | None = None, webhook_signature_header: str | None = None, **client_kwargs: Any)
+AsyncSonioxClient(api_key: str | None = None, api_base_url: str | None = None, websocket_base_url: str | None = None, tts_api_base_url: str | None = None, tts_websocket_base_url: str | None = None, timeout_sec: float | None = None, webhook_secret: str | None = None, webhook_signature_header: str | None = None, **client_kwargs: Any)
 ```
 
 **Parameters**
@@ -25,6 +25,8 @@ AsyncSonioxClient(api_key: str | None = None, api_base_url: str | None = None, w
 | `api_key` | `str \| None` | API key used for authentication. |
 | `api_base_url` | `str \| None` | Base URL for Soniox REST API requests. |
 | `websocket_base_url` | `str \| None` | Base URL for Soniox realtime WebSocket endpoint. |
+| `tts_api_base_url` | `str \| None` | Base URL for Soniox Text-to-Speech REST API requests. |
+| `tts_websocket_base_url` | `str \| None` | Base URL for Soniox Text-to-Speech realtime WebSocket endpoint. |
 | `timeout_sec` | `float \| None` | Maximum wait time in seconds. |
 | `webhook_secret` | `str \| None` | Webhook secret used for signature verification. |
 | `webhook_signature_header` | `str \| None` | Webhook signature header name. |
@@ -42,7 +44,11 @@ AsyncSonioxClient(api_key: str | None = None, api_base_url: str | None = None, w
 | ------ | ------ | ------ |
 | `files` | `AsyncFilesAPI` | List of uploaded files. |
 | `stt` | `AsyncSttAPI` | Speech-to-text API namespace. |
-| `models` | `AsyncModelsAPI` | List of all available models. |
+| `tts` | `AsyncTtsAPI` | Text-to-Speech API namespace |
+| `models` | `AsyncModelsAPI` | List of available Text-to-Speech models. |
+| `tts_models` | `AsyncTtsModelsAPI` | - |
+| `usage_logs` | `AsyncUsageLogsAPI` | Per-request usage log entries ordered by end_time. |
+| `concurrency_limits` | `AsyncConcurrencyLimitsAPI` | - |
 | `auth` | `AsyncAuthAPI` | Authentication API namespace. |
 | `webhooks` | `AsyncSonioxWebhooksAPI` | Webhook utilities API namespace. |
 | `realtime` | `AsyncRealtimeAPI` | Entrypoint for async realtime helpers on AsyncSonioxClient. |
@@ -132,6 +138,28 @@ Performs a GET request to ``/files`` with optional pagination.
 **Returns**
 
 `GetFilesResponse`
+
+**Raises**
+
+- `SonioxAPIError` When the API returns an error.
+
+***
+
+<a id="asyncfilesapi-count"></a>
+
+### count()
+
+```python
+count() -> GetFilesCountResponse
+```
+
+Return a breakdown of uploaded file counts.
+
+Performs a GET request to ``/files/count``.
+
+**Returns**
+
+`GetFilesCountResponse`
 
 **Raises**
 
@@ -379,6 +407,28 @@ Performs a GET request to ``/transcriptions`` with optional pagination.
 **Returns**
 
 `GetTranscriptionsResponse`
+
+**Raises**
+
+- `SonioxAPIError` When the API returns an error.
+
+***
+
+<a id="asyncsttapi-count"></a>
+
+### count()
+
+```python
+count() -> GetTranscriptionsCountResponse
+```
+
+Return a breakdown of transcription counts.
+
+Performs a GET request to ``/transcriptions/count``.
+
+**Returns**
+
+`GetTranscriptionsCountResponse`
 
 **Raises**
 
@@ -929,6 +979,135 @@ Optionally deletes the transcription and uploaded file after completion.
 
 ---
 
+## AsyncTtsAPI
+
+<a id="asyncttsapi-constructor"></a>
+
+### Constructor
+
+```python
+AsyncTtsAPI(client: AsyncSonioxClient)
+```
+
+**Parameters**
+
+| Parameter | Type | Description |
+| ------ | ------ | ------ |
+| `client` | `AsyncSonioxClient` | Soniox client instance. |
+
+**Returns**
+
+`None`
+
+<a id="asyncttsapi-generate"></a>
+
+### generate()
+
+```python
+generate(*, text: str, voice: str, model: str = DEFAULT_MODEL, language: str = DEFAULT_LANGUAGE, audio_format: TtsAudioFormat = DEFAULT_AUDIO_FORMAT, sample_rate: TtsSampleRate | None = None, bitrate: TtsBitrate | None = None, config: CreateTtsConfig | None = None) -> bytes
+```
+
+Generate speech audio from text and return raw audio bytes.
+
+Performs a POST request to the TTS REST endpoint.
+
+**Parameters**
+
+| Parameter | Type | Description |
+| ------ | ------ | ------ |
+| `text` | `str` | Longer free-form background text, prior interaction history, reference documents, or meeting notes. |
+| `voice` | `str` | Voice identifier to generate speech audio with. |
+| `model` | `str` | Speech-to-text model to use. |
+| `language` | `str` | Language code for Text-to-Speech (e.g., "en"). |
+| `audio_format` | `TtsAudioFormat` | Audio format for realtime transcription. |
+| `sample_rate` | `TtsSampleRate \| None` | Audio sample rate in Hz. |
+| `bitrate` | `TtsBitrate \| None` | Output bitrate in bits-per-second for compressed formats. |
+| `config` | `CreateTtsConfig \| None` | Configuration options for this operation. |
+
+**Returns**
+
+`bytes`
+
+**Raises**
+
+- `SonioxAPIError` When the API returns an error.
+
+***
+
+<a id="asyncttsapi-generate_to_file"></a>
+
+### generate_to_file()
+
+```python
+generate_to_file(output: BinaryIO | Path | str, *, text: str, voice: str = DEFAULT_VOICE, model: str = DEFAULT_MODEL, language: str = DEFAULT_LANGUAGE, audio_format: TtsAudioFormat = DEFAULT_AUDIO_FORMAT, sample_rate: TtsSampleRate | None = None, bitrate: TtsBitrate | None = None, config: CreateTtsConfig | None = None) -> int
+```
+
+Generate speech audio from text and write the audio bytes to a file-like output.
+
+**Parameters**
+
+| Parameter | Type | Description |
+| ------ | ------ | ------ |
+| `output` | `BinaryIO \| Path \| str` | - |
+| `text` | `str` | Longer free-form background text, prior interaction history, reference documents, or meeting notes. |
+| `voice` | `str` | Voice identifier to generate speech audio with. |
+| `model` | `str` | Speech-to-text model to use. |
+| `language` | `str` | Language code for Text-to-Speech (e.g., "en"). |
+| `audio_format` | `TtsAudioFormat` | Audio format for realtime transcription. |
+| `sample_rate` | `TtsSampleRate \| None` | Audio sample rate in Hz. |
+| `bitrate` | `TtsBitrate \| None` | Output bitrate in bits-per-second for compressed formats. |
+| `config` | `CreateTtsConfig \| None` | Configuration options for this operation. |
+
+**Returns**
+
+`int`
+
+Number of bytes written.
+
+---
+
+## AsyncTtsModelsAPI
+
+<a id="asyncttsmodelsapi-constructor"></a>
+
+### Constructor
+
+```python
+AsyncTtsModelsAPI(client: AsyncSonioxClient)
+```
+
+**Parameters**
+
+| Parameter | Type | Description |
+| ------ | ------ | ------ |
+| `client` | `AsyncSonioxClient` | Soniox client instance. |
+
+**Returns**
+
+`None`
+
+<a id="asyncttsmodelsapi-list"></a>
+
+### list()
+
+```python
+list() -> GetTtsModelsResponse
+```
+
+List available Text-to-Speech models.
+
+Performs a GET request to ``/tts-models``.
+
+**Returns**
+
+`GetTtsModelsResponse`
+
+**Raises**
+
+- `SonioxAPIError` When the API returns an error.
+
+---
+
 ## AsyncModelsAPI
 
 <a id="asyncmodelsapi-constructor"></a>
@@ -996,7 +1175,7 @@ AsyncAuthAPI(client: AsyncSonioxClient)
 ### create_temporary_api_key()
 
 ```python
-create_temporary_api_key(*, usage_type: TemporaryApiKeyUsageType = 'transcribe_websocket', expires_in_seconds: int = 5 * 60, client_reference_id: str | None = None) -> CreateTemporaryApiKeyResponse
+create_temporary_api_key(*, usage_type: TemporaryApiKeyUsageType = 'transcribe_websocket', expires_in_seconds: int = 5 * 60, client_reference_id: str | None = None, single_use: bool | None = None, max_session_duration_seconds: int | None = None) -> CreateTemporaryApiKeyResponse
 ```
 
 Create a temporary API key.
@@ -1010,6 +1189,8 @@ Performs a POST request to ``/auth/temporary-api-key``.
 | `usage_type` | `TemporaryApiKeyUsageType` | Intended usage of the temporary API key. |
 | `expires_in_seconds` | `int` | Duration in seconds until the temporary API key expires |
 | `client_reference_id` | `str \| None` | Optional tracking identifier string. Does not need to be unique |
+| `single_use` | `bool \| None` | When true, restricts the temporary API key to a single use. |
+| `max_session_duration_seconds` | `int \| None` | Maximum connection duration in seconds for WebSocket and TTS HTTP streaming endpoints. |
 
 **Returns**
 

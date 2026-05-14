@@ -106,10 +106,12 @@ class AsyncRealtimeSTTSession:
 
     async def close(self) -> None:
         """
-        Gracefully close the realtime session.
+        Close the realtime session and release the WebSocket.
 
-        Sends a final empty message to signal end-of-stream, then closes
-        the WebSocket connection. Calling this method multiple times is safe.
+        Signals end-of-audio to the server and clears the underlying
+        connection. Subsequent calls are no-ops.
+
+        Called automatically when exiting the async context manager.
         """
         if self._keepalive is not None:
             await self._keepalive.stop()
@@ -156,14 +158,15 @@ class AsyncRealtimeSTTSession:
         """
         Send audio data to the realtime stream.
 
-        This method accepts either a single bytes object or an iterator
-        yielding audio chunks. When an iterator is provided, a
-        FINISH control message is sent automatically after all chunks
-        have been transmitted.
+        Accepts either a single bytes object or an async iterator yielding
+        byte chunks (e.g. from `throttle_audio_async`). If `finish=True`
+        (the default), an end-of-audio signal is sent after the last chunk;
+        pass `finish=False` when you intend to send more audio later in the
+        same session.
 
         Args:
-            chunks:
-                Audio data as raw bytes or an iterator of byte chunks.
+            chunks: Raw bytes or an async iterator of byte chunks.
+            finish: If True (default), signal end-of-audio after the last chunk.
         """
         if isinstance(chunks, bytes):
             await self.send_byte_chunk(chunks)
@@ -204,7 +207,11 @@ class AsyncRealtimeSTTSession:
 
     async def finish(self) -> None:
         """
-        Signal that no more audio will be sent for this session.
+        Signal end-of-audio.
+
+        The server finalizes any pending tokens and closes the
+        connection. Continue iterating `receive_events()` to consume
+        the remaining tokens.
         """
         await self.send_control_message(RealtimeControlType.FINISH)
 
@@ -303,7 +310,7 @@ class AsyncRealtimeSTTSession:
         async for event in self.receive_events():
             await handler(event)
 
-    async def pause(self) -> None:
+    async def pause(self, *, finalize: bool = True) -> None:
         """
         Pause the session, suppressing outgoing audio and starting a
         background keepalive task.
@@ -315,6 +322,9 @@ class AsyncRealtimeSTTSession:
 
         Calling `pause` on an already-paused session is a no-op.
 
+        Args:
+            finalize: If True (default), call `finalize()` before pausing.
+
         Raises:
             SonioxRealtimeError: If the session is not connected.
         """
@@ -322,7 +332,8 @@ class AsyncRealtimeSTTSession:
             raise SonioxRealtimeError("Realtime session is not connected")
         if self._paused:
             return
-        await self.finalize()
+        if finalize:
+            await self.finalize()
         self._paused = True
         self._keepalive = KeepaliveTask(self.keep_alive, KEEP_ALIVE_INTERVAL_SEC)
         self._keepalive.start()

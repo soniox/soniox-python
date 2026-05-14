@@ -7,6 +7,7 @@ from typing import TYPE_CHECKING, BinaryIO
 from ..errors import SonioxNotFoundError
 from ..types import (
     File,
+    GetFilesCountResponse,
     GetFilesPayload,
     GetFilesResponse,
     UploadFilePayload,
@@ -34,6 +35,18 @@ class FilesAPI:
         params = payload.model_dump(exclude_none=True)
         response = self._client.request("GET", "/files", params=params)
         return parse_response(response, GetFilesResponse)
+
+    def count(self) -> GetFilesCountResponse:
+        """
+        Return a breakdown of uploaded file counts.
+
+        Performs a GET request to ``/files/count``.
+
+        Raises:
+            SonioxAPIError: When the API returns an error.
+        """
+        response = self._client.request("GET", "/files/count")
+        return parse_response(response, GetFilesCountResponse)
 
     def list_all(self, limit: int = 100) -> Generator[File, None, None]:
         """

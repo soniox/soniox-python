@@ -1,7 +1,7 @@
 ---
 title: "Realtime Client"
 description: "Soniox Python SDK - Realtime Client Reference"
-keywords: "RealtimeAPI, AsyncRealtimeAPI, RealtimeSTTClient, RealtimeSTTSession, AsyncRealtimeSTTClient, AsyncRealtimeSTTSession"
+keywords: "RealtimeAPI, AsyncRealtimeAPI, RealtimeSTTClient, RealtimeSTTSession, RealtimeTTSClient, RealtimeTTSConnection, RealtimeTTSMultiplexedConnection, RealtimeTTSStream, AsyncRealtimeSTTClient, AsyncRealtimeSTTSession, AsyncRealtimeTTSClient, AsyncRealtimeTTSConnection, AsyncRealtimeTTSMultiplexedConnection, AsyncRealtimeTTSStream"
 ---
 
 ---
@@ -35,6 +35,7 @@ RealtimeAPI(client: SonioxClient)
 | Property | Type | Description |
 | ------ | ------ | ------ |
 | `stt` | `RealtimeSTTClient` | Speech-to-text API namespace. |
+| `tts` | `RealtimeTTSClient` | Text-to-Speech API namespace |
 
 ---
 
@@ -67,6 +68,7 @@ AsyncRealtimeAPI(client: AsyncSonioxClient)
 | Property | Type | Description |
 | ------ | ------ | ------ |
 | `stt` | `AsyncRealtimeSTTClient` | Speech-to-text API namespace. |
+| `tts` | `AsyncRealtimeTTSClient` | Text-to-Speech API namespace |
 
 ---
 
@@ -182,10 +184,12 @@ is established when entering the context manager.
 close() -> None
 ```
 
-Gracefully close the realtime session.
+Close the realtime session and release the WebSocket.
 
-Sends a final empty message to signal end-of-stream, then closes
-the WebSocket connection. Calling this method multiple times is safe.
+Signals end-of-audio to the server and clears the underlying
+connection. Subsequent calls are no-ops.
+
+Called automatically when exiting the context manager.
 
 **Returns**
 
@@ -232,17 +236,18 @@ send_bytes(chunks: bytes | Iterator[bytes], *, finish: bool = True) -> None
 
 Send audio data to the realtime stream.
 
-This method accepts either a single bytes object or an iterator
-yielding audio chunks. When an iterator is provided, a FINISH
-control message is sent automatically after all chunks have
-been transmitted.
+Accepts either a single bytes object or an iterator yielding byte
+chunks (e.g. from `throttle_audio`). If `finish=True` (the default),
+an end-of-audio signal is sent after the last chunk; pass
+`finish=False` when you intend to send more audio later in the
+same session.
 
 **Parameters**
 
 | Parameter | Type | Description |
 | ------ | ------ | ------ |
-| `chunks` | `bytes \| Iterator[bytes]` | Audio data as raw bytes or an iterator of byte chunks. |
-| `finish` | `bool` | Whether to send a finish signal after streaming completes. |
+| `chunks` | `bytes \| Iterator[bytes]` | Raw bytes or an iterator of byte chunks. |
+| `finish` | `bool` | If True (default), signal end-of-audio after the last chunk. |
 
 **Returns**
 
@@ -287,7 +292,11 @@ end-of-audio or requesting finalization.
 finish() -> None
 ```
 
-Signal that no more audio will be sent for this session.
+Signal end-of-audio.
+
+The server finalizes any pending tokens and closes the
+connection. Continue iterating `receive_events()` to consume
+the remaining tokens.
 
 **Returns**
 
@@ -439,7 +448,7 @@ Receive realtime events and dispatch them to a handler callback.
 ### pause()
 
 ```python
-pause() -> None
+pause(*, finalize: bool = True) -> None
 ```
 
 Pause the session, suppressing outgoing audio and starting a
@@ -451,6 +460,12 @@ A background thread sends a keepalive message every
 timing out the session.
 
 Calling `pause` on an already-paused session is a no-op.
+
+**Parameters**
+
+| Parameter | Type | Description |
+| ------ | ------ | ------ |
+| `finalize` | `bool` | If True (default), call `finalize()` before pausing. |
 
 **Returns**
 
@@ -482,6 +497,653 @@ Calling `resume` on a session that is not paused is a no-op.
 **Raises**
 
 - `SonioxRealtimeError` If the session is not connected.
+
+---
+
+## RealtimeTTSClient
+
+Factory for synchronous realtime Text-to-Speech connections and streams.
+
+<a id="realtimettsclient-constructor"></a>
+
+### Constructor
+
+```python
+RealtimeTTSClient(client: SonioxClient)
+```
+
+**Parameters**
+
+| Parameter | Type | Description |
+| ------ | ------ | ------ |
+| `client` | `SonioxClient` | Soniox client instance. |
+
+**Returns**
+
+`None`
+
+<a id="realtimettsclient-connect"></a>
+
+### connect()
+
+```python
+connect(*, config: RealtimeTTSConfig, api_key: str | None = None) -> RealtimeTTSConnection
+```
+
+Create a single-stream realtime Text-to-Speech connection.
+
+**Parameters**
+
+| Parameter | Type | Description |
+| ------ | ------ | ------ |
+| `config` | `RealtimeTTSConfig` | Configuration options for this operation. |
+| `api_key` | `str \| None` | API key used for authentication. |
+
+**Returns**
+
+`RealtimeTTSConnection`
+
+***
+
+<a id="realtimettsclient-connect_multi_stream"></a>
+
+### connect_multi_stream()
+
+```python
+connect_multi_stream() -> RealtimeTTSMultiplexedConnection
+```
+
+Create a multiplexed realtime Text-to-Speech connection.
+
+**Returns**
+
+`RealtimeTTSMultiplexedConnection`
+
+---
+
+## RealtimeTTSConnection
+
+Synchronous WebSocket connection for one realtime Text-to-Speech stream.
+
+<a id="realtimettsconnection-constructor"></a>
+
+### Constructor
+
+```python
+RealtimeTTSConnection(url: str, config: RealtimeTTSConfig)
+```
+
+**Parameters**
+
+| Parameter | Type | Description |
+| ------ | ------ | ------ |
+| `url` | `str` | WebSocket URL for realtime transcription. |
+| `config` | `RealtimeTTSConfig` | Configuration options for this operation. |
+
+**Returns**
+
+`None`
+
+<a id="realtimettsconnection-properties"></a>
+
+### Properties
+
+| Property | Type | Description |
+| ------ | ------ | ------ |
+| `config` | `RealtimeTTSConfig` | Configuration used to initialize this connection. |
+| `paused` | `bool` | Return True if the connection is currently paused. |
+| `last_message` | `RealtimeTTSEvent \| None` | Most recently received realtime event, if any. |
+
+<a id="realtimettsconnection-close"></a>
+
+### close()
+
+```python
+close() -> None
+```
+
+Close the realtime Text-to-Speech connection.
+
+**Returns**
+
+`None`
+
+***
+
+<a id="realtimettsconnection-send_text_chunk"></a>
+
+### send_text_chunk()
+
+```python
+send_text_chunk(text: str, *, text_end: bool = False) -> None
+```
+
+Send one text chunk to the realtime stream.
+
+**Parameters**
+
+| Parameter | Type | Description |
+| ------ | ------ | ------ |
+| `text` | `str` | Text chunk to generate into speech. |
+| `text_end` | `bool` | Whether this message marks the final text chunk for the stream. |
+
+**Returns**
+
+`None`
+
+***
+
+<a id="realtimettsconnection-send_text_chunks"></a>
+
+### send_text_chunks()
+
+```python
+send_text_chunks(chunks: str | Iterator[str], *, text_end: bool = True) -> None
+```
+
+Send text data to the realtime stream.
+
+**Parameters**
+
+| Parameter | Type | Description |
+| ------ | ------ | ------ |
+| `chunks` | `str \| Iterator[str]` | Audio chunks to stream to realtime transcription. |
+| `text_end` | `bool` | Whether this message marks the final text chunk for the stream. |
+
+**Returns**
+
+`None`
+
+***
+
+<a id="realtimettsconnection-finish"></a>
+
+### finish()
+
+```python
+finish() -> None
+```
+
+Signal that no more text will be sent for this stream.
+
+**Returns**
+
+`None`
+
+***
+
+<a id="realtimettsconnection-cancel"></a>
+
+### cancel()
+
+```python
+cancel() -> None
+```
+
+Cancel the realtime Text-to-Speech stream.
+
+**Returns**
+
+`None`
+
+***
+
+<a id="realtimettsconnection-keep_alive"></a>
+
+### keep_alive()
+
+```python
+keep_alive() -> None
+```
+
+Send a keep-alive message to prevent the session from timing out.
+
+**Returns**
+
+`None`
+
+***
+
+<a id="realtimettsconnection-pause"></a>
+
+### pause()
+
+```python
+pause() -> None
+```
+
+Pause outgoing text and start periodic keep-alive messages.
+
+**Returns**
+
+`None`
+
+***
+
+<a id="realtimettsconnection-resume"></a>
+
+### resume()
+
+```python
+resume() -> None
+```
+
+Resume outgoing text and stop periodic keep-alive messages.
+
+**Returns**
+
+`None`
+
+***
+
+<a id="realtimettsconnection-recv_bytes"></a>
+
+### recv_bytes()
+
+```python
+recv_bytes() -> bytes
+```
+
+Receive one raw websocket message payload as bytes.
+
+**Returns**
+
+`bytes`
+
+***
+
+<a id="realtimettsconnection-parse_event"></a>
+
+### parse_event()
+
+```python
+parse_event(raw: str | bytes) -> RealtimeTTSEvent
+```
+
+Parse a raw websocket message into a realtime event.
+
+**Parameters**
+
+| Parameter | Type | Description |
+| ------ | ------ | ------ |
+| `raw` | `str \| bytes` | Raw event payload from the realtime API. |
+
+**Returns**
+
+`RealtimeTTSEvent`
+
+***
+
+<a id="realtimettsconnection-receive_event"></a>
+
+### receive_event()
+
+```python
+receive_event() -> RealtimeTTSEvent | None
+```
+
+Receive and parse the next realtime event.
+
+**Returns**
+
+`RealtimeTTSEvent | None`
+
+***
+
+<a id="realtimettsconnection-receive_events"></a>
+
+### receive_events()
+
+```python
+receive_events() -> Iterator[RealtimeTTSEvent]
+```
+
+Yield realtime events until the stream ends or closes.
+
+**Returns**
+
+`Iterator[RealtimeTTSEvent]`
+
+***
+
+<a id="realtimettsconnection-receive_audio_chunks"></a>
+
+### receive_audio_chunks()
+
+```python
+receive_audio_chunks() -> Iterator[bytes]
+```
+
+Yield decoded audio chunks from incoming realtime events.
+
+**Returns**
+
+`Iterator[bytes]`
+
+---
+
+## RealtimeTTSMultiplexedConnection
+
+Synchronous websocket connection that can host multiple Text-to-Speech streams.
+
+<a id="realtimettsmultiplexedconnection-constructor"></a>
+
+### Constructor
+
+```python
+RealtimeTTSMultiplexedConnection(url: str, api_key: str)
+```
+
+**Parameters**
+
+| Parameter | Type | Description |
+| ------ | ------ | ------ |
+| `url` | `str` | WebSocket URL for realtime transcription. |
+| `api_key` | `str` | API key used for authentication. |
+
+**Returns**
+
+`None`
+
+<a id="realtimettsmultiplexedconnection-properties"></a>
+
+### Properties
+
+| Property | Type | Description |
+| ------ | ------ | ------ |
+| `last_message` | `RealtimeTTSEvent \| None` | Most recently received realtime event, if any. |
+| `paused` | `bool` | Return True if the connection is currently paused. |
+
+<a id="realtimettsmultiplexedconnection-close"></a>
+
+### close()
+
+```python
+close() -> None
+```
+
+Close the websocket and clear the stream state.
+
+**Returns**
+
+`None`
+
+***
+
+<a id="realtimettsmultiplexedconnection-keep_alive"></a>
+
+### keep_alive()
+
+```python
+keep_alive() -> None
+```
+
+Send a keep-alive message to prevent the session from timing out.
+
+**Returns**
+
+`None`
+
+***
+
+<a id="realtimettsmultiplexedconnection-pause"></a>
+
+### pause()
+
+```python
+pause() -> None
+```
+
+Pause outgoing text and start periodic keep-alive messages.
+
+**Returns**
+
+`None`
+
+***
+
+<a id="realtimettsmultiplexedconnection-resume"></a>
+
+### resume()
+
+```python
+resume() -> None
+```
+
+Resume outgoing text and stop periodic keep-alive messages.
+
+**Returns**
+
+`None`
+
+***
+
+<a id="realtimettsmultiplexedconnection-open_stream"></a>
+
+### open_stream()
+
+```python
+open_stream(*, config: RealtimeTTSConfig) -> RealtimeTTSStream
+```
+
+Register and start a new stream on the shared websocket.
+
+**Parameters**
+
+| Parameter | Type | Description |
+| ------ | ------ | ------ |
+| `config` | `RealtimeTTSConfig` | Configuration options for this operation. |
+
+**Returns**
+
+`RealtimeTTSStream`
+
+---
+
+## RealtimeTTSStream
+
+Handle for one stream on a multiplexed realtime TTS connection.
+
+<a id="realtimettsstream-constructor"></a>
+
+### Constructor
+
+```python
+RealtimeTTSStream(connection: RealtimeTTSMultiplexedConnection, config: RealtimeTTSConfig)
+```
+
+**Parameters**
+
+| Parameter | Type | Description |
+| ------ | ------ | ------ |
+| `connection` | `RealtimeTTSMultiplexedConnection` | Synchronous websocket connection that can host multiple Text-to-Speech streams. |
+| `config` | `RealtimeTTSConfig` | Configuration options for this operation. |
+
+**Returns**
+
+`None`
+
+<a id="realtimettsstream-properties"></a>
+
+### Properties
+
+| Property | Type | Description |
+| ------ | ------ | ------ |
+| `config` | `RealtimeTTSConfig` | Stream configuration. |
+| `stream_id` | `str` | Stream identifier. |
+| `last_message` | `RealtimeTTSEvent \| None` | Most recently received event for this stream, if any. |
+
+<a id="realtimettsstream-send_text_chunk"></a>
+
+### send_text_chunk()
+
+```python
+send_text_chunk(text: str, *, text_end: bool = False) -> None
+```
+
+Send one text chunk for this stream.
+
+**Parameters**
+
+| Parameter | Type | Description |
+| ------ | ------ | ------ |
+| `text` | `str` | Text chunk to generate into speech. |
+| `text_end` | `bool` | Whether this message marks the final text chunk for the stream. |
+
+**Returns**
+
+`None`
+
+***
+
+<a id="realtimettsstream-send_text_chunks"></a>
+
+### send_text_chunks()
+
+```python
+send_text_chunks(chunks: str | Iterator[str], *, text_end: bool = True) -> None
+```
+
+Send text chunks for this stream.
+
+**Parameters**
+
+| Parameter | Type | Description |
+| ------ | ------ | ------ |
+| `chunks` | `str \| Iterator[str]` | Audio chunks to stream to realtime transcription. |
+| `text_end` | `bool` | Whether this message marks the final text chunk for the stream. |
+
+**Returns**
+
+`None`
+
+***
+
+<a id="realtimettsstream-finish"></a>
+
+### finish()
+
+```python
+finish() -> None
+```
+
+Signal that no more text will be sent for this stream.
+
+**Returns**
+
+`None`
+
+***
+
+<a id="realtimettsstream-cancel"></a>
+
+### cancel()
+
+```python
+cancel() -> None
+```
+
+Cancel this stream.
+
+**Returns**
+
+`None`
+
+***
+
+<a id="realtimettsstream-keep_alive"></a>
+
+### keep_alive()
+
+```python
+keep_alive() -> None
+```
+
+Send a keepalive message on the underlying shared connection.
+
+**Returns**
+
+`None`
+
+***
+
+<a id="realtimettsstream-pause"></a>
+
+### pause()
+
+```python
+pause() -> None
+```
+
+Pause the underlying shared connection and start keepalive.
+
+**Returns**
+
+`None`
+
+***
+
+<a id="realtimettsstream-resume"></a>
+
+### resume()
+
+```python
+resume() -> None
+```
+
+Resume the underlying shared connection and stop keepalive.
+
+**Returns**
+
+`None`
+
+***
+
+<a id="realtimettsstream-receive_event"></a>
+
+### receive_event()
+
+```python
+receive_event() -> RealtimeTTSEvent | None
+```
+
+Receive the next event for this stream.
+
+**Returns**
+
+`RealtimeTTSEvent | None`
+
+***
+
+<a id="realtimettsstream-receive_events"></a>
+
+### receive_events()
+
+```python
+receive_events() -> Iterator[RealtimeTTSEvent]
+```
+
+Yield events for this stream until it ends.
+
+**Returns**
+
+`Iterator[RealtimeTTSEvent]`
+
+***
+
+<a id="realtimettsstream-receive_audio_chunks"></a>
+
+### receive_audio_chunks()
+
+```python
+receive_audio_chunks() -> Iterator[bytes]
+```
+
+Yield decoded audio chunks for this stream.
+
+**Returns**
+
+`Iterator[bytes]`
 
 ---
 
@@ -597,10 +1259,12 @@ is established when entering the async context manager.
 close() -> None
 ```
 
-Gracefully close the realtime session.
+Close the realtime session and release the WebSocket.
 
-Sends a final empty message to signal end-of-stream, then closes
-the WebSocket connection. Calling this method multiple times is safe.
+Signals end-of-audio to the server and clears the underlying
+connection. Subsequent calls are no-ops.
+
+Called automatically when exiting the async context manager.
 
 **Returns**
 
@@ -647,17 +1311,18 @@ send_bytes(chunks: bytes | AsyncIterator[bytes], *, finish: bool = True) -> None
 
 Send audio data to the realtime stream.
 
-This method accepts either a single bytes object or an iterator
-yielding audio chunks. When an iterator is provided, a
-FINISH control message is sent automatically after all chunks
-have been transmitted.
+Accepts either a single bytes object or an async iterator yielding
+byte chunks (e.g. from `throttle_audio_async`). If `finish=True`
+(the default), an end-of-audio signal is sent after the last chunk;
+pass `finish=False` when you intend to send more audio later in the
+same session.
 
 **Parameters**
 
 | Parameter | Type | Description |
 | ------ | ------ | ------ |
-| `chunks` | `bytes \| AsyncIterator[bytes]` | Audio data as raw bytes or an iterator of byte chunks. |
-| `finish` | `bool` | Whether to send a finish signal after streaming completes. |
+| `chunks` | `bytes \| AsyncIterator[bytes]` | Raw bytes or an async iterator of byte chunks. |
+| `finish` | `bool` | If True (default), signal end-of-audio after the last chunk. |
 
 **Returns**
 
@@ -702,7 +1367,11 @@ end-of-audio or requesting finalization.
 finish() -> None
 ```
 
-Signal that no more audio will be sent for this session.
+Signal end-of-audio.
+
+The server finalizes any pending tokens and closes the
+connection. Continue iterating `receive_events()` to consume
+the remaining tokens.
 
 **Returns**
 
@@ -854,7 +1523,7 @@ Receive realtime events and dispatch them to a handler callback.
 ### pause()
 
 ```python
-pause() -> None
+pause(*, finalize: bool = True) -> None
 ```
 
 Pause the session, suppressing outgoing audio and starting a
@@ -866,6 +1535,12 @@ A background task sends a keepalive message every
 timing out the session.
 
 Calling `pause` on an already-paused session is a no-op.
+
+**Parameters**
+
+| Parameter | Type | Description |
+| ------ | ------ | ------ |
+| `finalize` | `bool` | If True (default), call `finalize()` before pausing. |
 
 **Returns**
 
@@ -897,3 +1572,672 @@ Calling `resume` on a session that is not paused is a no-op.
 **Raises**
 
 - `SonioxRealtimeError` If the session is not connected.
+
+---
+
+## AsyncRealtimeTTSClient
+
+Factory for asynchronous realtime Text-to-Speech connections and streams.
+
+<a id="asyncrealtimettsclient-constructor"></a>
+
+### Constructor
+
+```python
+AsyncRealtimeTTSClient(client: AsyncSonioxClient)
+```
+
+**Parameters**
+
+| Parameter | Type | Description |
+| ------ | ------ | ------ |
+| `client` | `AsyncSonioxClient` | Soniox client instance. |
+
+**Returns**
+
+`None`
+
+<a id="asyncrealtimettsclient-connect"></a>
+
+### connect()
+
+```python
+connect(*, config: RealtimeTTSConfig, api_key: str | None = None) -> AsyncRealtimeTTSConnection
+```
+
+Create a single-stream realtime Text-to-Speech connection.
+
+**Parameters**
+
+| Parameter | Type | Description |
+| ------ | ------ | ------ |
+| `config` | `RealtimeTTSConfig` | Configuration options for this operation. |
+| `api_key` | `str \| None` | API key used for authentication. |
+
+**Returns**
+
+`AsyncRealtimeTTSConnection`
+
+***
+
+<a id="asyncrealtimettsclient-connect_multi_stream"></a>
+
+### connect_multi_stream()
+
+```python
+connect_multi_stream() -> AsyncRealtimeTTSMultiplexedConnection
+```
+
+Create a multiplexed realtime Text-to-Speech connection.
+
+**Returns**
+
+`AsyncRealtimeTTSMultiplexedConnection`
+
+---
+
+## AsyncRealtimeTTSConnection
+
+Asynchronous WebSocket connection for one realtime Text-to-Speech stream.
+
+<a id="asyncrealtimettsconnection-constructor"></a>
+
+### Constructor
+
+```python
+AsyncRealtimeTTSConnection(url: str, config: RealtimeTTSConfig)
+```
+
+**Parameters**
+
+| Parameter | Type | Description |
+| ------ | ------ | ------ |
+| `url` | `str` | WebSocket URL for realtime transcription. |
+| `config` | `RealtimeTTSConfig` | Configuration options for this operation. |
+
+**Returns**
+
+`None`
+
+<a id="asyncrealtimettsconnection-properties"></a>
+
+### Properties
+
+| Property | Type | Description |
+| ------ | ------ | ------ |
+| `config` | `RealtimeTTSConfig` | Configuration used to initialize this connection. |
+| `paused` | `bool` | Return True if the connection is currently paused. |
+| `last_message` | `RealtimeTTSEvent \| None` | Most recently received realtime event, if any. |
+
+<a id="asyncrealtimettsconnection-close"></a>
+
+### close()
+
+```python
+close() -> None
+```
+
+Close the realtime Text-to-Speech connection.
+
+**Returns**
+
+`None`
+
+***
+
+<a id="asyncrealtimettsconnection-send_text_chunk"></a>
+
+### send_text_chunk()
+
+```python
+send_text_chunk(text: str, *, text_end: bool = False) -> None
+```
+
+Send one text chunk to the realtime stream.
+
+**Parameters**
+
+| Parameter | Type | Description |
+| ------ | ------ | ------ |
+| `text` | `str` | Text chunk to generate into speech. |
+| `text_end` | `bool` | Whether this message marks the final text chunk for the stream. |
+
+**Returns**
+
+`None`
+
+***
+
+<a id="asyncrealtimettsconnection-send_text_chunks"></a>
+
+### send_text_chunks()
+
+```python
+send_text_chunks(chunks: str | AsyncIterator[str], *, text_end: bool = True) -> None
+```
+
+Send text data to the realtime stream.
+
+**Parameters**
+
+| Parameter | Type | Description |
+| ------ | ------ | ------ |
+| `chunks` | `str \| AsyncIterator[str]` | Audio chunks to stream to realtime transcription. |
+| `text_end` | `bool` | Whether this message marks the final text chunk for the stream. |
+
+**Returns**
+
+`None`
+
+***
+
+<a id="asyncrealtimettsconnection-finish"></a>
+
+### finish()
+
+```python
+finish() -> None
+```
+
+Signal that no more text will be sent for this stream.
+
+**Returns**
+
+`None`
+
+***
+
+<a id="asyncrealtimettsconnection-cancel"></a>
+
+### cancel()
+
+```python
+cancel() -> None
+```
+
+Cancel the realtime Text-to-Speech stream.
+
+**Returns**
+
+`None`
+
+***
+
+<a id="asyncrealtimettsconnection-keep_alive"></a>
+
+### keep_alive()
+
+```python
+keep_alive() -> None
+```
+
+Send a keep-alive message to prevent the session from timing out.
+
+**Returns**
+
+`None`
+
+***
+
+<a id="asyncrealtimettsconnection-pause"></a>
+
+### pause()
+
+```python
+pause() -> None
+```
+
+Pause outgoing text and start periodic keep-alive messages.
+
+**Returns**
+
+`None`
+
+***
+
+<a id="asyncrealtimettsconnection-resume"></a>
+
+### resume()
+
+```python
+resume() -> None
+```
+
+Resume outgoing text and stop periodic keep-alive messages.
+
+**Returns**
+
+`None`
+
+***
+
+<a id="asyncrealtimettsconnection-recv_bytes"></a>
+
+### recv_bytes()
+
+```python
+recv_bytes() -> bytes
+```
+
+Receive one raw websocket message payload as bytes.
+
+**Returns**
+
+`bytes`
+
+***
+
+<a id="asyncrealtimettsconnection-parse_event"></a>
+
+### parse_event()
+
+```python
+parse_event(raw: str | bytes) -> RealtimeTTSEvent
+```
+
+Parse a raw websocket message into a realtime event.
+
+**Parameters**
+
+| Parameter | Type | Description |
+| ------ | ------ | ------ |
+| `raw` | `str \| bytes` | Raw event payload from the realtime API. |
+
+**Returns**
+
+`RealtimeTTSEvent`
+
+***
+
+<a id="asyncrealtimettsconnection-receive_event"></a>
+
+### receive_event()
+
+```python
+receive_event() -> RealtimeTTSEvent | None
+```
+
+Receive and parse the next realtime event.
+
+**Returns**
+
+`RealtimeTTSEvent | None`
+
+***
+
+<a id="asyncrealtimettsconnection-receive_events"></a>
+
+### receive_events()
+
+```python
+receive_events() -> AsyncIterator[RealtimeTTSEvent]
+```
+
+Yield realtime events until the stream ends or closes.
+
+**Returns**
+
+`AsyncIterator[RealtimeTTSEvent]`
+
+***
+
+<a id="asyncrealtimettsconnection-receive_audio_chunks"></a>
+
+### receive_audio_chunks()
+
+```python
+receive_audio_chunks() -> AsyncIterator[bytes]
+```
+
+Yield decoded audio chunks from incoming realtime events.
+
+**Returns**
+
+`AsyncIterator[bytes]`
+
+***
+
+<a id="asyncrealtimettsconnection-handle_events"></a>
+
+### handle_events()
+
+```python
+handle_events(handler: Callable[[RealtimeTTSEvent], Awaitable[None]]) -> None
+```
+
+Receive events and pass each one to ``handler``.
+
+**Parameters**
+
+| Parameter | Type | Description |
+| ------ | ------ | ------ |
+| `handler` | `Callable[[RealtimeTTSEvent], Awaitable[None]]` | Event payload received from the realtime Text-to-Speech websocket. |
+
+**Returns**
+
+`None`
+
+---
+
+## AsyncRealtimeTTSMultiplexedConnection
+
+Asynchronous websocket connection that can host multiple TTS streams.
+
+<a id="asyncrealtimettsmultiplexedconnection-constructor"></a>
+
+### Constructor
+
+```python
+AsyncRealtimeTTSMultiplexedConnection(url: str, api_key: str)
+```
+
+**Parameters**
+
+| Parameter | Type | Description |
+| ------ | ------ | ------ |
+| `url` | `str` | WebSocket URL for realtime transcription. |
+| `api_key` | `str` | API key used for authentication. |
+
+**Returns**
+
+`None`
+
+<a id="asyncrealtimettsmultiplexedconnection-properties"></a>
+
+### Properties
+
+| Property | Type | Description |
+| ------ | ------ | ------ |
+| `last_message` | `RealtimeTTSEvent \| None` | Most recently received realtime event, if any. |
+| `paused` | `bool` | Return True if the connection is currently paused. |
+
+<a id="asyncrealtimettsmultiplexedconnection-close"></a>
+
+### close()
+
+```python
+close() -> None
+```
+
+Close the websocket and clear the stream state.
+
+**Returns**
+
+`None`
+
+***
+
+<a id="asyncrealtimettsmultiplexedconnection-keep_alive"></a>
+
+### keep_alive()
+
+```python
+keep_alive() -> None
+```
+
+Send a keep-alive message to prevent the session from timing out.
+
+**Returns**
+
+`None`
+
+***
+
+<a id="asyncrealtimettsmultiplexedconnection-pause"></a>
+
+### pause()
+
+```python
+pause() -> None
+```
+
+Pause outgoing text and start periodic keep-alive messages.
+
+**Returns**
+
+`None`
+
+***
+
+<a id="asyncrealtimettsmultiplexedconnection-resume"></a>
+
+### resume()
+
+```python
+resume() -> None
+```
+
+Resume outgoing text and stop periodic keep-alive messages.
+
+**Returns**
+
+`None`
+
+***
+
+<a id="asyncrealtimettsmultiplexedconnection-open_stream"></a>
+
+### open_stream()
+
+```python
+open_stream(*, config: RealtimeTTSConfig) -> AsyncRealtimeTTSStream
+```
+
+Register and start a new stream on the shared websocket.
+
+**Parameters**
+
+| Parameter | Type | Description |
+| ------ | ------ | ------ |
+| `config` | `RealtimeTTSConfig` | Configuration options for this operation. |
+
+**Returns**
+
+`AsyncRealtimeTTSStream`
+
+---
+
+## AsyncRealtimeTTSStream
+
+Handle for one stream on a multiplexed realtime TTS connection.
+
+<a id="asyncrealtimettsstream-constructor"></a>
+
+### Constructor
+
+```python
+AsyncRealtimeTTSStream(connection: AsyncRealtimeTTSMultiplexedConnection, config: RealtimeTTSConfig)
+```
+
+**Parameters**
+
+| Parameter | Type | Description |
+| ------ | ------ | ------ |
+| `connection` | `AsyncRealtimeTTSMultiplexedConnection` | Asynchronous websocket connection that can host multiple TTS streams. |
+| `config` | `RealtimeTTSConfig` | Configuration options for this operation. |
+
+**Returns**
+
+`None`
+
+<a id="asyncrealtimettsstream-properties"></a>
+
+### Properties
+
+| Property | Type | Description |
+| ------ | ------ | ------ |
+| `config` | `RealtimeTTSConfig` | Stream configuration. |
+| `stream_id` | `str` | Stream identifier. |
+| `last_message` | `RealtimeTTSEvent \| None` | Most recently received event for this stream, if any. |
+
+<a id="asyncrealtimettsstream-send_text_chunk"></a>
+
+### send_text_chunk()
+
+```python
+send_text_chunk(text: str, *, text_end: bool = False) -> None
+```
+
+Send one text chunk for this stream.
+
+**Parameters**
+
+| Parameter | Type | Description |
+| ------ | ------ | ------ |
+| `text` | `str` | Text chunk to generate into speech. |
+| `text_end` | `bool` | Whether this message marks the final text chunk for the stream. |
+
+**Returns**
+
+`None`
+
+***
+
+<a id="asyncrealtimettsstream-send_text_chunks"></a>
+
+### send_text_chunks()
+
+```python
+send_text_chunks(chunks: str | AsyncIterator[str], *, text_end: bool = True) -> None
+```
+
+Send text chunks for this stream.
+
+**Parameters**
+
+| Parameter | Type | Description |
+| ------ | ------ | ------ |
+| `chunks` | `str \| AsyncIterator[str]` | Audio chunks to stream to realtime transcription. |
+| `text_end` | `bool` | Whether this message marks the final text chunk for the stream. |
+
+**Returns**
+
+`None`
+
+***
+
+<a id="asyncrealtimettsstream-finish"></a>
+
+### finish()
+
+```python
+finish() -> None
+```
+
+Signal that no more text will be sent for this stream.
+
+**Returns**
+
+`None`
+
+***
+
+<a id="asyncrealtimettsstream-cancel"></a>
+
+### cancel()
+
+```python
+cancel() -> None
+```
+
+Cancel this stream.
+
+**Returns**
+
+`None`
+
+***
+
+<a id="asyncrealtimettsstream-keep_alive"></a>
+
+### keep_alive()
+
+```python
+keep_alive() -> None
+```
+
+Send a keepalive message on the underlying shared connection.
+
+**Returns**
+
+`None`
+
+***
+
+<a id="asyncrealtimettsstream-pause"></a>
+
+### pause()
+
+```python
+pause() -> None
+```
+
+Pause the underlying shared connection and start keepalive.
+
+**Returns**
+
+`None`
+
+***
+
+<a id="asyncrealtimettsstream-resume"></a>
+
+### resume()
+
+```python
+resume() -> None
+```
+
+Resume the underlying shared connection and stop keepalive.
+
+**Returns**
+
+`None`
+
+***
+
+<a id="asyncrealtimettsstream-receive_event"></a>
+
+### receive_event()
+
+```python
+receive_event() -> RealtimeTTSEvent | None
+```
+
+Receive the next event for this stream.
+
+**Returns**
+
+`RealtimeTTSEvent | None`
+
+***
+
+<a id="asyncrealtimettsstream-receive_events"></a>
+
+### receive_events()
+
+```python
+receive_events() -> AsyncIterator[RealtimeTTSEvent]
+```
+
+Yield events for this stream until it ends.
+
+**Returns**
+
+`AsyncIterator[RealtimeTTSEvent]`
+
+***
+
+<a id="asyncrealtimettsstream-receive_audio_chunks"></a>
+
+### receive_audio_chunks()
+
+```python
+receive_audio_chunks() -> AsyncIterator[bytes]
+```
+
+Yield decoded audio chunks for this stream.
+
+**Returns**
+
+`AsyncIterator[bytes]`
