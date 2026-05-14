@@ -2,7 +2,7 @@
 Realtime tests against a real local WebSocket server.
 
 These tests run the actual :class:`RealtimeSTTSession` / async counterpart
-against a ``websockets`` server bound to ``127.0.0.1:0`` — no mocking of
+against a ``websockets`` server bound to ``127.0.0.1:0`` - no mocking of
 ``sync_ws_connect`` or ``async_ws_connect``. They catch anything a mock can't:
 real connect/close handshakes, event-loop integration, socket-level EOF
 semantics, and the async keepalive task running against a real socket.
@@ -141,7 +141,7 @@ async def async_ws_url_and_log() -> AsyncIterator[tuple[str, ServerLog]]:
 
 
 def test_sync_happy_path(sync_ws_url_and_log: tuple[str, ServerLog]) -> None:
-    url, _log = sync_ws_url_and_log
+    url, _ = sync_ws_url_and_log
     with SonioxClient(api_key="test_key", websocket_base_url=url) as client:
         with client.realtime.stt.connect(config=CONFIG) as session:
             session.send_byte_chunk(b"audio-bytes")
@@ -159,7 +159,7 @@ def test_sync_happy_path(sync_ws_url_and_log: tuple[str, ServerLog]) -> None:
 
 
 async def test_async_happy_path(async_ws_url_and_log: tuple[str, ServerLog]) -> None:
-    url, _log = async_ws_url_and_log
+    url, _ = async_ws_url_and_log
     async with AsyncSonioxClient(api_key="test_key", websocket_base_url=url) as client:
         async with client.realtime.stt.connect(config=CONFIG) as session:
             await session.send_byte_chunk(b"audio-bytes")
@@ -198,7 +198,7 @@ def test_sync_server_closes_immediately_is_treated_as_eof() -> None:
 
 
 # ---------------------------------------------------------------------------
-# 4. Config round-trip — SDK must serialize what we expect the server to see
+# 4. Config round-trip - SDK must serialize what we expect the server to see
 # ---------------------------------------------------------------------------
 
 

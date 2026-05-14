@@ -127,7 +127,7 @@ async def main() -> None:
             receiver_results = await asyncio.gather(
                 *receiver_tasks, return_exceptions=True
             )
-            for key, result in zip(streams.keys(), receiver_results):
+            for key, result in zip(streams.keys(), receiver_results, strict=True):
                 if isinstance(result, BaseException):
                     errors.append(result)
                 else:

@@ -101,7 +101,7 @@ async def test_send_on_closed_connection_raises_async(
 
 
 def test_handshake_failure_wraps_as_realtime_error(client: SonioxClient) -> None:
-    def _raise(_url: str):
+    def _raise(*_args: object) -> None:
         raise ConnectionClosed(None, None)
 
     with patch("soniox.realtime.stt.sync_ws_connect", side_effect=_raise):
@@ -131,7 +131,7 @@ def test_unexpected_recv_error_propagates(client: SonioxClient) -> None:
 
 
 def test_server_error_event_surfaces_to_consumer(client: SonioxClient) -> None:
-    """STT realtime treats error events as data, not exceptions — the SDK
+    """STT realtime treats error events as data, not exceptions - the SDK
     must forward an ``error_code``-bearing event to the consumer instead of
     raising."""
     ws = MockWebSocket()

@@ -33,20 +33,21 @@ from tests.helpers import API_KEY, api_error_body, build
 from ._openapi import OPERATIONS, Operation
 from ._sdk_bindings import SDK_BINDINGS, SDK_BINDINGS_FULL, SdkBinding
 
-# Cartesian of (operation, variant) — every op is tested at minimum args, and
+# Cartesian of (operation, variant) - every op is tested at minimum args, and
 # (where applicable) a second time with all optional fields populated. Catches
 # "SDK silently drops a newly-added optional field" regressions.
 #
 # Operations without a binding are skipped here (test collection stays clean);
 # ``test_all_operations_covered`` is the single place that reports them.
-_VARIANTS: list[tuple[Operation, str, SdkBinding]] = []
+_LABELED_VARIANTS: list[tuple[Operation, str, SdkBinding]] = []
 for _op in OPERATIONS:
     if _op.operation_id in SDK_BINDINGS:
-        _VARIANTS.append((_op, "min", SDK_BINDINGS[_op.operation_id]))
+        _LABELED_VARIANTS.append((_op, "min", SDK_BINDINGS[_op.operation_id]))
     if _op.operation_id in SDK_BINDINGS_FULL:
-        _VARIANTS.append((_op, "full", SDK_BINDINGS_FULL[_op.operation_id]))
+        _LABELED_VARIANTS.append((_op, "full", SDK_BINDINGS_FULL[_op.operation_id]))
 
-_VARIANT_IDS = [f"{op.operation_id}-{label}" for op, label, _ in _VARIANTS]
+_VARIANTS = [(op, binding) for op, _, binding in _LABELED_VARIANTS]
+_VARIANT_IDS = [f"{op.operation_id}-{label}" for op, label, _ in _LABELED_VARIANTS]
 
 
 def _mock_success(op: Operation) -> tuple[respx.Route, Any]:
@@ -101,14 +102,14 @@ def test_all_operations_covered() -> None:
 
 
 # ---------------------------------------------------------------------------
-# Happy path — per operation × (min, full) × (sync, async)
+# Happy path - per operation × (min, full) × (sync, async)
 # ---------------------------------------------------------------------------
 
 
-@pytest.mark.parametrize("op, _label, binding", _VARIANTS, ids=_VARIANT_IDS)
+@pytest.mark.parametrize("op, binding", _VARIANTS, ids=_VARIANT_IDS)
 @respx.mock
 def test_happy_path_sync(
-    client: SonioxClient, op: Operation, _label: str, binding: SdkBinding
+    client: SonioxClient, op: Operation, binding: SdkBinding
 ) -> None:
     route, expected = _mock_success(op)
 
@@ -122,10 +123,10 @@ def test_happy_path_sync(
         assert result is None
 
 
-@pytest.mark.parametrize("op, _label, binding", _VARIANTS, ids=_VARIANT_IDS)
+@pytest.mark.parametrize("op, binding", _VARIANTS, ids=_VARIANT_IDS)
 @respx.mock
 async def test_happy_path_async(
-    async_client: AsyncSonioxClient, op: Operation, _label: str, binding: SdkBinding
+    async_client: AsyncSonioxClient, op: Operation, binding: SdkBinding
 ) -> None:
     route, expected = _mock_success(op)
 
