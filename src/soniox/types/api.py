@@ -1,7 +1,7 @@
 from __future__ import annotations
 
 from datetime import datetime
-from typing import Annotated, Any, Literal, TypeAlias
+from typing import Annotated, Any, Literal, TypeAlias, cast
 
 from pydantic import BaseModel, Field, field_validator, model_validator
 from typing_extensions import Self
@@ -193,18 +193,12 @@ class StructuredContextTranslationTerm(BaseModel):
 
 
 StructuredContextGeneralInput: TypeAlias = (
-    list[StructuredContextGeneralItem]
-    | dict[str, str]
-    | list[tuple[str, str]]
-    | list[dict[str, str]]
+    list[StructuredContextGeneralItem] | dict[str, str]
 )
 """Accepted input shapes for ``StructuredContext.general``."""
 
 StructuredContextTranslationTermsInput: TypeAlias = (
-    list[StructuredContextTranslationTerm]
-    | dict[str, str]
-    | list[tuple[str, str]]
-    | list[dict[str, str]]
+    list[StructuredContextTranslationTerm] | dict[str, str]
 )
 """Accepted input shapes for ``StructuredContext.translation_terms``."""
 
@@ -212,18 +206,16 @@ StructuredContextTranslationTermsInput: TypeAlias = (
 class StructuredContext(BaseModel):
     """Optional structured context provided to the transcription engine.
 
-    For ergonomics, the ``general`` and ``translation_terms`` fields accept
-    several shorthand forms in addition to the typed item lists:
+    For ergonomics, ``general`` and ``translation_terms`` also accept a plain
+    dict in addition to the typed item lists:
 
     - ``general={"domain": "Healthcare"}`` (dict of key -> value)
-    - ``general=[("domain", "Healthcare")]`` (list of tuples)
     - ``translation_terms={"Mr. Smith": "Sr. Smith"}`` (dict of source -> target)
-    - ``translation_terms=[("Mr. Smith", "Sr. Smith")]`` (list of tuples)
     """
 
-    general: Annotated[
-        StructuredContextGeneralInput, Field(union_mode="left_to_right")
-    ] | None = None
+    general: Annotated[StructuredContextGeneralInput, Field(union_mode="left_to_right")] | None = (
+        None
+    )
     """Structured key-value pairs describing domain, topic, intent, participant names, etc."""
 
     text: str | None = None
@@ -232,38 +224,30 @@ class StructuredContext(BaseModel):
     terms: list[str] | None = None
     """Domain-specific or uncommon words to recognize."""
 
-    translation_terms: Annotated[
-        StructuredContextTranslationTermsInput, Field(union_mode="left_to_right")
-    ] | None = None
+    translation_terms: (
+        Annotated[StructuredContextTranslationTermsInput, Field(union_mode="left_to_right")] | None
+    ) = None
     """Custom translations for ambiguous terms."""
 
     @field_validator("general", mode="before")
     @classmethod
     def _coerce_general(cls, v: Any) -> Any:
         if isinstance(v, dict):
-            return [{"key": k, "value": val} for k, val in v.items()]
-        if isinstance(v, list):
-            return [
-                {"key": item[0], "value": item[1]} if isinstance(item, tuple) else item
-                for item in v
-            ]
+            items_dict = cast("dict[str, str]", v)
+            return [{"key": k, "value": val} for k, val in items_dict.items()]
         return v
 
     @field_validator("translation_terms", mode="before")
     @classmethod
     def _coerce_translation_terms(cls, v: Any) -> Any:
         if isinstance(v, dict):
-            return [{"source": k, "target": val} for k, val in v.items()]
-        if isinstance(v, list):
-            return [
-                {"source": item[0], "target": item[1]} if isinstance(item, tuple) else item
-                for item in v
-            ]
+            items_dict = cast("dict[str, str]", v)
+            return [{"source": k, "target": val} for k, val in items_dict.items()]
         return v
 
 
 StructuredContextInput: TypeAlias = StructuredContext | dict[str, Any]
-"""Accepted input for the ``context`` field — typed object or a plain dict."""
+"""Accepted input for the ``context`` field - typed object or a plain dict."""
 
 
 class TranslationConfig(BaseModel):
@@ -272,8 +256,7 @@ class TranslationConfig(BaseModel):
     type: TranslationType
     """Translation type."""
 
-    target_language: str | None = Field(
-        default=None, min_length=2, max_length=2)
+    target_language: str | None = Field(default=None, min_length=2, max_length=2)
     """Target language code for translation (e.g., "fr", "es", "de") (one_way)."""
 
     language_a: str | None = Field(default=None, min_length=2, max_length=2)
@@ -292,8 +275,7 @@ class TranslationConfig(BaseModel):
 
         elif self.type == "two_way":
             if not self.language_a or not self.language_b:
-                raise ValueError(
-                    "language_a and language_b are both required for two_way")
+                raise ValueError("language_a and language_b are both required for two_way")
             # Clean up other fields if user passed them by accident
             self.target_language = None
 
@@ -301,7 +283,7 @@ class TranslationConfig(BaseModel):
 
 
 TranslationConfigInput: TypeAlias = TranslationConfig | dict[str, Any]
-"""Accepted input for the ``translation`` field — typed object or a plain dict."""
+"""Accepted input for the ``translation`` field - typed object or a plain dict."""
 
 
 class CreateTranscriptionPayload(BaseModel):
@@ -349,8 +331,7 @@ class CreateTranscriptionPayload(BaseModel):
     @model_validator(mode="after")
     def _validate_audio_source(self) -> Self:
         if self.audio_url and self.file_id:
-            raise ValueError(
-                "Only one of audio_url or file_id can be provided.")
+            raise ValueError("Only one of audio_url or file_id can be provided.")
         if not self.audio_url and not self.file_id:
             raise ValueError("Either audio_url or file_id must be provided.")
         return self
@@ -556,7 +537,7 @@ class TtsModel(BaseModel):
     voices: list[TtsVoice]
     """Voices supported by this model."""
 
-    languages: list[Language] = Field(default_factory=list)
+    languages: list[Language] = []
     """Languages supported by this model."""
 
 
