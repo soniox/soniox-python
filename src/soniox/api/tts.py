@@ -94,5 +94,4 @@ class TtsAPI:
             path.write_bytes(audio)
             return len(audio)
 
-        written = output.write(audio)
-        return written if written is not None else len(audio)
+        return output.write(audio)

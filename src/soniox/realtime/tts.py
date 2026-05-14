@@ -476,7 +476,7 @@ class RealtimeTTSStream:
             text_end=text_end,
             stream_id=self._config.stream_id,
         )
-        self._connection._send_json(payload.model_dump())
+        self._connection._send_json(payload.model_dump())  # pyright: ignore[reportPrivateUsage]
 
     def send_text_chunks(self, chunks: str | Iterator[str], *, text_end: bool = True) -> None:
         """Send text chunks for this stream."""
@@ -495,7 +495,7 @@ class RealtimeTTSStream:
     def cancel(self) -> None:
         """Cancel this stream."""
         payload = RealtimeTTSCancelMessage(stream_id=self._config.stream_id)
-        self._connection._send_json(payload.model_dump())
+        self._connection._send_json(payload.model_dump())  # pyright: ignore[reportPrivateUsage]
 
     def keep_alive(self) -> None:
         """Send a keepalive message on the underlying shared connection."""
@@ -511,16 +511,16 @@ class RealtimeTTSStream:
 
     def receive_event(self) -> RealtimeTTSEvent | None:
         """Receive the next event for this stream."""
-        event = self._connection._receive_event_for_stream(self._config.stream_id)
+        event = self._connection._receive_event_for_stream(self._config.stream_id)  # pyright: ignore[reportPrivateUsage]
         if event is None:
             return None
         self._last_message = event
         if event.error_code is not None:
             message = event.error_message or "Realtime Text-to-Speech stream failed"
-            self._connection._deactivate_stream(self._config.stream_id)
+            self._connection._deactivate_stream(self._config.stream_id)  # pyright: ignore[reportPrivateUsage]
             raise SonioxRealtimeError(f"{message} (code {event.error_code})")
         if event.terminated:
-            self._connection._deactivate_stream(self._config.stream_id)
+            self._connection._deactivate_stream(self._config.stream_id)  # pyright: ignore[reportPrivateUsage]
         return event
 
     def receive_events(self) -> Iterator[RealtimeTTSEvent]:
