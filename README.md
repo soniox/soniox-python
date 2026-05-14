@@ -1,6 +1,7 @@
 # Soniox Python SDK
 
 The SDK exposes two clients: `SonioxClient` (sync) and `AsyncSonioxClient` (async). Each client supports:
+
 - STT over REST (`client.stt`) and realtime WebSocket (`client.realtime.stt`)
 - TTS over REST (`client.tts`) and realtime WebSocket (`client.realtime.tts`)
 - auth, file uploads, model listing, webhooks, and typed request/response models
@@ -15,6 +16,8 @@ export SONIOX_API_KEY=<your-key>
 ```
 
 Get your API key from the [Soniox Console](https://console.soniox.com) and inject it once per shell session. Both clients read `SONIOX_API_KEY` by default, but you can override it per-client if needed.
+
+> **Avoid Python 3.13.6** - it has a regression in `ssl` that hangs realtime STT/TTS (CPython issue [#137583](https://github.com/python/cpython/issues/137583)). Use any other 3.10-3.13.x.
 
 ## Quick run (STT + TTS, REST + realtime)
 
@@ -82,6 +85,7 @@ def realtime():
             non_final_tokens.clear()
 
 realtime()
+client.close()
 ```
 
 See [`examples/soniox_client/realtime_example.py`](https://github.com/soniox/soniox-python/blob/main/examples/soniox_client/realtime_example.py) for the full flow.
