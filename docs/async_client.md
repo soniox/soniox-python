@@ -48,6 +48,7 @@ AsyncSonioxClient(api_key: str | None = None, api_base_url: str | None = None, w
 | `models` | `AsyncModelsAPI` | List of available Text-to-Speech models. |
 | `tts_models` | `AsyncTtsModelsAPI` | - |
 | `usage_logs` | `AsyncUsageLogsAPI` | Per-request usage log entries ordered by end_time. |
+| `concurrency_limits` | `AsyncConcurrencyLimitsAPI` | - |
 | `auth` | `AsyncAuthAPI` | Authentication API namespace. |
 | `webhooks` | `AsyncSonioxWebhooksAPI` | Webhook utilities API namespace. |
 | `realtime` | `AsyncRealtimeAPI` | Entrypoint for async realtime helpers on AsyncSonioxClient. |
@@ -1003,7 +1004,7 @@ AsyncTtsAPI(client: AsyncSonioxClient)
 ### generate()
 
 ```python
-generate(*, text: str, voice: str = DEFAULT_VOICE, model: str = DEFAULT_MODEL, language: str = DEFAULT_LANGUAGE, audio_format: TtsAudioFormat = DEFAULT_AUDIO_FORMAT, sample_rate: TtsSampleRate | None = None, bitrate: TtsBitrate | None = None, config: CreateTtsConfig | None = None) -> bytes
+generate(*, text: str, voice: str, model: str = DEFAULT_MODEL, language: str = DEFAULT_LANGUAGE, audio_format: TtsAudioFormat = DEFAULT_AUDIO_FORMAT, sample_rate: TtsSampleRate | None = None, bitrate: TtsBitrate | None = None, config: CreateTtsConfig | None = None) -> bytes
 ```
 
 Generate speech audio from text and return raw audio bytes.

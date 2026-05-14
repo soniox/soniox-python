@@ -1,7 +1,7 @@
 ---
 title: "Types"
 description: "Soniox Python SDK - Types Reference"
-keywords: "Token, ApiError, ApiErrorValidationError, CreateTemporaryApiKeyPayload, CreateTemporaryApiKeyResponse, CreateTtsPayload, CreateTtsConfig, CreateTranscriptionPayload, CreateTranscriptionConfig, File, GetFilesCountResponse, GetFilesPayload, GetFilesResponse, GetModelsResponse, GetTTSModelsResponse, GetTtsModelsResponse, GetTranscriptionsCountResponse, GetTranscriptionsPayload, GetTranscriptionsResponse, GetUsageLogsPayload, GetUsageLogsResponse, Language, Model, RealtimeSTTAudioFormat, RealtimeSTTAutoFormat, RealtimeSTTHeaderFormat, RealtimeSTTRawFormat, StructuredContext, StructuredContextGeneralInput, StructuredContextGeneralItem, StructuredContextInput, StructuredContextTranslationTerm, StructuredContextTranslationTermsInput, Transcription, TranscriptionStatus, TranscriptionTranscript, TranslationConfig, TranslationConfigInput, TranslationTarget, TranslationType, TTSModel, TTSVoice, TtsAudioFormat, TtsBitrate, TtsModel, TtsSampleRate, TtsVoice, TemporaryApiKeyUsageType, UploadFilePayload, UsageLogEntry, UsageLogsSort, RealtimeEvent, RealtimeSTTConfig, RealtimeTTSConfig, RealtimeTTSEvent, RealtimeTTSTextMessage, Headers, WebhookAuthConfig, WebhookEvent"
+keywords: "Token, ApiError, ApiErrorValidationError, CreateTemporaryApiKeyPayload, CreateTemporaryApiKeyResponse, CreateTtsPayload, ConcurrencyCurrentValues, ConcurrencyLimitValues, ConcurrencyScopeValues, CreateTtsConfig, CreateTranscriptionPayload, CreateTranscriptionConfig, File, GetConcurrencyLimitsResponse, GetFilesCountResponse, GetFilesPayload, GetFilesResponse, GetModelsResponse, GetTTSModelsResponse, GetTtsModelsResponse, GetTranscriptionsCountResponse, GetTranscriptionsPayload, GetTranscriptionsResponse, GetUsageLogsPayload, GetUsageLogsResponse, Language, Model, RealtimeSTTAudioFormat, RealtimeSTTHeaderFormat, RealtimeSTTRawFormat, StructuredContext, StructuredContextGeneralInput, StructuredContextGeneralItem, StructuredContextInput, StructuredContextTranslationTerm, StructuredContextTranslationTermsInput, Transcription, TranscriptionStatus, TranscriptionTranscript, TranslationConfig, TranslationConfigInput, TranslationTarget, TranslationType, TTSModel, TTSVoice, TtsAudioFormat, TtsBitrate, TtsModel, TtsSampleRate, TtsVoice, TtsVoiceGender, TemporaryApiKeyUsageType, UploadFilePayload, UsageLogEntry, UsageLogsSort, RealtimeEvent, RealtimeSTTConfig, RealtimeTTSConfig, RealtimeTTSEvent, RealtimeTTSTextMessage, Headers, WebhookAuthConfig, WebhookEvent"
 ---
 
 ---
@@ -116,6 +116,51 @@ Payload sent to generate speech audio from text via REST.
 
 ---
 
+## ConcurrencyCurrentValues
+
+Live counts of concurrent sessions.
+
+<a id="concurrencycurrentvalues-properties"></a>
+
+### Properties
+
+| Property | Type | Description |
+| ------ | ------ | ------ |
+| `transcribe_concurrent` | `int` | Number of concurrent realtime STT sessions currently active. |
+| `tts_concurrent` | `int` | Number of concurrent realtime TTS sessions currently active. |
+
+---
+
+## ConcurrencyLimitValues
+
+Configured concurrency limits. None means no limit.
+
+<a id="concurrencylimitvalues-properties"></a>
+
+### Properties
+
+| Property | Type | Description |
+| ------ | ------ | ------ |
+| `transcribe_concurrent` | `int \| None` | Maximum concurrent realtime STT sessions, or None if unlimited. |
+| `tts_concurrent` | `int \| None` | Maximum concurrent realtime TTS sessions, or None if unlimited. |
+
+---
+
+## ConcurrencyScopeValues
+
+Current and limit values for a single scope (project or organization).
+
+<a id="concurrencyscopevalues-properties"></a>
+
+### Properties
+
+| Property | Type | Description |
+| ------ | ------ | ------ |
+| `current` | `ConcurrencyCurrentValues` | Live counts of active sessions. |
+| `limits` | `ConcurrencyLimitValues` | Configured limits. |
+
+---
+
 ## CreateTtsConfig
 
 Helper config used when building Text-to-Speech payloads.
@@ -200,6 +245,21 @@ Metadata describing an uploaded file in the Soniox API.
 | `size` | `int` | Size of the file in bytes. |
 | `created_at` | `datetime` | UTC timestamp indicating when the file was uploaded. |
 | `client_reference_id` | `str \| None` | Optional tracking identifier string. |
+
+---
+
+## GetConcurrencyLimitsResponse
+
+Response returned when fetching concurrency limits.
+
+<a id="getconcurrencylimitsresponse-properties"></a>
+
+### Properties
+
+| Property | Type | Description |
+| ------ | ------ | ------ |
+| `project` | `ConcurrencyScopeValues` | Project-scoped current counts and configured limits. |
+| `organization` | `ConcurrencyScopeValues` | Organization-scoped current counts and configured limits. |
 
 ---
 
@@ -411,79 +471,48 @@ Describes a Soniox transcription model.
 ## RealtimeSTTAudioFormat
 
 ```python
-RealtimeSTTAudioFormat = RealtimeSTTAutoFormat | RealtimeSTTHeaderFormat | RealtimeSTTRawFormat
+RealtimeSTTAudioFormat = Literal["auto"] | RealtimeSTTHeaderFormat | RealtimeSTTRawFormat
 ```
 
 Audio formats accepted by the realtime STT websocket.
 
 ---
 
-## RealtimeSTTAutoFormat
-
-Auto-detection sentinel — server sniffs the container format.
-
-<a id="realtimesttautoformat-properties"></a>
-
-### Properties
-
-| Property | Type | Description |
-| ------ | ------ | ------ |
-| `AUTO` | `-` | - |
-
----
+<a id="realtimesttheaderformat"></a>
 
 ## RealtimeSTTHeaderFormat
 
+```python
+RealtimeSTTHeaderFormat = Literal[
+    "aac", "aiff", "amr", "asf", "flac", "mp3", "ogg", "wav", "webm",
+]
+```
+
 Container formats whose header carries sample rate and channels.
-
-<a id="realtimesttheaderformat-properties"></a>
-
-### Properties
-
-| Property | Type | Description |
-| ------ | ------ | ------ |
-| `AAC` | `-` | - |
-| `AIFF` | `-` | - |
-| `AMR` | `-` | - |
-| `ASF` | `-` | - |
-| `FLAC` | `-` | - |
-| `MP3` | `-` | - |
-| `OGG` | `-` | - |
-| `WAV` | `-` | - |
-| `WEBM` | `-` | - |
 
 ---
 
+<a id="realtimesttrawformat"></a>
+
 ## RealtimeSTTRawFormat
 
-Raw formats with no header — require ``sample_rate`` and ``num_channels``.
+```python
+RealtimeSTTRawFormat = Literal[
+    "pcm_s8",
+    "pcm_s16le", "pcm_s16be",
+    "pcm_s24le", "pcm_s24be",
+    "pcm_s32le", "pcm_s32be",
+    "pcm_u8",
+    "pcm_u16le", "pcm_u16be",
+    "pcm_u24le", "pcm_u24be",
+    "pcm_u32le", "pcm_u32be",
+    "pcm_f32le", "pcm_f32be",
+    "pcm_f64le", "pcm_f64be",
+    "mulaw", "alaw",
+]
+```
 
-<a id="realtimesttrawformat-properties"></a>
-
-### Properties
-
-| Property | Type | Description |
-| ------ | ------ | ------ |
-| `PCM_S8` | `-` | - |
-| `PCM_S16LE` | `-` | - |
-| `PCM_S16BE` | `-` | - |
-| `PCM_S24LE` | `-` | - |
-| `PCM_S24BE` | `-` | - |
-| `PCM_S32LE` | `-` | - |
-| `PCM_S32BE` | `-` | - |
-| `PCM_U8` | `-` | - |
-| `PCM_U16LE` | `-` | - |
-| `PCM_U16BE` | `-` | - |
-| `PCM_U24LE` | `-` | - |
-| `PCM_U24BE` | `-` | - |
-| `PCM_U32LE` | `-` | - |
-| `PCM_U32BE` | `-` | - |
-| `PCM_F32LE` | `-` | - |
-| `PCM_F32BE` | `-` | - |
-| `PCM_F64LE` | `-` | - |
-| `PCM_F64BE` | `-` | - |
-| `MULAW` | `-` | - |
-| `ALAW` | `-` | - |
+Raw formats with no header - require ``sample_rate`` and ``num_channels``.
 
 ---
 
@@ -491,13 +520,11 @@ Raw formats with no header — require ``sample_rate`` and ``num_channels``.
 
 Optional structured context provided to the transcription engine.
 
-For ergonomics, the ``general`` and ``translation_terms`` fields accept
-several shorthand forms in addition to the typed item lists:
+For ergonomics, ``general`` and ``translation_terms`` also accept a plain
+dict in addition to the typed item lists:
 
 - ``general={"domain": "Healthcare"}`` (dict of key -> value)
-- ``general=[("domain", "Healthcare")]`` (list of tuples)
 - ``translation_terms={"Mr. Smith": "Sr. Smith"}`` (dict of source -> target)
-- ``translation_terms=[("Mr. Smith", "Sr. Smith")]`` (list of tuples)
 
 <a id="structuredcontext-properties"></a>
 
@@ -517,10 +544,7 @@ several shorthand forms in addition to the typed item lists:
 ## StructuredContextGeneralInput
 
 ```python
-StructuredContextGeneralInput = list[StructuredContextGeneralItem]
-    | dict[str, str]
-    | list[tuple[str, str]]
-    | list[dict[str, str]]
+StructuredContextGeneralInput = list[StructuredContextGeneralItem] | dict[str, str]
 ```
 
 Accepted input shapes for ``StructuredContext.general``.
@@ -550,7 +574,7 @@ Single general context key/value pair for transcription context.
 StructuredContextInput = StructuredContext | dict[str, Any]
 ```
 
-Accepted input for the ``context`` field — typed object or a plain dict.
+Accepted input for the ``context`` field - typed object or a plain dict.
 
 ---
 
@@ -574,10 +598,7 @@ Defines a translation term mapping used in structured context.
 ## StructuredContextTranslationTermsInput
 
 ```python
-StructuredContextTranslationTermsInput = list[StructuredContextTranslationTerm]
-    | dict[str, str]
-    | list[tuple[str, str]]
-    | list[dict[str, str]]
+StructuredContextTranslationTermsInput = list[StructuredContextTranslationTerm] | dict[str, str]
 ```
 
 Accepted input shapes for ``StructuredContext.translation_terms``.
@@ -680,7 +701,7 @@ validate_logic() -> TranslationConfig
 TranslationConfigInput = TranslationConfig | dict[str, Any]
 ```
 
-Accepted input for the ``translation`` field — typed object or a plain dict.
+Accepted input for the ``translation`` field - typed object or a plain dict.
 
 ---
 
@@ -807,6 +828,20 @@ Represents a Text-to-Speech voice.
 | Property | Type | Description |
 | ------ | ------ | ------ |
 | `id` | `str` | Unique identifier of the voice. |
+| `description` | `str` | Description of the voice. |
+| `gender` | `TtsVoiceGender` | Gender of the voice. |
+
+---
+
+<a id="ttsvoicegender"></a>
+
+## TtsVoiceGender
+
+```python
+TtsVoiceGender = Literal["male", "female", "neutral"]
+```
+
+Reported gender of a Text-to-Speech voice.
 
 ---
 

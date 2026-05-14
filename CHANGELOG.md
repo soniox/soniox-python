@@ -63,7 +63,8 @@ Examples:
 
 ### Added
 
--
+- `client.concurrency_limits.get()` (and async variant) returning current and configured concurrency limits for realtime STT and TTS, scoped to project and organization.
+- `TtsVoice.description` and `TtsVoice.gender` (`"male" | "female" | "neutral"`) fields, exposing richer voice metadata from the server. Enables programmatic voice filtering.
 
 ### Changed
 
