@@ -1003,7 +1003,7 @@ AsyncTtsAPI(client: AsyncSonioxClient)
 ### generate()
 
 ```python
-generate(*, text: str, voice: str, model: str = DEFAULT_MODEL, language: str = DEFAULT_LANGUAGE, audio_format: TtsAudioFormat = DEFAULT_AUDIO_FORMAT, sample_rate: TtsSampleRate | None = None, bitrate: TtsBitrate | None = None, config: CreateTtsConfig | None = None) -> bytes
+generate(*, text: str, voice: str = DEFAULT_VOICE, model: str = DEFAULT_MODEL, language: str = DEFAULT_LANGUAGE, audio_format: TtsAudioFormat = DEFAULT_AUDIO_FORMAT, sample_rate: TtsSampleRate | None = None, bitrate: TtsBitrate | None = None, config: CreateTtsConfig | None = None) -> bytes
 ```
 
 Generate speech audio from text and return raw audio bytes.

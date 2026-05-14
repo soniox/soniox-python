@@ -1,7 +1,7 @@
 ---
 title: "Types"
 description: "Soniox Python SDK - Types Reference"
-keywords: "Token, ApiError, ApiErrorValidationError, CreateTemporaryApiKeyPayload, CreateTemporaryApiKeyResponse, CreateTtsPayload, CreateTtsConfig, CreateTranscriptionPayload, CreateTranscriptionConfig, File, GetFilesCountResponse, GetFilesPayload, GetFilesResponse, GetModelsResponse, GetTTSModelsResponse, GetTtsModelsResponse, GetTranscriptionsCountResponse, GetTranscriptionsPayload, GetTranscriptionsResponse, GetUsageLogsPayload, GetUsageLogsResponse, Language, Model, StructuredContext, StructuredContextGeneralInput, StructuredContextGeneralItem, StructuredContextInput, StructuredContextTranslationTerm, StructuredContextTranslationTermsInput, Transcription, TranscriptionStatus, TranscriptionTranscript, TranslationConfig, TranslationConfigInput, TranslationTarget, TranslationType, TTSModel, TTSVoice, TtsAudioFormat, TtsBitrate, TtsModel, TtsSampleRate, TtsVoice, TemporaryApiKeyUsageType, UploadFilePayload, UsageLogEntry, UsageLogsSort, RealtimeEvent, RealtimeSTTConfig, RealtimeTTSConfig, RealtimeTTSEvent, RealtimeTTSTextMessage, Headers, WebhookAuthConfig, WebhookEvent"
+keywords: "Token, ApiError, ApiErrorValidationError, CreateTemporaryApiKeyPayload, CreateTemporaryApiKeyResponse, CreateTtsPayload, CreateTtsConfig, CreateTranscriptionPayload, CreateTranscriptionConfig, File, GetFilesCountResponse, GetFilesPayload, GetFilesResponse, GetModelsResponse, GetTTSModelsResponse, GetTtsModelsResponse, GetTranscriptionsCountResponse, GetTranscriptionsPayload, GetTranscriptionsResponse, GetUsageLogsPayload, GetUsageLogsResponse, Language, Model, RealtimeSTTAudioFormat, RealtimeSTTAutoFormat, RealtimeSTTHeaderFormat, RealtimeSTTRawFormat, StructuredContext, StructuredContextGeneralInput, StructuredContextGeneralItem, StructuredContextInput, StructuredContextTranslationTerm, StructuredContextTranslationTermsInput, Transcription, TranscriptionStatus, TranscriptionTranscript, TranslationConfig, TranslationConfigInput, TranslationTarget, TranslationType, TTSModel, TTSVoice, TtsAudioFormat, TtsBitrate, TtsModel, TtsSampleRate, TtsVoice, TemporaryApiKeyUsageType, UploadFilePayload, UsageLogEntry, UsageLogsSort, RealtimeEvent, RealtimeSTTConfig, RealtimeTTSConfig, RealtimeTTSEvent, RealtimeTTSTextMessage, Headers, WebhookAuthConfig, WebhookEvent"
 ---
 
 ---
@@ -403,6 +403,87 @@ Describes a Soniox transcription model.
 | `two_way_translation_pairs` | `list[str]` | List of supported two-way translation pairs. If list is empty, check for one_way_translation field. |
 | `one_way_translation` | `str \| None` | When contains string 'all_languages', any language from languages can be used |
 | `two_way_translation` | `str \| None` | When contains string 'all_languages',' any language pair from languages can be used |
+
+---
+
+<a id="realtimesttaudioformat"></a>
+
+## RealtimeSTTAudioFormat
+
+```python
+RealtimeSTTAudioFormat = RealtimeSTTAutoFormat | RealtimeSTTHeaderFormat | RealtimeSTTRawFormat
+```
+
+Audio formats accepted by the realtime STT websocket.
+
+---
+
+## RealtimeSTTAutoFormat
+
+Auto-detection sentinel — server sniffs the container format.
+
+<a id="realtimesttautoformat-properties"></a>
+
+### Properties
+
+| Property | Type | Description |
+| ------ | ------ | ------ |
+| `AUTO` | `-` | - |
+
+---
+
+## RealtimeSTTHeaderFormat
+
+Container formats whose header carries sample rate and channels.
+
+<a id="realtimesttheaderformat-properties"></a>
+
+### Properties
+
+| Property | Type | Description |
+| ------ | ------ | ------ |
+| `AAC` | `-` | - |
+| `AIFF` | `-` | - |
+| `AMR` | `-` | - |
+| `ASF` | `-` | - |
+| `FLAC` | `-` | - |
+| `MP3` | `-` | - |
+| `OGG` | `-` | - |
+| `WAV` | `-` | - |
+| `WEBM` | `-` | - |
+
+---
+
+## RealtimeSTTRawFormat
+
+Raw formats with no header — require ``sample_rate`` and ``num_channels``.
+
+<a id="realtimesttrawformat-properties"></a>
+
+### Properties
+
+| Property | Type | Description |
+| ------ | ------ | ------ |
+| `PCM_S8` | `-` | - |
+| `PCM_S16LE` | `-` | - |
+| `PCM_S16BE` | `-` | - |
+| `PCM_S24LE` | `-` | - |
+| `PCM_S24BE` | `-` | - |
+| `PCM_S32LE` | `-` | - |
+| `PCM_S32BE` | `-` | - |
+| `PCM_U8` | `-` | - |
+| `PCM_U16LE` | `-` | - |
+| `PCM_U16BE` | `-` | - |
+| `PCM_U24LE` | `-` | - |
+| `PCM_U24BE` | `-` | - |
+| `PCM_U32LE` | `-` | - |
+| `PCM_U32BE` | `-` | - |
+| `PCM_F32LE` | `-` | - |
+| `PCM_F32BE` | `-` | - |
+| `PCM_F64LE` | `-` | - |
+| `PCM_F64BE` | `-` | - |
+| `MULAW` | `-` | - |
+| `ALAW` | `-` | - |
 
 ---
 
@@ -848,7 +929,7 @@ Configuration for initiating a realtime transcription session.
 | ------ | ------ | ------ |
 | `api_key` | `str \| None` | API key for real-time sessions. |
 | `model` | `str` | Speech-to-text model to use. |
-| `audio_format` | `str` | Audio format. Use 'auto' for automatic detection of container formats. |
+| `audio_format` | `RealtimeSTTAudioFormat` | Audio format. Use 'auto' for automatic detection of container formats. |
 | `num_channels` | `int \| None` | Number of audio channels (required for raw audio formats). |
 | `sample_rate` | `int \| None` | Sample rate in Hz (required for PCM formats). |
 | `language_hints` | `list[str] \| None` | Expected languages in the audio (ISO language codes). |

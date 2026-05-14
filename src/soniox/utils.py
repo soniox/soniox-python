@@ -12,6 +12,17 @@ from soniox.realtime.tts import RealtimeTTSConnection, RealtimeTTSStream
 
 from .types import Token
 
+__all__ = [
+    "output_file_for_audio_format",
+    "render_tokens",
+    "start_audio_thread",
+    "start_text_thread",
+    "stream_audio",
+    "stream_audio_async",
+    "throttle_audio",
+    "throttle_audio_async",
+]
+
 
 def output_file_for_audio_format(audio_format: str, prefix: str) -> Path:
     """Build an output file path with extension and datetime suffix."""

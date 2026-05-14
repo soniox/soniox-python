@@ -184,10 +184,12 @@ is established when entering the context manager.
 close() -> None
 ```
 
-Gracefully close the realtime session.
+Close the realtime session and release the WebSocket.
 
-Sends a final empty message to signal end-of-stream, then closes
-the WebSocket connection. Calling this method multiple times is safe.
+Signals end-of-audio to the server and clears the underlying
+connection. Subsequent calls are no-ops.
+
+Called automatically when exiting the context manager.
 
 **Returns**
 
@@ -234,17 +236,18 @@ send_bytes(chunks: bytes | Iterator[bytes], *, finish: bool = True) -> None
 
 Send audio data to the realtime stream.
 
-This method accepts either a single bytes object or an iterator
-yielding audio chunks. When an iterator is provided, a FINISH
-control message is sent automatically after all chunks have
-been transmitted.
+Accepts either a single bytes object or an iterator yielding byte
+chunks (e.g. from `throttle_audio`). If `finish=True` (the default),
+an end-of-audio signal is sent after the last chunk; pass
+`finish=False` when you intend to send more audio later in the
+same session.
 
 **Parameters**
 
 | Parameter | Type | Description |
 | ------ | ------ | ------ |
-| `chunks` | `bytes \| Iterator[bytes]` | Audio data as raw bytes or an iterator of byte chunks. |
-| `finish` | `bool` | Whether to send a finish signal after streaming completes. |
+| `chunks` | `bytes \| Iterator[bytes]` | Raw bytes or an iterator of byte chunks. |
+| `finish` | `bool` | If True (default), signal end-of-audio after the last chunk. |
 
 **Returns**
 
@@ -289,7 +292,11 @@ end-of-audio or requesting finalization.
 finish() -> None
 ```
 
-Signal that no more audio will be sent for this session.
+Signal end-of-audio.
+
+The server finalizes any pending tokens and closes the
+connection. Continue iterating `receive_events()` to consume
+the remaining tokens.
 
 **Returns**
 
@@ -1252,10 +1259,12 @@ is established when entering the async context manager.
 close() -> None
 ```
 
-Gracefully close the realtime session.
+Close the realtime session and release the WebSocket.
 
-Sends a final empty message to signal end-of-stream, then closes
-the WebSocket connection. Calling this method multiple times is safe.
+Signals end-of-audio to the server and clears the underlying
+connection. Subsequent calls are no-ops.
+
+Called automatically when exiting the async context manager.
 
 **Returns**
 
@@ -1302,17 +1311,18 @@ send_bytes(chunks: bytes | AsyncIterator[bytes], *, finish: bool = True) -> None
 
 Send audio data to the realtime stream.
 
-This method accepts either a single bytes object or an iterator
-yielding audio chunks. When an iterator is provided, a
-FINISH control message is sent automatically after all chunks
-have been transmitted.
+Accepts either a single bytes object or an async iterator yielding
+byte chunks (e.g. from `throttle_audio_async`). If `finish=True`
+(the default), an end-of-audio signal is sent after the last chunk;
+pass `finish=False` when you intend to send more audio later in the
+same session.
 
 **Parameters**
 
 | Parameter | Type | Description |
 | ------ | ------ | ------ |
-| `chunks` | `bytes \| AsyncIterator[bytes]` | Audio data as raw bytes or an iterator of byte chunks. |
-| `finish` | `bool` | Whether to send a finish signal after streaming completes. |
+| `chunks` | `bytes \| AsyncIterator[bytes]` | Raw bytes or an async iterator of byte chunks. |
+| `finish` | `bool` | If True (default), signal end-of-audio after the last chunk. |
 
 **Returns**
 
@@ -1357,7 +1367,11 @@ end-of-audio or requesting finalization.
 finish() -> None
 ```
 
-Signal that no more audio will be sent for this session.
+Signal end-of-audio.
+
+The server finalizes any pending tokens and closes the
+connection. Continue iterating `receive_events()` to consume
+the remaining tokens.
 
 **Returns**
 
