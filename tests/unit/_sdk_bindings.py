@@ -118,6 +118,10 @@ SDK_BINDINGS: dict[str, SdkBinding] = {
             start_time="2026-01-01T00:00:00Z", end_time="2026-02-01T00:00:00Z"
         ),
     ),
+    "get_concurrency_limits": SdkBinding(
+        sync_call=lambda c: c.concurrency_limits.get(),
+        async_call=lambda c: c.concurrency_limits.get(),
+    ),
     "create_temporary_api_key": SdkBinding(
         sync_call=lambda c: c.auth.create_temporary_api_key(usage_type="transcribe_websocket"),
         async_call=lambda c: c.auth.create_temporary_api_key(usage_type="transcribe_websocket"),

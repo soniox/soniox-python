@@ -1,4 +1,5 @@
 from .async_auth import AsyncAuthAPI
+from .async_concurrency_limits import AsyncConcurrencyLimitsAPI
 from .async_files import AsyncFilesAPI
 from .async_models import AsyncModelsAPI
 from .async_stt import AsyncSttAPI
@@ -7,6 +8,7 @@ from .async_tts_models import AsyncTtsModelsAPI
 from .async_usage_logs import AsyncUsageLogsAPI
 from .async_webhooks import AsyncSonioxWebhooksAPI
 from .auth import AuthAPI
+from .concurrency_limits import ConcurrencyLimitsAPI
 from .files import FilesAPI
 from .models import ModelsAPI
 from .stt import SttAPI
@@ -28,6 +30,8 @@ __all__ = [
     "AsyncModelsAPI",
     "AuthAPI",
     "AsyncAuthAPI",
+    "ConcurrencyLimitsAPI",
+    "AsyncConcurrencyLimitsAPI",
     "SonioxWebhooksAPI",
     "AsyncSonioxWebhooksAPI",
     "UsageLogsAPI",
