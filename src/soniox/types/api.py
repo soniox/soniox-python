@@ -67,6 +67,9 @@ TtsSampleRate = Literal[8000, 16000, 24000, 44100, 48000]
 TtsBitrate = Literal[32000, 64000, 96000, 128000, 192000, 256000, 320000]
 """Allowed output bitrates in bits-per-second for compressed Text-to-Speech formats."""
 
+TtsVoiceGender = Literal["male", "female", "neutral"]
+"""Reported gender of a Text-to-Speech voice."""
+
 
 class ApiErrorValidationError(BaseModel):
     """Details a single validation error reported by the Soniox API."""
@@ -521,6 +524,12 @@ class TtsVoice(BaseModel):
     id: str
     """Unique identifier of the voice."""
 
+    description: str
+    """Description of the voice."""
+
+    gender: TtsVoiceGender
+    """Gender of the voice."""
+
 
 class TtsModel(BaseModel):
     """Represents a Text-to-Speech model."""
@@ -706,3 +715,43 @@ class GetUsageLogsResponse(BaseModel):
 
     next_page_cursor: str | None = None
     """Pagination cursor for the next page of results. None if no more pages."""
+
+
+class ConcurrencyCurrentValues(BaseModel):
+    """Live counts of concurrent sessions."""
+
+    transcribe_concurrent: int
+    """Number of concurrent realtime STT sessions currently active."""
+
+    tts_concurrent: int
+    """Number of concurrent realtime TTS sessions currently active."""
+
+
+class ConcurrencyLimitValues(BaseModel):
+    """Configured concurrency limits. None means no limit."""
+
+    transcribe_concurrent: int | None
+    """Maximum concurrent realtime STT sessions, or None if unlimited."""
+
+    tts_concurrent: int | None
+    """Maximum concurrent realtime TTS sessions, or None if unlimited."""
+
+
+class ConcurrencyScopeValues(BaseModel):
+    """Current and limit values for a single scope (project or organization)."""
+
+    current: ConcurrencyCurrentValues
+    """Live counts of active sessions."""
+
+    limits: ConcurrencyLimitValues
+    """Configured limits."""
+
+
+class GetConcurrencyLimitsResponse(BaseModel):
+    """Response returned when fetching concurrency limits."""
+
+    project: ConcurrencyScopeValues
+    """Project-scoped current counts and configured limits."""
+
+    organization: ConcurrencyScopeValues
+    """Organization-scoped current counts and configured limits."""
