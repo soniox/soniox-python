@@ -2,15 +2,15 @@
 Mapping from OpenAPI ``operationId`` to the matching SDK call shape.
 
 OpenAPI tells us the wire contract (method, URL, status, response model).
-It does *not* tell us how to invoke the SDK — that's a Python-side concern.
+It does *not* tell us how to invoke the SDK - that's a Python-side concern.
 This file fills that gap and nothing else.
 
 Two maps:
 
-* :data:`SDK_BINDINGS` — one entry per operation, calling the SDK with the
+* :data:`SDK_BINDINGS` - one entry per operation, calling the SDK with the
   *minimum* required arguments. The coverage guard in ``test_api.py``
   enforces that every schema operation is represented here.
-* :data:`SDK_BINDINGS_FULL` — optional overrides that call the same endpoint
+* :data:`SDK_BINDINGS_FULL` - optional overrides that call the same endpoint
   with *every* optional field populated. Used to catch "SDK silently drops a
   newly-added optional field" regressions. Only operations that *have*
   meaningful optional fields appear here.
@@ -50,7 +50,7 @@ _ID = PATH_PARAM_VALUE  # "abc-123"
 _AUDIO_URL = "https://example.com/audio.mp3"
 
 # ---------------------------------------------------------------------------
-# Minimum-argument bindings — one entry per operation (coverage guard).
+# Minimum-argument bindings - one entry per operation (coverage guard).
 # ---------------------------------------------------------------------------
 
 SDK_BINDINGS: dict[str, SdkBinding] = {
@@ -127,7 +127,7 @@ SDK_BINDINGS: dict[str, SdkBinding] = {
 
 
 # ---------------------------------------------------------------------------
-# Full-surface bindings — every optional field populated.
+# Full-surface bindings - every optional field populated.
 # ---------------------------------------------------------------------------
 
 _FULL_CONFIG = CreateTranscriptionConfig(

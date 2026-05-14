@@ -3,11 +3,11 @@ Sync/async parity checks for the Soniox SDK.
 
 When a new public method is added to a sync API class, the async twin must
 get the same method. Without this test, someone could land a sync-only
-``FilesAPI.count()`` and nothing in the suite would fail — until a user
+``FilesAPI.count()`` and nothing in the suite would fail - until a user
 hits ``AsyncFilesAPI.count()`` in production and gets ``AttributeError``.
 
 Also enforces that every public method on an async class is actually a
-coroutine or async generator — catches "copy-pasted from sync and forgot
+coroutine or async generator - catches "copy-pasted from sync and forgot
 ``async``" mistakes.
 """
 

@@ -24,7 +24,7 @@ from tests.helpers import BASE_URL
 
 
 # ---------------------------------------------------------------------------
-# normalize_file — covers every input branch
+# normalize_file - covers every input branch
 # ---------------------------------------------------------------------------
 
 
@@ -86,24 +86,24 @@ def test_normalize_file_rejects_unknown_type() -> None:
 
 @respx.mock
 def test_unknown_4xx_status_falls_back_to_generic_api_error(client: SonioxClient) -> None:
-    """A status code outside the known map (e.g. 418) must not crash — it
+    """A status code outside the known map (e.g. 418) must not crash - it
     falls back to the base ``SonioxAPIError`` class."""
     respx.get(f"{BASE_URL}/files").mock(return_value=Response(418, text="teapot"))
     with pytest.raises(SonioxAPIError) as exc_info:
         client.files.list(limit=1)
-    # Must NOT be one of the typed subclasses — exactly the base.
+    # Must NOT be one of the typed subclasses - exactly the base.
     assert type(exc_info.value) is SonioxAPIError
     assert exc_info.value.status_code == 418
 
 
 # ---------------------------------------------------------------------------
-# sync files.delete_all — mirror of the async-only test we already have
+# sync files.delete_all - mirror of the async-only test we already have
 # ---------------------------------------------------------------------------
 
 
 @respx.mock
 def test_stt_get_or_none_returns_none_on_404(client: SonioxClient) -> None:
-    """Direct sync test for ``stt.get_or_none`` — mirrors the files helper."""
+    """Direct sync test for ``stt.get_or_none`` - mirrors the files helper."""
     respx.get(f"{BASE_URL}/transcriptions/missing").mock(
         return_value=Response(404, text="")
     )

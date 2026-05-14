@@ -91,4 +91,4 @@ def test_required_fields_are_required_in_sdk() -> None:
 
 def test_at_least_one_model_was_checked() -> None:
     """Guard against the schema/type-module wiring silently breaking."""
-    assert _sdk_models(), "No SDK models matched the OpenAPI schema — check imports"
+    assert _sdk_models(), "No SDK models matched the OpenAPI schema - check imports"

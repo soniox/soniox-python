@@ -1,5 +1,5 @@
 """
-Tests for :mod:`soniox.utils` — audio streaming helpers, token rendering, and
+Tests for :mod:`soniox.utils` - audio streaming helpers, token rendering, and
 the background-thread audio sender.
 
 These helpers are user-facing but never exercised indirectly elsewhere in the
@@ -250,7 +250,7 @@ def test_start_audio_thread_returns_daemon_thread_with_given_name() -> None:
 
 
 def test_start_audio_thread_runs_in_background_not_caller() -> None:
-    """The caller must not block on ``send_bytes`` — the work happens on the thread."""
+    """The caller must not block on ``send_bytes`` - the work happens on the thread."""
 
     main_thread_id = threading.get_ident()
     captured: dict[str, int] = {}

@@ -3,9 +3,9 @@ Property-style fuzz test for the realtime STT session.
 
 Invariant under test: whatever random sequence of server events, connection
 drops, and client send operations we throw at a session, the only exception
-type allowed to escape is :class:`SonioxRealtimeError`. Anything else —
+type allowed to escape is :class:`SonioxRealtimeError`. Anything else -
 ``AttributeError`` or ``KeyError`` from un-validated data, a bare
-``ConnectionClosed`` leaking past the session's translation layer — is a bug.
+``ConnectionClosed`` leaking past the session's translation layer - is a bug.
 
 The test is deterministic: one seed per parametrize iteration.
 """

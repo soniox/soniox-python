@@ -192,7 +192,7 @@ def test_send_bytes_iterator_without_finish(client: SonioxClient) -> None:
     with patch("soniox.realtime.stt.sync_ws_connect", return_value=ws):
         with client.realtime.stt.connect(config=config) as session:
             session.send_bytes(iter([b"a", b"b"]), finish=False)
-            # We haven't sent FINISH yet — the only "" in sent_messages must
+            # We haven't sent FINISH yet - the only "" in sent_messages must
             # come from __exit__.
             non_close_messages = [m for m in ws.sent_messages if m != ""]
             assert [m for m in non_close_messages if isinstance(m, bytes)] == [

@@ -3,7 +3,7 @@ Coverage for the less-used STT helpers: ``list_all`` pagination over
 transcriptions, ``delete_all``, ``destroy`` (delete transcription + its file),
 and ``destroy_all``.
 
-Sync-side only — the async equivalents are exercised in
+Sync-side only - the async equivalents are exercised in
 :mod:`tests.unit.test_async_client` and :mod:`tests.unit.test_async_stt_workflows`.
 """
 
@@ -82,7 +82,7 @@ def test_stt_delete_all_deletes_every_transcription(client: SonioxClient) -> Non
 
 
 # ---------------------------------------------------------------------------
-# destroy — delete transcription + its source file
+# destroy - delete transcription + its source file
 # ---------------------------------------------------------------------------
 
 
@@ -113,7 +113,7 @@ def test_stt_destroy_skips_file_delete_when_no_file_id(client: SonioxClient) -> 
 
 
 # ---------------------------------------------------------------------------
-# destroy_all — list + destroy each
+# destroy_all - list + destroy each
 # ---------------------------------------------------------------------------
 
 

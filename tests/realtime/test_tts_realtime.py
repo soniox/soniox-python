@@ -3,7 +3,7 @@ Realtime Text-to-Speech tests (sync) against a scripted mock WebSocket.
 
 Covers the single-stream :class:`RealtimeTTSConnection` and the multiplexed
 :class:`RealtimeTTSMultiplexedConnection` / :class:`RealtimeTTSStream`
-surfaces — wire contract on send, routing on receive, error paths, and the
+surfaces - wire contract on send, routing on receive, error paths, and the
 pause/resume + cancel control flows.
 """
 
@@ -266,7 +266,7 @@ def test_resume_when_not_paused_is_noop(client: SonioxClient) -> None:
 
     with _patch_sync_tts_ws(ws):
         with client.realtime.tts.connect(config=_config()) as conn:
-            conn.resume()  # not paused — must not raise
+            conn.resume()  # not paused - must not raise
             assert conn.paused is False
 
 
@@ -541,7 +541,7 @@ def test_multiplexed_pause_idempotent_resume_noop(client: SonioxClient) -> None:
 
     with _patch_sync_tts_ws(ws):
         with client.realtime.tts.connect_multi_stream() as conn:
-            conn.resume()  # not paused — no-op
+            conn.resume()  # not paused - no-op
             conn.pause()
             conn.pause()  # idempotent
             assert conn.paused is True
@@ -563,7 +563,7 @@ def test_multiplexed_send_after_close_raises(client: SonioxClient) -> None:
     with _patch_sync_tts_ws(ws):
         with client.realtime.tts.connect_multi_stream() as conn:
             stream = conn.open_stream(config=_config("x"))
-        # Connection now closed — sending text chunk via stream raises.
+        # Connection now closed - sending text chunk via stream raises.
         with pytest.raises(SonioxRealtimeError, match="not connected"):
             stream.send_text_chunk("after-close")
 

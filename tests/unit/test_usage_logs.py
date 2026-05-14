@@ -1,5 +1,5 @@
 """
-Tests for ``client.usage_logs`` — listing usage-log entries by time window
+Tests for ``client.usage_logs`` - listing usage-log entries by time window
 with pagination, sort order, and the ``list_all`` iterator.
 
 These tests pin the wire contract (URL, query params) and the SDK's

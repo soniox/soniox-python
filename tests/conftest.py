@@ -1,7 +1,7 @@
 """
 Pytest fixtures for the Soniox SDK test suite.
 
-This file only holds fixtures — pytest magic-loads it by filename. For
+This file only holds fixtures - pytest magic-loads it by filename. For
 constants and plain helpers, see :mod:`tests.helpers`.
 """
 

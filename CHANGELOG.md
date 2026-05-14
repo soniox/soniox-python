@@ -21,12 +21,12 @@ The format is inspired by Keep a Changelog and this project follows Semantic Ver
 
 Use the following categories when adding entries:
 
-- **Added** — new features or capabilities.
-- **Changed** — updates to existing functionality.
-- **Deprecated** — features that will be removed soon.
-- **Removed** — features removed in this version.
-- **Fixed** — bug fixes.
-- **Security** — vulnerability fixes.
+- **Added** - new features or capabilities.
+- **Changed** - updates to existing functionality.
+- **Deprecated** - features that will be removed soon.
+- **Removed** - features removed in this version.
+- **Fixed** - bug fixes.
+- **Security** - vulnerability fixes.
 
 ---
 
@@ -53,9 +53,9 @@ This project follows Semantic Versioning:
 
 Examples:
 
-- `1.0.0` — stable API
-- `1.1.0` — new features added
-- `1.1.1` — bug fixes only
+- `1.0.0` - stable API
+- `1.1.0` - new features added
+- `1.1.1` - bug fixes only
 
 ---
 

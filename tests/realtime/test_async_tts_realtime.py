@@ -1,5 +1,5 @@
 """
-Realtime Text-to-Speech tests (async) — mirrors :mod:`tests.realtime.test_tts_realtime`.
+Realtime Text-to-Speech tests (async) - mirrors :mod:`tests.realtime.test_tts_realtime`.
 """
 
 from __future__ import annotations

@@ -96,7 +96,7 @@ def test_keepalive_thread_exits_when_callback_raises() -> None:
     time.sleep(0.05)
     thread.stop()
 
-    # The loop must have broken out after the first raise — no repeated calls.
+    # The loop must have broken out after the first raise - no repeated calls.
     assert len(calls) == 1
     assert not thread._thread.is_alive()  # pyright: ignore[reportPrivateUsage]
 
