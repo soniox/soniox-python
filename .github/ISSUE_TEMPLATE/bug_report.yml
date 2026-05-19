@@ -1,0 +1,81 @@
+name: Bug report
+description: Report something the SDK does wrong, or fails to do
+labels: ["bug"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Thanks for taking the time to file a bug. A **minimal** reproducer speeds things up significantly.
+
+  - type: checkboxes
+    id: non_api
+    attributes:
+      label: SDK or API?
+      description: For API-level problems such as transcription accuracy or server-side errors, please contact [support@soniox.com](mailto:support@soniox.com) instead.
+      options:
+        - label: I confirm this is an issue with the Python SDK, not the Soniox API.
+          required: true
+
+  - type: textarea
+    id: what_happened
+    attributes:
+      label: What happened?
+      description: What did you observe? What did you expect instead?
+      placeholder: |
+        Observed: ...
+        Expected: ...
+    validations:
+      required: true
+
+  - type: textarea
+    id: repro
+    attributes:
+      label: Minimal reproducer
+      description: The smallest script that triggers the issue. Strip out anything unrelated.
+      render: python
+      placeholder: |
+        from soniox import SonioxClient
+        ...
+    validations:
+      required: true
+
+  - type: textarea
+    id: traceback
+    attributes:
+      label: Logs or traceback
+      description: Full traceback or relevant log lines, if any.
+      render: shell
+    validations:
+      required: false
+
+  - type: input
+    id: sdk_version
+    attributes:
+      label: SDK version
+      placeholder: "soniox==2.4.0"
+    validations:
+      required: true
+
+  - type: input
+    id: python_version
+    attributes:
+      label: Python version
+      placeholder: "Python 3.12.3"
+    validations:
+      required: true
+
+  - type: input
+    id: os
+    attributes:
+      label: Operating system
+      placeholder: "Ubuntu 24.04 / macOS 15 / Windows 11"
+    validations:
+      required: true
+
+  - type: textarea
+    id: additional
+    attributes:
+      label: Additional context
+      description: Anything else relevant: timing patterns, frequency, workarounds you have tried.
+    validations:
+      required: false
