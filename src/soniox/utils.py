@@ -25,7 +25,13 @@ __all__ = [
 
 
 def output_file_for_audio_format(audio_format: str, prefix: str) -> Path:
-    """Build an output file path with extension and datetime suffix."""
+    """Build an output file path with the correct extension for the audio format.
+
+    Args:
+        audio_format: Audio format name (e.g. ``"wav"``, ``"mp3"``, ``"pcm_s16le"``).
+        prefix: Filename prefix without extension. The chosen extension is
+            appended to this prefix to form the returned path.
+    """
     ext_map = {
         "pcm_f32le": "pcm",
         "pcm_s16le": "pcm",

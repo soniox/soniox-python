@@ -314,7 +314,7 @@ class RealtimeSTTSession:
         Pause the session, suppressing outgoing audio and starting a
         background keepalive thread.
 
-        While paused, calls to :meth:`send_byte_chunk` are silently dropped.
+        While paused, calls to `send_byte_chunk` are silently dropped.
         A background thread sends a keepalive message every
         ``KEEP_ALIVE_INTERVAL_SEC`` seconds to prevent the server from
         timing out the session.

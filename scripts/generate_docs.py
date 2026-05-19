@@ -24,24 +24,36 @@ ASYNC_CLASS_SPECS = [
     ("soniox.api.async_tts", "AsyncTtsAPI"),
     ("soniox.api.async_tts_models", "AsyncTtsModelsAPI"),
     ("soniox.api.async_models", "AsyncModelsAPI"),
+    ("soniox.api.async_usage_logs", "AsyncUsageLogsAPI"),
+    ("soniox.api.async_concurrency_limits", "AsyncConcurrencyLimitsAPI"),
     ("soniox.api.async_auth", "AsyncAuthAPI"),
     ("soniox.api.async_webhooks", "AsyncSonioxWebhooksAPI"),
 ]
+
+ASYNC_PREAMBLE = (
+    "> **Sync mirror:** the synchronous `SonioxClient` exposes the same API "
+    "as `AsyncSonioxClient` below - drop `await` from each call and treat "
+    "`AsyncIterator[X]` return types as plain `Iterator[X]`. Only the async "
+    "surface is documented here to avoid duplicating an otherwise identical "
+    "reference. Realtime sessions have genuinely different sync/async "
+    "patterns and are documented in the [Realtime Client](./realtime_client.md) "
+    "page."
+)
 
 REALTIME_CLASS_SPECS = [
     ("soniox.realtime", "RealtimeAPI"),
     ("soniox.realtime", "AsyncRealtimeAPI"),
     ("soniox.realtime.stt", "RealtimeSTTClient"),
-    ("soniox.realtime.stt", "RealtimeSTTSession"),
-    ("soniox.realtime.tts", "RealtimeTTSClient"),
-    ("soniox.realtime.tts", "RealtimeTTSConnection"),
-    ("soniox.realtime.tts", "RealtimeTTSMultiplexedConnection"),
-    ("soniox.realtime.tts", "RealtimeTTSStream"),
     ("soniox.realtime.async_stt", "AsyncRealtimeSTTClient"),
+    ("soniox.realtime.stt", "RealtimeSTTSession"),
     ("soniox.realtime.async_stt", "AsyncRealtimeSTTSession"),
+    ("soniox.realtime.tts", "RealtimeTTSClient"),
     ("soniox.realtime.async_tts", "AsyncRealtimeTTSClient"),
+    ("soniox.realtime.tts", "RealtimeTTSConnection"),
     ("soniox.realtime.async_tts", "AsyncRealtimeTTSConnection"),
+    ("soniox.realtime.tts", "RealtimeTTSMultiplexedConnection"),
     ("soniox.realtime.async_tts", "AsyncRealtimeTTSMultiplexedConnection"),
+    ("soniox.realtime.tts", "RealtimeTTSStream"),
     ("soniox.realtime.async_tts", "AsyncRealtimeTTSStream"),
 ]
 
@@ -1089,7 +1101,7 @@ def cleanup_legacy_docs() -> None:
 
 def build_async_client_doc(loader: GriffeLoader) -> None:
     classes = resolve_class_specs(loader, ASYNC_CLASS_SPECS)
-    sections = [render_class(cls) for cls in classes]
+    sections = [ASYNC_PREAMBLE, *(render_class(cls) for cls in classes)]
     write_document(
         ASYNC_DOC_PATH,
         title="Async Client",
