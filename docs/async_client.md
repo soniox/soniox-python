@@ -1,8 +1,12 @@
 ---
 title: "Async Client"
 description: "Soniox Python SDK - Async Client Reference"
-keywords: "AsyncSonioxClient, AsyncFilesAPI, AsyncSttAPI, AsyncTtsAPI, AsyncTtsModelsAPI, AsyncModelsAPI, AsyncAuthAPI, AsyncSonioxWebhooksAPI"
+keywords: "AsyncSonioxClient, AsyncFilesAPI, AsyncSttAPI, AsyncTtsAPI, AsyncTtsModelsAPI, AsyncModelsAPI, AsyncUsageLogsAPI, AsyncConcurrencyLimitsAPI, AsyncAuthAPI, AsyncSonioxWebhooksAPI"
 ---
+
+---
+
+> **Sync mirror:** the synchronous `SonioxClient` exposes the same API as `AsyncSonioxClient` below - drop `await` from each call and treat `AsyncIterator[X]` return types as plain `Iterator[X]`. Only the async surface is documented here to avoid duplicating an otherwise identical reference. Realtime sessions have genuinely different sync/async patterns and are documented in the [Realtime Client](./realtime_client.md) page.
 
 ---
 
@@ -1143,6 +1147,128 @@ Performs a GET request to ``/models``.
 **Returns**
 
 `GetModelsResponse`
+
+**Raises**
+
+- `SonioxAPIError` When the API returns an error.
+
+---
+
+## AsyncUsageLogsAPI
+
+<a id="asyncusagelogsapi-constructor"></a>
+
+### Constructor
+
+```python
+AsyncUsageLogsAPI(client: AsyncSonioxClient)
+```
+
+**Parameters**
+
+| Parameter | Type | Description |
+| ------ | ------ | ------ |
+| `client` | `AsyncSonioxClient` | Soniox client instance. |
+
+**Returns**
+
+`None`
+
+<a id="asyncusagelogsapi-list"></a>
+
+### list()
+
+```python
+list(start_time: str, end_time: str, limit: int = 1000, sort: UsageLogsSort = 'end_time_asc', cursor: str | None = None) -> GetUsageLogsResponse
+```
+
+List usage-log entries for a time window.
+
+Performs a GET request to ``/usage-logs``.
+
+**Parameters**
+
+| Parameter | Type | Description |
+| ------ | ------ | ------ |
+| `start_time` | `str` | Start of the window (inclusive). Filters by request end time. |
+| `end_time` | `str` | End of the window (exclusive). Filters by request end time. |
+| `limit` | `int` | Maximum number of entries to return (1–1000). |
+| `sort` | `UsageLogsSort` | Sort order by end_time. |
+| `cursor` | `str \| None` | Pagination cursor for the next page. |
+
+**Returns**
+
+`GetUsageLogsResponse`
+
+**Raises**
+
+- `SonioxAPIError` When the API returns an error.
+
+***
+
+<a id="asyncusagelogsapi-list_all"></a>
+
+### list_all()
+
+```python
+list_all(start_time: str, end_time: str, limit: int = 1000, sort: UsageLogsSort = 'end_time_asc') -> AsyncGenerator[UsageLogEntry, None]
+```
+
+Iterate through all usage-log entries across all pages.
+
+**Parameters**
+
+| Parameter | Type | Description |
+| ------ | ------ | ------ |
+| `start_time` | `str` | Start of the window (inclusive). Filters by request end time. |
+| `end_time` | `str` | End of the window (exclusive). Filters by request end time. |
+| `limit` | `int` | Maximum number of entries to return (1–1000). |
+| `sort` | `UsageLogsSort` | Sort order by end_time. |
+
+**Returns**
+
+`AsyncGenerator[UsageLogEntry, None]`
+
+---
+
+## AsyncConcurrencyLimitsAPI
+
+<a id="asyncconcurrencylimitsapi-constructor"></a>
+
+### Constructor
+
+```python
+AsyncConcurrencyLimitsAPI(client: AsyncSonioxClient)
+```
+
+**Parameters**
+
+| Parameter | Type | Description |
+| ------ | ------ | ------ |
+| `client` | `AsyncSonioxClient` | Soniox client instance. |
+
+**Returns**
+
+`None`
+
+<a id="asyncconcurrencylimitsapi-get"></a>
+
+### get()
+
+```python
+get() -> GetConcurrencyLimitsResponse
+```
+
+Get current concurrent sessions and configured limits.
+
+Performs a GET request to ``/concurrency-limits``.
+
+**Returns**
+
+`GetConcurrencyLimitsResponse`
+
+Project- and organization-scoped current counts and configured
+limits for realtime STT and TTS sessions.
 
 **Raises**
 
