@@ -65,6 +65,7 @@ Examples:
 
 - `LanguageCode` type alias (`Annotated[str, Field(min_length=2, max_length=2)]`) representing an ISO 639-1 two-letter code. Now used by `TranslationConfig.target_language`, `language_a`, `language_b`, and by the `language_hints` lists on `CreateTranscriptionPayload`, `CreateTranscriptionConfig`, and `RealtimeSTTConfig`.
 - `SupportedLanguage` model (renamed from `Language`) describing a `{code, name}` language entry returned by `client.models.list()`.
+- `translate*` methods on the async and sync STT clients (`translate`, `translate_from_url`, `translate_from_file_id`, `translate_from_file`, `translate_and_wait`, `translate_and_wait_with_tokens`). Pass `to=` for one-way translation (optionally with `source=` as a strict language hint) or `between=("en", "fr")` for two-way; exactly one of `to` or `between` is required.
 
 ### Changed
 

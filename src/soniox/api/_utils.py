@@ -7,10 +7,12 @@ from typing import BinaryIO, TypeVar
 import httpx
 from pydantic import BaseModel
 
-from ..errors import SonioxAPIError
+from ..errors import SonioxAPIError, SonioxValidationError
 from ..types import (
     CreateTranscriptionConfig,
     CreateTranscriptionPayload,
+    LanguageCode,
+    TranslationConfig,
 )
 
 ModelT = TypeVar("ModelT", bound=BaseModel)
@@ -81,3 +83,36 @@ def build_create_payload(
     }
     payload_data.update(config_data)
     return CreateTranscriptionPayload.model_validate(payload_data)
+
+
+def build_translate_config(
+    *,
+    to: LanguageCode | None,
+    source: LanguageCode | None,
+    between: tuple[LanguageCode, LanguageCode] | None,
+    config: CreateTranscriptionConfig | None,
+) -> CreateTranscriptionConfig:
+    """Return a config with translation and language fields populated from the kwargs.
+
+    Requires exactly one of ``to`` or ``between``. ``source`` is only valid with ``to``
+    and is passed as a strict language hint. Forces ``enable_language_identification=True``.
+    Other config fields are preserved.
+    """
+    if (to is None) == (between is None):
+        raise SonioxValidationError("Provide exactly one of `to` or `between`")
+    if source is not None and to is None:
+        raise SonioxValidationError("`source` is only valid with `to`")
+
+    base = config.model_copy() if config else CreateTranscriptionConfig()
+    if to is not None:
+        base.translation = TranslationConfig(type="one_way", target_language=to)
+        if source:
+            base.language_hints = [source]
+            base.language_hints_strict = True
+    else:
+        assert between is not None  # validated above
+        a, b = between
+        base.translation = TranslationConfig(type="two_way", language_a=a, language_b=b)
+
+    base.enable_language_identification = True
+    return base

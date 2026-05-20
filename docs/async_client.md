@@ -981,6 +981,243 @@ Optionally deletes the transcription and uploaded file after completion.
 - `SonioxValidationError` When the payload fails validation.
 - `TimeoutError` Waiting for the transcription to finish exceeded `timeout_sec`.
 
+***
+
+<a id="asyncsttapi-translate_from_url"></a>
+
+### translate_from_url()
+
+```python
+translate_from_url(*, audio_url: str, to: LanguageCode | None = None, source: LanguageCode | None = None, between: tuple[LanguageCode, LanguageCode] | None = None, model: str = DEFAULT_MODEL, client_reference_id: str | None = None, config: CreateTranscriptionConfig | None = None) -> Transcription
+```
+
+Translate audio at a URL.
+
+Provide exactly one of ``to`` (one-way) or ``between`` (two-way). ``source`` is
+an optional language hint and is only valid with ``to``.
+
+**Parameters**
+
+| Parameter | Type | Description |
+| ------ | ------ | ------ |
+| `audio_url` | `str` | Publicly accessible audio URL. |
+| `to` | `LanguageCode \| None` | - |
+| `source` | `LanguageCode \| None` | The source term to translate. |
+| `between` | `tuple[LanguageCode, LanguageCode] \| None` | - |
+| `model` | `str` | Speech-to-text model to use. |
+| `client_reference_id` | `str \| None` | Optional tracking identifier. |
+| `config` | `CreateTranscriptionConfig \| None` | Configuration options for this operation. |
+
+**Returns**
+
+`Transcription`
+
+**Raises**
+
+- `SonioxAPIError` When the API returns an error.
+- `SonioxValidationError` When the translate kwargs are invalid.
+
+***
+
+<a id="asyncsttapi-translate_from_file_id"></a>
+
+### translate_from_file_id()
+
+```python
+translate_from_file_id(*, file_id: str, to: LanguageCode | None = None, source: LanguageCode | None = None, between: tuple[LanguageCode, LanguageCode] | None = None, model: str = DEFAULT_MODEL, client_reference_id: str | None = None, config: CreateTranscriptionConfig | None = None) -> Transcription
+```
+
+Translate an already-uploaded file.
+
+Provide exactly one of ``to`` (one-way) or ``between`` (two-way). ``source`` is
+an optional language hint and is only valid with ``to``.
+
+**Parameters**
+
+| Parameter | Type | Description |
+| ------ | ------ | ------ |
+| `file_id` | `str` | ID of a previously uploaded file. |
+| `to` | `LanguageCode \| None` | - |
+| `source` | `LanguageCode \| None` | The source term to translate. |
+| `between` | `tuple[LanguageCode, LanguageCode] \| None` | - |
+| `model` | `str` | Speech-to-text model to use. |
+| `client_reference_id` | `str \| None` | Optional tracking identifier. |
+| `config` | `CreateTranscriptionConfig \| None` | Configuration options for this operation. |
+
+**Returns**
+
+`Transcription`
+
+**Raises**
+
+- `SonioxAPIError` When the API returns an error.
+- `SonioxValidationError` When the translate kwargs are invalid.
+
+***
+
+<a id="asyncsttapi-translate_from_file"></a>
+
+### translate_from_file()
+
+```python
+translate_from_file(*, file: BinaryIO | bytes | Path | str, to: LanguageCode | None = None, source: LanguageCode | None = None, between: tuple[LanguageCode, LanguageCode] | None = None, filename: str | None = None, model: str = DEFAULT_MODEL, client_reference_id: str | None = None, config: CreateTranscriptionConfig | None = None) -> Transcription
+```
+
+Upload a file and translate it.
+
+Provide exactly one of ``to`` (one-way) or ``between`` (two-way). ``source`` is
+an optional language hint and is only valid with ``to``.
+
+**Parameters**
+
+| Parameter | Type | Description |
+| ------ | ------ | ------ |
+| `file` | `BinaryIO \| bytes \| Path \| str` | File input to upload or transcribe. |
+| `to` | `LanguageCode \| None` | - |
+| `source` | `LanguageCode \| None` | The source term to translate. |
+| `between` | `tuple[LanguageCode, LanguageCode] \| None` | - |
+| `filename` | `str \| None` | Filename associated with uploaded file data. |
+| `model` | `str` | Speech-to-text model to use. |
+| `client_reference_id` | `str \| None` | Optional tracking identifier. |
+| `config` | `CreateTranscriptionConfig \| None` | Configuration options for this operation. |
+
+**Returns**
+
+`Transcription`
+
+**Raises**
+
+- `SonioxAPIError` When the API returns an error.
+- `SonioxValidationError` When the translate kwargs are invalid.
+
+***
+
+<a id="asyncsttapi-translate"></a>
+
+### translate()
+
+```python
+translate(*, to: LanguageCode | None = None, source: LanguageCode | None = None, between: tuple[LanguageCode, LanguageCode] | None = None, audio_url: str | None = None, file_id: str | None = None, file: BinaryIO | bytes | Path | str | None = None, filename: str | None = None, model: str = DEFAULT_MODEL, client_reference_id: str | None = None, config: CreateTranscriptionConfig | None = None) -> Transcription
+```
+
+Translate audio from a file, file ID, or URL.
+
+Provide exactly one of ``to`` (one-way) or ``between`` (two-way). ``source`` is
+an optional language hint and is only valid with ``to``. Convenience over
+``transcribe()`` that fills in the ``translation`` config and forces
+``enable_language_identification=True``.
+
+**Parameters**
+
+| Parameter | Type | Description |
+| ------ | ------ | ------ |
+| `to` | `LanguageCode \| None` | - |
+| `source` | `LanguageCode \| None` | The source term to translate. |
+| `between` | `tuple[LanguageCode, LanguageCode] \| None` | - |
+| `audio_url` | `str \| None` | Publicly accessible audio URL. |
+| `file_id` | `str \| None` | ID of a previously uploaded file. |
+| `file` | `BinaryIO \| bytes \| Path \| str \| None` | File input to upload or transcribe. |
+| `filename` | `str \| None` | Filename associated with uploaded file data. |
+| `model` | `str` | Speech-to-text model to use. |
+| `client_reference_id` | `str \| None` | Optional tracking identifier. |
+| `config` | `CreateTranscriptionConfig \| None` | Configuration options for this operation. |
+
+**Returns**
+
+`Transcription`
+
+**Raises**
+
+- `SonioxAPIError` When the API returns an error.
+- `SonioxValidationError` When the payload or translate kwargs are invalid.
+
+***
+
+<a id="asyncsttapi-translate_and_wait"></a>
+
+### translate_and_wait()
+
+```python
+translate_and_wait(*, to: LanguageCode | None = None, source: LanguageCode | None = None, between: tuple[LanguageCode, LanguageCode] | None = None, audio_url: str | None = None, file_id: str | None = None, file: BinaryIO | bytes | Path | str | None = None, filename: str | None = None, model: str = DEFAULT_MODEL, client_reference_id: str | None = None, delete_after: bool = False, wait_interval_sec: float = 5.0, wait_timeout_sec: float | None = None, config: CreateTranscriptionConfig | None = None) -> Transcription
+```
+
+Translate and wait for completion. Returns the finished ``Transcription``.
+
+Provide exactly one of ``to`` (one-way) or ``between`` (two-way). ``source`` is
+an optional language hint and is only valid with ``to``.
+
+**Parameters**
+
+| Parameter | Type | Description |
+| ------ | ------ | ------ |
+| `to` | `LanguageCode \| None` | - |
+| `source` | `LanguageCode \| None` | The source term to translate. |
+| `between` | `tuple[LanguageCode, LanguageCode] \| None` | - |
+| `audio_url` | `str \| None` | Publicly accessible audio URL. |
+| `file_id` | `str \| None` | ID of a previously uploaded file. |
+| `file` | `BinaryIO \| bytes \| Path \| str \| None` | File input to upload or transcribe. |
+| `filename` | `str \| None` | Filename associated with uploaded file data. |
+| `model` | `str` | Speech-to-text model to use. |
+| `client_reference_id` | `str \| None` | Optional tracking identifier. |
+| `delete_after` | `bool` | Whether to delete created resources after completion. |
+| `wait_interval_sec` | `float` | Polling interval in seconds while waiting. |
+| `wait_timeout_sec` | `float \| None` | Maximum wait time in seconds while polling. |
+| `config` | `CreateTranscriptionConfig \| None` | Configuration options for this operation. |
+
+**Returns**
+
+`Transcription`
+
+**Raises**
+
+- `SonioxAPIError` When the API returns an error.
+- `SonioxValidationError` When the payload or translate kwargs are invalid.
+- `TimeoutError` Waiting for the transcription to finish exceeded `wait_timeout_sec`.
+
+***
+
+<a id="asyncsttapi-translate_and_wait_with_tokens"></a>
+
+### translate_and_wait_with_tokens()
+
+```python
+translate_and_wait_with_tokens(*, to: LanguageCode | None = None, source: LanguageCode | None = None, between: tuple[LanguageCode, LanguageCode] | None = None, audio_url: str | None = None, file_id: str | None = None, file: BinaryIO | bytes | Path | str | None = None, filename: str | None = None, model: str = DEFAULT_MODEL, client_reference_id: str | None = None, delete_after: bool = False, wait_interval_sec: float = 5.0, wait_timeout_sec: float | None = None, config: CreateTranscriptionConfig | None = None) -> TranscriptionTranscript
+```
+
+Translate, wait for completion, and return the transcript with tokens.
+
+Provide exactly one of ``to`` (one-way) or ``between`` (two-way). ``source`` is
+an optional language hint and is only valid with ``to``. Optionally deletes the
+transcription and uploaded file after completion.
+
+**Parameters**
+
+| Parameter | Type | Description |
+| ------ | ------ | ------ |
+| `to` | `LanguageCode \| None` | - |
+| `source` | `LanguageCode \| None` | The source term to translate. |
+| `between` | `tuple[LanguageCode, LanguageCode] \| None` | - |
+| `audio_url` | `str \| None` | Publicly accessible audio URL. |
+| `file_id` | `str \| None` | ID of a previously uploaded file. |
+| `file` | `BinaryIO \| bytes \| Path \| str \| None` | File input to upload or transcribe. |
+| `filename` | `str \| None` | Filename associated with uploaded file data. |
+| `model` | `str` | Speech-to-text model to use. |
+| `client_reference_id` | `str \| None` | Optional tracking identifier. |
+| `delete_after` | `bool` | Whether to delete created resources after completion. |
+| `wait_interval_sec` | `float` | Polling interval in seconds while waiting. |
+| `wait_timeout_sec` | `float \| None` | Maximum wait time in seconds while polling. |
+| `config` | `CreateTranscriptionConfig \| None` | Configuration options for this operation. |
+
+**Returns**
+
+`TranscriptionTranscript`
+
+**Raises**
+
+- `SonioxAPIError` When the API returns an error.
+- `SonioxValidationError` When the payload or translate kwargs are invalid.
+- `TimeoutError` Waiting for the transcription to finish exceeded `wait_timeout_sec`.
+
 ---
 
 ## AsyncTtsAPI

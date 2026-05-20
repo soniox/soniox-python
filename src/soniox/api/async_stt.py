@@ -12,11 +12,17 @@ from ..types import (
     GetTranscriptionsCountResponse,
     GetTranscriptionsPayload,
     GetTranscriptionsResponse,
+    LanguageCode,
     Transcription,
     TranscriptionTranscript,
     WebhookAuthConfig,
 )
-from ._utils import build_create_payload, ensure_success, parse_async_response
+from ._utils import (
+    build_create_payload,
+    build_translate_config,
+    ensure_success,
+    parse_async_response,
+)
 
 if TYPE_CHECKING:
     from ..client import AsyncSonioxClient
@@ -483,3 +489,209 @@ class AsyncSttAPI:
                 await self._client.files.delete(file_id_to_delete)
 
         return result
+
+    async def translate_from_url(
+        self,
+        *,
+        audio_url: str,
+        to: LanguageCode | None = None,
+        source: LanguageCode | None = None,
+        between: tuple[LanguageCode, LanguageCode] | None = None,
+        model: str = DEFAULT_MODEL,
+        client_reference_id: str | None = None,
+        config: CreateTranscriptionConfig | None = None,
+    ) -> Transcription:
+        """
+        Translate audio at a URL.
+
+        Provide exactly one of ``to`` (one-way) or ``between`` (two-way). ``source`` is
+        an optional language hint and is only valid with ``to``.
+
+        Raises:
+            SonioxAPIError: When the API returns an error.
+            SonioxValidationError: When the translate kwargs are invalid.
+        """
+        return await self.transcribe_from_url(
+            model=model,
+            audio_url=audio_url,
+            client_reference_id=client_reference_id,
+            config=build_translate_config(to=to, source=source, between=between, config=config),
+        )
+
+    async def translate_from_file_id(
+        self,
+        *,
+        file_id: str,
+        to: LanguageCode | None = None,
+        source: LanguageCode | None = None,
+        between: tuple[LanguageCode, LanguageCode] | None = None,
+        model: str = DEFAULT_MODEL,
+        client_reference_id: str | None = None,
+        config: CreateTranscriptionConfig | None = None,
+    ) -> Transcription:
+        """
+        Translate an already-uploaded file.
+
+        Provide exactly one of ``to`` (one-way) or ``between`` (two-way). ``source`` is
+        an optional language hint and is only valid with ``to``.
+
+        Raises:
+            SonioxAPIError: When the API returns an error.
+            SonioxValidationError: When the translate kwargs are invalid.
+        """
+        return await self.transcribe_from_file_id(
+            model=model,
+            file_id=file_id,
+            client_reference_id=client_reference_id,
+            config=build_translate_config(to=to, source=source, between=between, config=config),
+        )
+
+    async def translate_from_file(
+        self,
+        *,
+        file: BinaryIO | bytes | Path | str,
+        to: LanguageCode | None = None,
+        source: LanguageCode | None = None,
+        between: tuple[LanguageCode, LanguageCode] | None = None,
+        filename: str | None = None,
+        model: str = DEFAULT_MODEL,
+        client_reference_id: str | None = None,
+        config: CreateTranscriptionConfig | None = None,
+    ) -> Transcription:
+        """
+        Upload a file and translate it.
+
+        Provide exactly one of ``to`` (one-way) or ``between`` (two-way). ``source`` is
+        an optional language hint and is only valid with ``to``.
+
+        Raises:
+            SonioxAPIError: When the API returns an error.
+            SonioxValidationError: When the translate kwargs are invalid.
+        """
+        return await self.transcribe_from_file(
+            model=model,
+            file=file,
+            filename=filename,
+            client_reference_id=client_reference_id,
+            config=build_translate_config(to=to, source=source, between=between, config=config),
+        )
+
+    async def translate(
+        self,
+        *,
+        to: LanguageCode | None = None,
+        source: LanguageCode | None = None,
+        between: tuple[LanguageCode, LanguageCode] | None = None,
+        audio_url: str | None = None,
+        file_id: str | None = None,
+        file: BinaryIO | bytes | Path | str | None = None,
+        filename: str | None = None,
+        model: str = DEFAULT_MODEL,
+        client_reference_id: str | None = None,
+        config: CreateTranscriptionConfig | None = None,
+    ) -> Transcription:
+        """
+        Translate audio from a file, file ID, or URL.
+
+        Provide exactly one of ``to`` (one-way) or ``between`` (two-way). ``source`` is
+        an optional language hint and is only valid with ``to``. Convenience over
+        ``transcribe()`` that fills in the ``translation`` config and forces
+        ``enable_language_identification=True``.
+
+        Raises:
+            SonioxAPIError: When the API returns an error.
+            SonioxValidationError: When the payload or translate kwargs are invalid.
+        """
+        return await self.transcribe(
+            model=model,
+            audio_url=audio_url,
+            file_id=file_id,
+            file=file,
+            filename=filename,
+            client_reference_id=client_reference_id,
+            config=build_translate_config(to=to, source=source, between=between, config=config),
+        )
+
+    async def translate_and_wait(
+        self,
+        *,
+        to: LanguageCode | None = None,
+        source: LanguageCode | None = None,
+        between: tuple[LanguageCode, LanguageCode] | None = None,
+        audio_url: str | None = None,
+        file_id: str | None = None,
+        file: BinaryIO | bytes | Path | str | None = None,
+        filename: str | None = None,
+        model: str = DEFAULT_MODEL,
+        client_reference_id: str | None = None,
+        delete_after: bool = False,
+        wait_interval_sec: float = 5.0,
+        wait_timeout_sec: float | None = None,
+        config: CreateTranscriptionConfig | None = None,
+    ) -> Transcription:
+        """
+        Translate and wait for completion. Returns the finished ``Transcription``.
+
+        Provide exactly one of ``to`` (one-way) or ``between`` (two-way). ``source`` is
+        an optional language hint and is only valid with ``to``.
+
+        Raises:
+            SonioxAPIError: When the API returns an error.
+            SonioxValidationError: When the payload or translate kwargs are invalid.
+            TimeoutError: Waiting for the transcription to finish exceeded `wait_timeout_sec`.
+        """
+        return await self.transcribe_and_wait(
+            model=model,
+            audio_url=audio_url,
+            file_id=file_id,
+            file=file,
+            filename=filename,
+            client_reference_id=client_reference_id,
+            delete_after=delete_after,
+            wait_interval_sec=wait_interval_sec,
+            wait_timeout_sec=wait_timeout_sec,
+            config=build_translate_config(to=to, source=source, between=between, config=config),
+        )
+
+    async def translate_and_wait_with_tokens(
+        self,
+        *,
+        to: LanguageCode | None = None,
+        source: LanguageCode | None = None,
+        between: tuple[LanguageCode, LanguageCode] | None = None,
+        audio_url: str | None = None,
+        file_id: str | None = None,
+        file: BinaryIO | bytes | Path | str | None = None,
+        filename: str | None = None,
+        model: str = DEFAULT_MODEL,
+        client_reference_id: str | None = None,
+        delete_after: bool = False,
+        wait_interval_sec: float = 5.0,
+        wait_timeout_sec: float | None = None,
+        config: CreateTranscriptionConfig | None = None,
+    ) -> TranscriptionTranscript:
+        """
+        Translate, wait for completion, and return the transcript with tokens.
+
+        Provide exactly one of ``to`` (one-way) or ``between`` (two-way). ``source`` is
+        an optional language hint and is only valid with ``to``. Optionally deletes the
+        transcription and uploaded file after completion.
+
+        Raises:
+            SonioxAPIError: When the API returns an error.
+            SonioxValidationError: When the payload or translate kwargs are invalid.
+            TimeoutError: Waiting for the transcription to finish exceeded `wait_timeout_sec`.
+        """
+        return await self.transcribe_and_wait_with_tokens(
+            model=model,
+            audio_url=audio_url,
+            file_id=file_id,
+            file=file,
+            filename=filename,
+            client_reference_id=client_reference_id,
+            delete_after=delete_after,
+            wait_interval_sec=wait_interval_sec,
+            wait_timeout_sec=wait_timeout_sec,
+            config=build_translate_config(to=to, source=source, between=between, config=config),
+        )
+
