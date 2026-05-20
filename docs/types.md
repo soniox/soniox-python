@@ -1,7 +1,7 @@
 ---
 title: "Types"
 description: "Soniox Python SDK - Types Reference"
-keywords: "Token, ApiError, ApiErrorValidationError, CreateTemporaryApiKeyPayload, CreateTemporaryApiKeyResponse, CreateTtsPayload, ConcurrencyCurrentValues, ConcurrencyLimitValues, ConcurrencyScopeValues, CreateTtsConfig, CreateTranscriptionPayload, CreateTranscriptionConfig, File, GetConcurrencyLimitsResponse, GetFilesCountResponse, GetFilesPayload, GetFilesResponse, GetModelsResponse, GetTTSModelsResponse, GetTtsModelsResponse, GetTranscriptionsCountResponse, GetTranscriptionsPayload, GetTranscriptionsResponse, GetUsageLogsPayload, GetUsageLogsResponse, Language, Model, RealtimeSTTAudioFormat, RealtimeSTTHeaderFormat, RealtimeSTTRawFormat, StructuredContext, StructuredContextGeneralInput, StructuredContextGeneralItem, StructuredContextInput, StructuredContextTranslationTerm, StructuredContextTranslationTermsInput, Transcription, TranscriptionStatus, TranscriptionTranscript, TranslationConfig, TranslationConfigInput, TranslationTarget, TranslationType, TTSModel, TTSVoice, TtsAudioFormat, TtsBitrate, TtsModel, TtsSampleRate, TtsVoice, TtsVoiceGender, TemporaryApiKeyUsageType, UploadFilePayload, UsageLogEntry, UsageLogsSort, RealtimeEvent, RealtimeSTTConfig, RealtimeTTSConfig, RealtimeTTSEvent, RealtimeTTSTextMessage, Headers, WebhookAuthConfig, WebhookEvent"
+keywords: "Token, ApiError, ApiErrorValidationError, CreateTemporaryApiKeyPayload, CreateTemporaryApiKeyResponse, CreateTtsPayload, ConcurrencyCurrentValues, ConcurrencyLimitValues, ConcurrencyScopeValues, CreateTtsConfig, CreateTranscriptionPayload, CreateTranscriptionConfig, File, GetConcurrencyLimitsResponse, GetFilesCountResponse, GetFilesPayload, GetFilesResponse, GetModelsResponse, GetTTSModelsResponse, GetTtsModelsResponse, GetTranscriptionsCountResponse, GetTranscriptionsPayload, GetTranscriptionsResponse, GetUsageLogsPayload, GetUsageLogsResponse, Language, LanguageCode, SupportedLanguage, Model, RealtimeSTTAudioFormat, RealtimeSTTHeaderFormat, RealtimeSTTRawFormat, StructuredContext, StructuredContextGeneralInput, StructuredContextGeneralItem, StructuredContextInput, StructuredContextTranslationTerm, StructuredContextTranslationTermsInput, Transcription, TranscriptionStatus, TranscriptionTranscript, TranslationConfig, TranslationConfigInput, TranslationTarget, TranslationType, TTSModel, TTSVoice, TtsAudioFormat, TtsBitrate, TtsModel, TtsSampleRate, TtsVoice, TtsVoiceGender, TemporaryApiKeyUsageType, UploadFilePayload, UsageLogEntry, UsageLogsSort, RealtimeEvent, RealtimeSTTConfig, RealtimeTTSConfig, RealtimeTTSEvent, RealtimeTTSTextMessage, Headers, WebhookAuthConfig, WebhookEvent"
 ---
 
 ---
@@ -193,7 +193,7 @@ Payload sent to create an asynchronous transcription job.
 | `model` | `str` | Speech-to-text model to use. |
 | `audio_url` | `str \| None` | URL of a publicly accessible audio file. |
 | `file_id` | `str \| None` | ID of a previously uploaded file (UUID). |
-| `language_hints` | `list[str] \| None` | Array of expected ISO language codes to bias recognition. |
+| `language_hints` | `list[LanguageCode] \| None` | Array of expected ISO language codes to bias recognition. |
 | `language_hints_strict` | `bool \| None` | When true, model relies more heavily on language hints (best results with one language hint set). |
 | `enable_speaker_diarization` | `bool \| None` | Enable speaker diarization to identify different speakers. |
 | `enable_language_identification` | `bool \| None` | Enable automatic language identification. |
@@ -217,7 +217,7 @@ Helper config used when building transcription payloads.
 | Property | Type | Description |
 | ------ | ------ | ------ |
 | `model` | `str \| None` | Speech-to-text model to use. |
-| `language_hints` | `list[str] \| None` | Array of expected ISO language codes to bias recognition. |
+| `language_hints` | `list[LanguageCode] \| None` | Array of expected ISO language codes to bias recognition. |
 | `language_hints_strict` | `bool \| None` | When true, model relies more heavily on language hints. |
 | `enable_speaker_diarization` | `bool \| None` | Enable speaker diarization to identify different speakers. |
 | `enable_language_identification` | `bool \| None` | Enable automatic language identification |
@@ -428,9 +428,27 @@ Paginated response for usage-log listings.
 
 ## Language
 
+Deprecated alias for :class:`SupportedLanguage`.
+
+---
+
+<a id="languagecode"></a>
+
+## LanguageCode
+
+```python
+LanguageCode = Annotated[str, Field(min_length=2, max_length=2)]
+```
+
+ISO 639-1 two-letter language code (e.g. ``"en"``, ``"fr"``).
+
+---
+
+## SupportedLanguage
+
 Represents a supported language for transcription or translation.
 
-<a id="language-properties"></a>
+<a id="supportedlanguage-properties"></a>
 
 ### Properties
 
@@ -456,7 +474,7 @@ Describes a Soniox transcription model.
 | `name` | `str` | Name of the model. |
 | `context_version` | `int \| None` | Version of context supported. |
 | `transcription_mode` | `TranscriptionMode` | Transcription mode of the model. |
-| `languages` | `list[Language]` | List of languages supported by the model. |
+| `languages` | `list[SupportedLanguage]` | List of languages supported by the model. |
 | `supports_language_hints_strict` | `bool` | If model supports 'language_hints_strict' option. |
 | `supports_max_endpoint_delay` | `bool` | If model supports 'max_endpoint_delay_ms' option. |
 | `translation_targets` | `list[TranslationTarget]` | List of supported one-way translation targets. If list is empty, check for one_way_translation field. |
@@ -675,9 +693,9 @@ Configuration describing how translation should be performed.
 | Property | Type | Description |
 | ------ | ------ | ------ |
 | `type` | `TranslationType` | Translation type. |
-| `target_language` | `str \| None` | Target language code for translation (e.g., "fr", "es", "de") (one_way). |
-| `language_a` | `str \| None` | First language code (two_way). |
-| `language_b` | `str \| None` | Second language code (two_way). |
+| `target_language` | `LanguageCode \| None` | Target language code for translation (e.g., "fr", "es", "de") (one_way). |
+| `language_a` | `LanguageCode \| None` | First language code (two_way). |
+| `language_b` | `LanguageCode \| None` | Second language code (two_way). |
 
 <a id="translationconfig-validate_logic"></a>
 
@@ -801,7 +819,7 @@ Represents a Text-to-Speech model.
 | `aliased_model_id` | `str \| None` | If this is an alias, the id of the aliased model. None for non-alias models. |
 | `name` | `str` | Name of the model. |
 | `voices` | `list[TtsVoice]` | Voices supported by this model. |
-| `languages` | `list[Language]` | Languages supported by this model. |
+| `languages` | `list[SupportedLanguage]` | Languages supported by this model. |
 
 ---
 
@@ -967,7 +985,7 @@ Configuration for initiating a realtime transcription session.
 | `audio_format` | `RealtimeSTTAudioFormat` | Audio format. Use 'auto' for automatic detection of container formats. |
 | `num_channels` | `int \| None` | Number of audio channels (required for raw audio formats). |
 | `sample_rate` | `int \| None` | Sample rate in Hz (required for PCM formats). |
-| `language_hints` | `list[str] \| None` | Expected languages in the audio (ISO language codes). |
+| `language_hints` | `list[LanguageCode] \| None` | Expected languages in the audio (ISO language codes). |
 | `language_hints_strict` | `bool \| None` | When true, recognition is strongly biased toward language hints (best results when using one language in language_hints). |
 | `context` | `StructuredContextInput \| None` | Additional context to improve transcription accuracy. |
 | `enable_speaker_diarization` | `bool \| None` | Enable speaker identification. |

@@ -63,15 +63,22 @@ Examples:
 
 ### Added
 
--
+- `LanguageCode` type alias (`Annotated[str, Field(min_length=2, max_length=2)]`) representing an ISO 639-1 two-letter code. Now used by `TranslationConfig.target_language`, `language_a`, `language_b`, and by the `language_hints` lists on `CreateTranscriptionPayload`, `CreateTranscriptionConfig`, and `RealtimeSTTConfig`.
+- `SupportedLanguage` model (renamed from `Language`) describing a `{code, name}` language entry returned by `client.models.list()`.
 
 ### Changed
 
--
+- Reorganized reference docs: `async_client.md` now documents only the async surface (the sync `SonioxClient` is a line-by-line mirror, called out in a preamble); `realtime_client.md` continues to cover both sync and async realtime clients.
+- Expanded the `output_file_for_audio_format` docstring with a proper `Args` block.
+- `language_hints` fields now validate each entry as a two-letter code; previously any string was accepted client-side.
+
+### Deprecated
+
+- `Language` is a deprecated alias for `SupportedLanguage`. Update imports to `from soniox.types import SupportedLanguage`.
 
 ### Fixed
 
--
+- Removed Sphinx `:meth:` directive leaks from realtime STT client docstrings; they were rendering as raw text in the generated markdown reference.
 
 ### Removed
 

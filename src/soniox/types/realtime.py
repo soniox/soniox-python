@@ -9,6 +9,7 @@ from pydantic import BaseModel, ConfigDict, Field, model_validator
 from typing_extensions import Self
 
 from .api import (
+    LanguageCode,
     RealtimeSTTAudioFormat,
     RealtimeSTTRawFormat,
     StructuredContextInput,
@@ -69,7 +70,7 @@ class RealtimeSTTConfig(BaseModel):
     sample_rate: int | None = None
     """Sample rate in Hz (required for PCM formats)."""
 
-    language_hints: list[str] | None = None
+    language_hints: list[LanguageCode] | None = None
     """Expected languages in the audio (ISO language codes)."""
 
     language_hints_strict: bool | None = None
