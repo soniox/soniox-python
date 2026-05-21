@@ -80,6 +80,7 @@ Examples:
 ### Fixed
 
 - Removed Sphinx `:meth:` directive leaks from realtime STT client docstrings; they were rendering as raw text in the generated markdown reference.
+- `AsyncRealtimeTTSClient.connect_multi_stream()` now validates that an API key is available, matching the sync `RealtimeTTSClient.connect_multi_stream()`; previously it silently constructed a connection with an empty key.
 
 ### Removed
 

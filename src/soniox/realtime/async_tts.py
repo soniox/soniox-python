@@ -256,8 +256,13 @@ class AsyncRealtimeTTSClient:
 
     def connect_multi_stream(self) -> AsyncRealtimeTTSMultiplexedConnection:
         """Create a multiplexed realtime Text-to-Speech connection."""
+        key = self._client.api_key
+        if not key:
+            raise SonioxValidationError(
+                "API key is required to start a realtime Text-to-Speech connection"
+            )
         return AsyncRealtimeTTSMultiplexedConnection(
-            self._client.tts_websocket_base_url, self._client.api_key
+            self._client.tts_websocket_base_url, key
         )
 
 
