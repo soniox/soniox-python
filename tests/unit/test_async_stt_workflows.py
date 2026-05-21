@@ -153,6 +153,11 @@ async def test_async_transcribe_requires_one_input(async_client: AsyncSonioxClie
 
 @respx.mock
 async def test_async_transcribe_dispatches_by_input(async_client: AsyncSonioxClient) -> None:
+    uploaded = build(File)
+    uploaded.id = "uploaded-id"
+    respx.post(f"{BASE_URL}/files").mock(
+        return_value=Response(201, json=uploaded.model_dump(mode="json"))
+    )
     route = respx.post(f"{BASE_URL}/transcriptions").mock(
         return_value=Response(201, json=build(Transcription).model_dump(mode="json"))
     )
@@ -162,6 +167,18 @@ async def test_async_transcribe_dispatches_by_input(async_client: AsyncSonioxCli
 
     await async_client.stt.transcribe(file_id="f1")
     assert '"file_id":"f1"' in _request_body(route)
+
+    await async_client.stt.transcribe(file=io.BytesIO(b"audio"), filename="clip.mp3")
+    assert '"file_id":"uploaded-id"' in _request_body(route)
+
+
+async def test_async_create_rejects_both_audio_url_and_file_id(
+    async_client: AsyncSonioxClient,
+) -> None:
+    from soniox.errors import SonioxValidationError
+
+    with pytest.raises(SonioxValidationError):
+        await async_client.stt.create(audio_url=AUDIO_URL, file_id="f1")
 
 
 # ---------------------------------------------------------------------------

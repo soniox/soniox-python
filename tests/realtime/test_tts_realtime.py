@@ -686,3 +686,39 @@ def test_multiplexed_last_message_tracks_most_recent(client: SonioxClient) -> No
             assert stream.last_message.terminated is True
             assert stream.config.stream_id == "a"
             assert stream.stream_id == "a"
+
+
+# ---------------------------------------------------------------------------
+# Coverage backfill: config getter, api_key validation, recv str→bytes.
+# ---------------------------------------------------------------------------
+
+
+def test_tts_connection_exposes_config(client: SonioxClient) -> None:
+    conn = client.realtime.tts.connect(config=_config("c1"))
+    assert conn.config.stream_id == "c1"
+
+
+def test_tts_connect_requires_api_key(client: SonioxClient) -> None:
+    from soniox.errors import SonioxValidationError
+
+    client.api_key = ""
+    with pytest.raises(SonioxValidationError, match="API key"):
+        client.realtime.tts.connect(config=_config())
+
+
+def test_tts_connect_multi_stream_requires_api_key(client: SonioxClient) -> None:
+    from soniox.errors import SonioxValidationError
+
+    client.api_key = ""
+    with pytest.raises(SonioxValidationError, match="API key"):
+        client.realtime.tts.connect_multi_stream()
+
+
+def test_tts_recv_bytes_encodes_string_messages(client: SonioxClient) -> None:
+    ws = MockWebSocket()
+    ws.push_recv_raw("string-frame")
+    ws.close_after_recv()
+
+    with _patch_sync_tts_ws(ws):
+        with client.realtime.tts.connect(config=_config()) as conn:
+            assert conn.recv_bytes() == b"string-frame"

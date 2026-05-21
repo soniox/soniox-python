@@ -94,6 +94,28 @@ def test_unparseable_json_body_becomes_generic_api_error(client: SonioxClient) -
 
 
 @respx.mock
+def test_legacy_error_code_message_payload_is_recognised(client: SonioxClient) -> None:
+    """Servers that return the older `{error_code, error_message}` shape are
+    still surfaced as a typed error with the message intact."""
+    respx.get(f"{BASE_URL}/files").mock(
+        return_value=Response(
+            400, json={"error_code": 400, "error_message": "legacy error path"}
+        )
+    )
+    from soniox.errors import SonioxInvalidRequestError
+
+    with pytest.raises(SonioxInvalidRequestError, match="legacy error path"):
+        client.files.list(limit=5)
+
+
+@respx.mock
+def test_non_dict_error_body_falls_back_to_generic_api_error(client: SonioxClient) -> None:
+    respx.get(f"{BASE_URL}/files").mock(return_value=Response(500, json=["one", "two"]))
+    with pytest.raises(SonioxAPIError, match="Unable to parse API error schema"):
+        client.files.list(limit=5)
+
+
+@respx.mock
 def test_empty_error_body_falls_back_to_reason_phrase(client: SonioxClient) -> None:
     respx.get(f"{BASE_URL}/files").mock(return_value=Response(503))
     with pytest.raises(SonioxServerError) as exc_info:
@@ -138,6 +160,15 @@ def test_delete_if_exists_swallows_404(client: SonioxClient) -> None:
         return_value=Response(404, json=api_error_body(404))
     )
     client.files.delete_if_exists("missing")  # must not raise
+
+
+@respx.mock
+def test_files_upload_closes_stream_when_sdk_owns_it(client: SonioxClient) -> None:
+    """Sync mirror of the async close_after=True upload path."""
+    respx.post(f"{BASE_URL}/files").mock(
+        return_value=Response(201, json=build(File).model_dump(mode="json"))
+    )
+    client.files.upload(b"audio-bytes", filename="clip.mp3")
 
 
 @respx.mock

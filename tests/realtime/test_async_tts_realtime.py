@@ -730,3 +730,47 @@ async def test_async_multiplexed_last_message(
             assert stream.last_message.terminated is True
             assert stream.config.stream_id == "a"
             assert stream.stream_id == "a"
+
+
+# ---------------------------------------------------------------------------
+# Coverage backfill: config getter, api_key validation, recv str→bytes.
+# ---------------------------------------------------------------------------
+
+
+async def test_async_tts_connection_exposes_config(
+    async_client: AsyncSonioxClient,
+) -> None:
+    conn = async_client.realtime.tts.connect(config=_config("c1"))
+    assert conn.config.stream_id == "c1"
+
+
+async def test_async_tts_connect_requires_api_key(
+    async_client: AsyncSonioxClient,
+) -> None:
+    from soniox.errors import SonioxValidationError
+
+    async_client.api_key = ""
+    with pytest.raises(SonioxValidationError, match="API key"):
+        async_client.realtime.tts.connect(config=_config())
+
+
+async def test_async_tts_connect_multi_stream_requires_api_key(
+    async_client: AsyncSonioxClient,
+) -> None:
+    from soniox.errors import SonioxValidationError
+
+    async_client.api_key = ""
+    with pytest.raises(SonioxValidationError, match="API key"):
+        async_client.realtime.tts.connect_multi_stream()
+
+
+async def test_async_tts_recv_bytes_encodes_string_messages(
+    async_client: AsyncSonioxClient,
+) -> None:
+    ws = AsyncMockWebSocket()
+    ws.push_recv_raw("string-frame")
+    ws.close_after_recv()
+
+    with _patch_async_tts_ws(ws):
+        async with async_client.realtime.tts.connect(config=_config()) as conn:
+            assert await conn.recv_bytes() == b"string-frame"

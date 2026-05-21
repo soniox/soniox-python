@@ -18,8 +18,10 @@ import pytest
 
 from soniox.types import Token
 from soniox.utils import (
+    output_file_for_audio_format,
     render_tokens,
     start_audio_thread,
+    start_text_thread,
     stream_audio,
     stream_audio_async,
     throttle_audio,
@@ -262,5 +264,69 @@ def test_start_audio_thread_runs_in_background_not_caller() -> None:
 
     session = _FakeSession()
     thread = start_audio_thread(session, b"x")  # type: ignore[arg-type]
+    thread.join(timeout=2)
+    assert captured["tid"] != main_thread_id
+
+
+# ---------------------------------------------------------------------------
+# output_file_for_audio_format
+# ---------------------------------------------------------------------------
+
+
+@pytest.mark.parametrize(
+    "audio_format, expected_ext",
+    [
+        ("wav", "wav"),
+        ("mp3", "mp3"),
+        ("aac", "aac"),
+        ("opus", "opus"),
+        ("flac", "flac"),
+        ("pcm_s16le", "pcm"),
+        ("pcm_f32le", "pcm"),
+        ("pcm_mulaw", "pcm"),
+        ("pcm_alaw", "pcm"),
+        ("unknown_format", "bin"),
+    ],
+)
+def test_output_file_for_audio_format_picks_extension(
+    audio_format: str, expected_ext: str
+) -> None:
+    path = output_file_for_audio_format(audio_format, "output")
+    assert path == Path(f"output.{expected_ext}")
+
+
+# ---------------------------------------------------------------------------
+# start_text_thread
+# ---------------------------------------------------------------------------
+
+
+def test_start_text_thread_calls_send_text_chunks_and_exits() -> None:
+    class _FakeSession:
+        def __init__(self) -> None:
+            self.received: list[str | object] = []
+            self.text_end: bool | None = None
+
+        def send_text_chunks(self, chunks: object, *, text_end: bool = True) -> None:
+            self.received.append(chunks)
+            self.text_end = text_end
+
+    session = _FakeSession()
+    thread = start_text_thread(session, "hello world", name="t-text", text_end=False)  # type: ignore[arg-type]
+    thread.join(timeout=2)
+    assert not thread.is_alive()
+    assert session.received == ["hello world"]
+    assert session.text_end is False
+
+
+def test_start_text_thread_runs_in_background_not_caller() -> None:
+    main_thread_id = threading.get_ident()
+    captured: dict[str, int] = {}
+
+    class _FakeSession:
+        def send_text_chunks(self, chunks: object, *, text_end: bool = True) -> None:
+            captured["tid"] = threading.get_ident()
+            time.sleep(0.01)
+
+    thread = start_text_thread(_FakeSession(), "x")  # type: ignore[arg-type]
     thread.join(timeout=2)
     assert captured["tid"] != main_thread_id

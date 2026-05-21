@@ -152,6 +152,11 @@ def test_transcribe_requires_one_input(client: SonioxClient) -> None:
 
 @respx.mock
 def test_transcribe_dispatches_by_input(client: SonioxClient) -> None:
+    uploaded = build(File)
+    uploaded.id = "uploaded-id"
+    respx.post(f"{BASE_URL}/files").mock(
+        return_value=Response(201, json=uploaded.model_dump(mode="json"))
+    )
     route = respx.post(f"{BASE_URL}/transcriptions").mock(
         return_value=Response(201, json=build(Transcription).model_dump(mode="json"))
     )
@@ -161,6 +166,16 @@ def test_transcribe_dispatches_by_input(client: SonioxClient) -> None:
 
     client.stt.transcribe(file_id="f1")
     assert '"file_id":"f1"' in _request_body(route)
+
+    client.stt.transcribe(file=io.BytesIO(b"audio"), filename="clip.mp3")
+    assert '"file_id":"uploaded-id"' in _request_body(route)
+
+
+def test_create_rejects_both_audio_url_and_file_id(client: SonioxClient) -> None:
+    from soniox.errors import SonioxValidationError
+
+    with pytest.raises(SonioxValidationError):
+        client.stt.create(audio_url=AUDIO_URL, file_id="f1")
 
 
 # ---------------------------------------------------------------------------
