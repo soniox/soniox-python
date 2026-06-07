@@ -71,6 +71,30 @@ async def test_async_connect_raises_on_ws_failure(async_client: AsyncSonioxClien
                 pass
 
 
+async def test_async_connect_uses_client_connect_timeout() -> None:
+    ws = AsyncMockWebSocket()
+    ws.close_after_recv()
+    client = AsyncSonioxClient(api_key="test_key", connect_timeout_sec=6.0)
+
+    with patch("soniox.realtime.async_tts.async_ws_connect", return_value=ws) as mock_connect:
+        async with client.realtime.tts.connect(config=_config()):
+            pass
+
+    mock_connect.assert_called_once_with(client.tts_websocket_base_url, open_timeout=6.0)
+
+
+async def test_async_multiplexed_connect_uses_client_connect_timeout() -> None:
+    ws = AsyncMockWebSocket()
+    ws.close_after_recv()
+    client = AsyncSonioxClient(api_key="test_key", connect_timeout_sec=3.5)
+
+    with patch("soniox.realtime.async_tts.async_ws_connect", return_value=ws) as mock_connect:
+        async with client.realtime.tts.connect_multi_stream():
+            pass
+
+    mock_connect.assert_called_once_with(client.tts_websocket_base_url, open_timeout=3.5)
+
+
 async def test_async_send_text_chunk_emits_payload(
     async_client: AsyncSonioxClient,
 ) -> None:
