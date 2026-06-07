@@ -74,6 +74,53 @@ def test_connect_raises_realtime_error_on_ws_failure(client: SonioxClient) -> No
                 pass
 
 
+def test_connect_default_does_not_pass_open_timeout(client: SonioxClient) -> None:
+    ws = MockWebSocket()
+    ws.close_after_recv()
+
+    with patch("soniox.realtime.tts.sync_ws_connect", return_value=ws) as mock_connect:
+        with client.realtime.tts.connect(config=_config()):
+            pass
+
+    mock_connect.assert_called_once_with(client.tts_websocket_base_url)
+
+
+def test_connect_uses_client_connect_timeout(client: SonioxClient) -> None:
+    ws = MockWebSocket()
+    ws.close_after_recv()
+    client = SonioxClient(api_key="test_key", connect_timeout_sec=5.0)
+
+    with patch("soniox.realtime.tts.sync_ws_connect", return_value=ws) as mock_connect:
+        with client.realtime.tts.connect(config=_config()):
+            pass
+
+    mock_connect.assert_called_once_with(client.tts_websocket_base_url, open_timeout=5.0)
+
+
+def test_multiplexed_connect_uses_client_connect_timeout(client: SonioxClient) -> None:
+    ws = MockWebSocket()
+    ws.close_after_recv()
+    client = SonioxClient(api_key="test_key", connect_timeout_sec=4.0)
+
+    with patch("soniox.realtime.tts.sync_ws_connect", return_value=ws) as mock_connect:
+        with client.realtime.tts.connect_multi_stream():
+            pass
+
+    mock_connect.assert_called_once_with(client.tts_websocket_base_url, open_timeout=4.0)
+
+
+def test_connect_timeout_maps_to_realtime_error() -> None:
+    client = SonioxClient(api_key="test_key", connect_timeout_sec=1.0)
+
+    with patch(
+        "soniox.realtime.tts.sync_ws_connect",
+        side_effect=TimeoutError("timed out"),
+    ):
+        with pytest.raises(SonioxRealtimeError, match="Connection timed out"):
+            with client.realtime.tts.connect(config=_config()):
+                pass
+
+
 # ---------------------------------------------------------------------------
 # Single-stream connection: send paths
 # ---------------------------------------------------------------------------

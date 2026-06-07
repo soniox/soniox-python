@@ -7,6 +7,26 @@ from collections.abc import Awaitable, Callable
 KEEP_ALIVE_INTERVAL_SEC: float = 5.0
 
 
+def ws_connect_kwargs(connect_timeout_sec: float | None) -> dict[str, float]:
+    """Build ``websockets.connect`` kwargs for realtime open timeouts."""
+    if connect_timeout_sec is None:
+        return {}
+    return {"open_timeout": connect_timeout_sec}
+
+
+def resolve_connect_timeout_sec(
+    client_default: float | None,
+    override: float | None,
+) -> float | None:
+    """Resolve the effective connect timeout and validate it."""
+    from ..errors import SonioxValidationError
+
+    timeout = client_default if override is None else override
+    if timeout is not None and timeout <= 0:
+        raise SonioxValidationError("connect_timeout_sec must be greater than zero")
+    return timeout
+
+
 class KeepaliveThread:
     """
     Background thread that periodically invokes a callback until stopped.
