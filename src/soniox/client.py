@@ -9,6 +9,7 @@ from typing import TYPE_CHECKING, Any
 import httpx
 
 from soniox.errors import SonioxValidationError
+from soniox.realtime._utils import DEFAULT_STT_CONNECTION_POOL_SIZE
 
 if TYPE_CHECKING:
     from .api.async_auth import AsyncAuthAPI
@@ -53,12 +54,25 @@ class _BaseSonioxClient:
         connect_timeout_sec: float | None = None,
         webhook_secret: str | None = None,
         webhook_signature_header: str | None = None,
+        stt_connection_pool_size: int = DEFAULT_STT_CONNECTION_POOL_SIZE,
+        stt_idle_max_lifetime_sec: float = 600.0,
+        stt_idle_refresh_before_sec: float = 60.0,
     ) -> None:
         api_key = api_key or os.environ.get("SONIOX_API_KEY")
         if not api_key:
             raise SonioxValidationError("Please provide api_key")
         if connect_timeout_sec is not None and connect_timeout_sec <= 0:
             raise SonioxValidationError("connect_timeout_sec must be greater than zero")
+        if stt_connection_pool_size < 0:
+            raise SonioxValidationError("stt_connection_pool_size must be zero or greater")
+        if stt_idle_max_lifetime_sec <= 0:
+            raise SonioxValidationError("stt_idle_max_lifetime_sec must be greater than zero")
+        if stt_idle_refresh_before_sec <= 0:
+            raise SonioxValidationError("stt_idle_refresh_before_sec must be greater than zero")
+        if stt_idle_refresh_before_sec >= stt_idle_max_lifetime_sec:
+            raise SonioxValidationError(
+                "stt_idle_refresh_before_sec must be less than stt_idle_max_lifetime_sec"
+            )
         self.api_key = api_key
         self.api_base_url = api_base_url or _DEFAULT_API_BASE_URL
         self.websocket_base_url = websocket_base_url or _DEFAULT_WEBSOCKET_BASE_URL
@@ -66,6 +80,9 @@ class _BaseSonioxClient:
         self.tts_websocket_base_url = tts_websocket_base_url or _DEFAULT_TTS_WEBSOCKET_BASE_URL
         self.timeout_sec = timeout_sec if timeout_sec is not None else _DEFAULT_TIMEOUT_SEC
         self.connect_timeout_sec = connect_timeout_sec
+        self.stt_connection_pool_size = stt_connection_pool_size
+        self.stt_idle_max_lifetime_sec = stt_idle_max_lifetime_sec
+        self.stt_idle_refresh_before_sec = stt_idle_refresh_before_sec
         self.webhook_secret = webhook_secret
         self.webhook_signature_header = webhook_signature_header
 
@@ -90,6 +107,9 @@ class SonioxClient(_BaseSonioxClient):
         connect_timeout_sec: float | None = None,
         webhook_secret: str | None = None,
         webhook_signature_header: str | None = None,
+        stt_connection_pool_size: int = DEFAULT_STT_CONNECTION_POOL_SIZE,
+        stt_idle_max_lifetime_sec: float = 600.0,
+        stt_idle_refresh_before_sec: float = 60.0,
         **client_kwargs: Any,
     ) -> None:
         super().__init__(
@@ -102,6 +122,9 @@ class SonioxClient(_BaseSonioxClient):
             connect_timeout_sec=connect_timeout_sec,
             webhook_secret=webhook_secret,
             webhook_signature_header=webhook_signature_header,
+            stt_connection_pool_size=stt_connection_pool_size,
+            stt_idle_max_lifetime_sec=stt_idle_max_lifetime_sec,
+            stt_idle_refresh_before_sec=stt_idle_refresh_before_sec,
         )
         self._http_client = httpx.Client(
             base_url=self.api_base_url,
@@ -194,7 +217,11 @@ class SonioxClient(_BaseSonioxClient):
         return RealtimeAPI(self)
 
     def close(self) -> None:
-        """Close the underlying HTTP transport."""
+        """Close the underlying HTTP transport and STT connection pool."""
+        try:
+            self.realtime.stt.close_connection_pool()
+        except Exception:
+            pass
         self._http_client.close()
 
     def __enter__(self) -> SonioxClient:
@@ -224,6 +251,9 @@ class AsyncSonioxClient(_BaseSonioxClient):
         connect_timeout_sec: float | None = None,
         webhook_secret: str | None = None,
         webhook_signature_header: str | None = None,
+        stt_connection_pool_size: int = DEFAULT_STT_CONNECTION_POOL_SIZE,
+        stt_idle_max_lifetime_sec: float = 600.0,
+        stt_idle_refresh_before_sec: float = 60.0,
         **client_kwargs: Any,
     ) -> None:
         super().__init__(
@@ -236,6 +266,9 @@ class AsyncSonioxClient(_BaseSonioxClient):
             connect_timeout_sec=connect_timeout_sec,
             webhook_secret=webhook_secret,
             webhook_signature_header=webhook_signature_header,
+            stt_connection_pool_size=stt_connection_pool_size,
+            stt_idle_max_lifetime_sec=stt_idle_max_lifetime_sec,
+            stt_idle_refresh_before_sec=stt_idle_refresh_before_sec,
         )
         self._http_client = httpx.AsyncClient(
             base_url=self.api_base_url,
@@ -328,7 +361,11 @@ class AsyncSonioxClient(_BaseSonioxClient):
         return AsyncRealtimeAPI(self)
 
     async def aclose(self) -> None:
-        """Close any outstanding async HTTP connections."""
+        """Close any outstanding async HTTP connections and STT connection pool."""
+        try:
+            self.realtime.stt.close_connection_pool()
+        except Exception:
+            pass
         await self._http_client.aclose()
 
     async def __aenter__(self) -> AsyncSonioxClient:

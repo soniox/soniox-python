@@ -5,6 +5,9 @@ import threading
 from collections.abc import Awaitable, Callable
 
 KEEP_ALIVE_INTERVAL_SEC: float = 5.0
+DEFAULT_STT_CONNECTION_POOL_SIZE: int = 5
+DEFAULT_IDLE_MAX_LIFETIME_SEC: float = 600.0
+DEFAULT_IDLE_REFRESH_BEFORE_SEC: float = 60.0
 
 
 def ws_connect_kwargs(connect_timeout_sec: float | None) -> dict[str, float]:

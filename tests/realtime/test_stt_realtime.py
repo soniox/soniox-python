@@ -34,7 +34,7 @@ def test_realtime_sync(client: SonioxClient, case: RealtimeCase) -> None:
 
     audio_chunks = [m for m in case.expected_sent if isinstance(m, bytes)]
 
-    with patch("soniox.realtime.stt.sync_ws_connect", return_value=ws):
+    with patch("soniox.realtime._transport.sync_ws_connect", return_value=ws):
         with client.realtime.stt.connect(config=case.config) as session:
             for chunk in audio_chunks:
                 session.send_bytes(chunk, finish=False)
@@ -55,7 +55,7 @@ async def test_realtime_async(async_client: AsyncSonioxClient, case: RealtimeCas
 
     audio_chunks = [m for m in case.expected_sent if isinstance(m, bytes)]
 
-    with patch("soniox.realtime.async_stt.async_ws_connect", return_value=ws):
+    with patch("soniox.realtime._transport.async_ws_connect", return_value=ws):
         async with async_client.realtime.stt.connect(config=case.config) as session:
             for chunk in audio_chunks:
                 await session.send_bytes(chunk, finish=False)
@@ -74,7 +74,7 @@ async def test_realtime_async(async_client: AsyncSonioxClient, case: RealtimeCas
 
 def _patch_sync_ws(ws: MockWebSocket):
     """Patch the sync websocket connect to return ``ws``."""
-    return patch("soniox.realtime.stt.sync_ws_connect", return_value=ws)
+    return patch("soniox.realtime._transport.sync_ws_connect", return_value=ws)
 
 
 def test_pause_emits_finalize_control(client: SonioxClient) -> None:
@@ -138,7 +138,7 @@ def test_finalize_emits_control_message(client: SonioxClient) -> None:
     ws = MockWebSocket()
     ws.close_after_recv()
     config = RealtimeSTTConfig(model="v1")
-    with patch("soniox.realtime.stt.sync_ws_connect", return_value=ws):
+    with patch("soniox.realtime._transport.sync_ws_connect", return_value=ws):
         with client.realtime.stt.connect(config=config) as session:
             session.finalize()
             session.finish()
@@ -149,7 +149,7 @@ def test_keepalive_emits_control_message(client: SonioxClient) -> None:
     ws = MockWebSocket()
     ws.close_after_recv()
     config = RealtimeSTTConfig(model="v1")
-    with patch("soniox.realtime.stt.sync_ws_connect", return_value=ws):
+    with patch("soniox.realtime._transport.sync_ws_connect", return_value=ws):
         with client.realtime.stt.connect(config=config) as session:
             session.keep_alive()
             session.finish()
@@ -174,7 +174,7 @@ def test_send_bytes_iterator_auto_finishes(client: SonioxClient) -> None:
     ws.close_after_recv()
     config = RealtimeSTTConfig(model="v1")
 
-    with patch("soniox.realtime.stt.sync_ws_connect", return_value=ws):
+    with patch("soniox.realtime._transport.sync_ws_connect", return_value=ws):
         with client.realtime.stt.connect(config=config) as session:
             session.send_bytes(iter([b"a", b"b", b"c"]))  # default finish=True
 
@@ -190,7 +190,7 @@ def test_send_bytes_iterator_without_finish(client: SonioxClient) -> None:
     ws.close_after_recv()
     config = RealtimeSTTConfig(model="v1")
 
-    with patch("soniox.realtime.stt.sync_ws_connect", return_value=ws):
+    with patch("soniox.realtime._transport.sync_ws_connect", return_value=ws):
         with client.realtime.stt.connect(config=config) as session:
             session.send_bytes(iter([b"a", b"b"]), finish=False)
             # We haven't sent FINISH yet - the only "" in sent_messages must
@@ -213,7 +213,7 @@ async def test_send_bytes_async_iterator_auto_finishes(
         for chunk in (b"a", b"b"):
             yield chunk
 
-    with patch("soniox.realtime.async_stt.async_ws_connect", return_value=ws):
+    with patch("soniox.realtime._transport.async_ws_connect", return_value=ws):
         async with async_client.realtime.stt.connect(config=config) as session:
             await session.send_bytes(_chunks())
 
@@ -229,7 +229,7 @@ def test_handle_events_dispatches_to_callback(client: SonioxClient) -> None:
 
     received: list = []
     config = RealtimeSTTConfig(model="v1")
-    with patch("soniox.realtime.stt.sync_ws_connect", return_value=ws):
+    with patch("soniox.realtime._transport.sync_ws_connect", return_value=ws):
         with client.realtime.stt.connect(config=config) as session:
             session.finish()
             session.handle_events(received.append)
@@ -244,7 +244,7 @@ def test_session_config_and_paused_properties(client: SonioxClient) -> None:
     ws = MockWebSocket()
     ws.close_after_recv()
 
-    with patch("soniox.realtime.stt.sync_ws_connect", return_value=ws):
+    with patch("soniox.realtime._transport.sync_ws_connect", return_value=ws):
         with client.realtime.stt.connect(config=config) as session:
             # Session wraps the config with the API key attached; payload
             # equivalence is what callers care about, not object identity.
@@ -268,7 +268,7 @@ def test_pause_is_idempotent(client: SonioxClient) -> None:
     """Calling ``pause()`` on an already-paused session must not emit a second FINALIZE."""
     ws = MockWebSocket()
     ws.close_after_recv()
-    with patch("soniox.realtime.stt.sync_ws_connect", return_value=ws):
+    with patch("soniox.realtime._transport.sync_ws_connect", return_value=ws):
         with client.realtime.stt.connect(config=RealtimeSTTConfig(model="v1")) as session:
             session.pause()
             session.pause()  # already paused
@@ -280,7 +280,7 @@ def test_resume_when_not_paused_is_noop(client: SonioxClient) -> None:
     """Calling ``resume()`` on a session that was never paused must not raise or emit."""
     ws = MockWebSocket()
     ws.close_after_recv()
-    with patch("soniox.realtime.stt.sync_ws_connect", return_value=ws):
+    with patch("soniox.realtime._transport.sync_ws_connect", return_value=ws):
         with client.realtime.stt.connect(config=RealtimeSTTConfig(model="v1")) as session:
             before = list(ws.sent_messages)
             session.resume()
@@ -304,7 +304,7 @@ def test_send_control_message_wraps_send_errors(client: SonioxClient) -> None:
     ws = MockWebSocket()
     ws.close_after_recv()
 
-    with patch("soniox.realtime.stt.sync_ws_connect", return_value=ws):
+    with patch("soniox.realtime._transport.sync_ws_connect", return_value=ws):
         with client.realtime.stt.connect(config=RealtimeSTTConfig(model="v1")) as session:
             ws.closed = True  # subsequent send raises ConnectionClosed
             with pytest.raises(SonioxRealtimeError):
@@ -318,7 +318,7 @@ async def test_async_session_exposes_config(
     ws.close_after_recv()
     config = RealtimeSTTConfig(model="v1")
 
-    with patch("soniox.realtime.async_stt.async_ws_connect", return_value=ws):
+    with patch("soniox.realtime._transport.async_ws_connect", return_value=ws):
         async with async_client.realtime.stt.connect(config=config) as session:
             assert session.config.model == "v1"
             assert session.last_message is None
@@ -330,7 +330,7 @@ async def test_async_pause_resume_toggles_paused_flag(
     ws = AsyncMockWebSocket()
     ws.close_after_recv()
 
-    with patch("soniox.realtime.async_stt.async_ws_connect", return_value=ws):
+    with patch("soniox.realtime._transport.async_ws_connect", return_value=ws):
         async with async_client.realtime.stt.connect(
             config=RealtimeSTTConfig(model="v1")
         ) as session:
@@ -348,7 +348,7 @@ async def test_async_pause_is_idempotent(
     ws = AsyncMockWebSocket()
     ws.close_after_recv()
 
-    with patch("soniox.realtime.async_stt.async_ws_connect", return_value=ws):
+    with patch("soniox.realtime._transport.async_ws_connect", return_value=ws):
         async with async_client.realtime.stt.connect(
             config=RealtimeSTTConfig(model="v1")
         ) as session:
@@ -364,7 +364,7 @@ async def test_async_resume_when_not_paused_is_noop(
     ws = AsyncMockWebSocket()
     ws.close_after_recv()
 
-    with patch("soniox.realtime.async_stt.async_ws_connect", return_value=ws):
+    with patch("soniox.realtime._transport.async_ws_connect", return_value=ws):
         async with async_client.realtime.stt.connect(
             config=RealtimeSTTConfig(model="v1")
         ) as session:
@@ -380,7 +380,7 @@ async def test_async_pause_with_finalize_false_skips_finalize(
     ws = AsyncMockWebSocket()
     ws.close_after_recv()
 
-    with patch("soniox.realtime.async_stt.async_ws_connect", return_value=ws):
+    with patch("soniox.realtime._transport.async_ws_connect", return_value=ws):
         async with async_client.realtime.stt.connect(
             config=RealtimeSTTConfig(model="v1")
         ) as session:
@@ -416,7 +416,7 @@ async def test_async_send_control_message_wraps_send_errors(
     ws = AsyncMockWebSocket()
     ws.close_after_recv()
 
-    with patch("soniox.realtime.async_stt.async_ws_connect", return_value=ws):
+    with patch("soniox.realtime._transport.async_ws_connect", return_value=ws):
         async with async_client.realtime.stt.connect(
             config=RealtimeSTTConfig(model="v1")
         ) as session:
@@ -428,9 +428,9 @@ async def test_async_send_control_message_wraps_send_errors(
 def test_connect_default_does_not_pass_open_timeout() -> None:
     ws = MockWebSocket()
     ws.close_after_recv()
-    client = SonioxClient(api_key="test_key")
+    client = SonioxClient(api_key="test_key", stt_connection_pool_size=0)
 
-    with patch("soniox.realtime.stt.sync_ws_connect", return_value=ws) as mock_connect:
+    with patch("soniox.realtime._transport.sync_ws_connect", return_value=ws) as mock_connect:
         with client.realtime.stt.connect(config=RealtimeSTTConfig(model="v1")) as session:
             session.finish()
 
@@ -440,9 +440,9 @@ def test_connect_default_does_not_pass_open_timeout() -> None:
 def test_connect_uses_client_connect_timeout() -> None:
     ws = MockWebSocket()
     ws.close_after_recv()
-    client = SonioxClient(api_key="test_key", connect_timeout_sec=5.0)
+    client = SonioxClient(api_key="test_key", connect_timeout_sec=5.0, stt_connection_pool_size=0)
 
-    with patch("soniox.realtime.stt.sync_ws_connect", return_value=ws) as mock_connect:
+    with patch("soniox.realtime._transport.sync_ws_connect", return_value=ws) as mock_connect:
         with client.realtime.stt.connect(config=RealtimeSTTConfig(model="v1")) as session:
             session.finish()
 
@@ -452,9 +452,9 @@ def test_connect_uses_client_connect_timeout() -> None:
 def test_connect_session_override_connect_timeout() -> None:
     ws = MockWebSocket()
     ws.close_after_recv()
-    client = SonioxClient(api_key="test_key", connect_timeout_sec=5.0)
+    client = SonioxClient(api_key="test_key", connect_timeout_sec=5.0, stt_connection_pool_size=0)
 
-    with patch("soniox.realtime.stt.sync_ws_connect", return_value=ws) as mock_connect:
+    with patch("soniox.realtime._transport.sync_ws_connect", return_value=ws) as mock_connect:
         with client.realtime.stt.connect(
             config=RealtimeSTTConfig(model="v1"),
             connect_timeout_sec=2.0,
@@ -467,9 +467,9 @@ def test_connect_session_override_connect_timeout() -> None:
 async def test_async_connect_uses_client_connect_timeout() -> None:
     ws = AsyncMockWebSocket()
     ws.close_after_recv()
-    client = AsyncSonioxClient(api_key="test_key", connect_timeout_sec=3.0)
+    client = AsyncSonioxClient(api_key="test_key", connect_timeout_sec=3.0, stt_connection_pool_size=0)
 
-    with patch("soniox.realtime.async_stt.async_ws_connect", return_value=ws) as mock_connect:
+    with patch("soniox.realtime._transport.async_ws_connect", return_value=ws) as mock_connect:
         async with client.realtime.stt.connect(config=RealtimeSTTConfig(model="v1")) as session:
             await session.finish()
 
@@ -477,10 +477,10 @@ async def test_async_connect_uses_client_connect_timeout() -> None:
 
 
 def test_connect_timeout_maps_to_realtime_error() -> None:
-    client = SonioxClient(api_key="test_key", connect_timeout_sec=1.0)
+    client = SonioxClient(api_key="test_key", connect_timeout_sec=1.0, stt_connection_pool_size=0)
 
     with patch(
-        "soniox.realtime.stt.sync_ws_connect",
+        "soniox.realtime._transport.sync_ws_connect",
         side_effect=TimeoutError("timed out"),
     ):
         with pytest.raises(SonioxRealtimeError, match="Connection timed out"):

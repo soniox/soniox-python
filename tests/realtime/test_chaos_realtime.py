@@ -43,7 +43,7 @@ def test_connection_closed_during_recv_stops_iteration(client: SonioxClient) -> 
     ws.push_recv({"tokens": [{"text": "final", "is_final": True}]})
     ws.push_recv_error(ConnectionClosed(None, None))
 
-    with patch("soniox.realtime.stt.sync_ws_connect", return_value=ws):
+    with patch("soniox.realtime._transport.sync_ws_connect", return_value=ws):
         with client.realtime.stt.connect(config=CONFIG) as session:
             events = list(session.receive_events())
 
@@ -59,7 +59,7 @@ async def test_connection_closed_during_recv_stops_iteration_async(
     ws.push_recv({"tokens": [{"text": "partial", "is_final": False}]})
     ws.push_recv_error(ConnectionClosed(None, None))
 
-    with patch("soniox.realtime.async_stt.async_ws_connect", return_value=ws):
+    with patch("soniox.realtime._transport.async_ws_connect", return_value=ws):
         async with async_client.realtime.stt.connect(config=CONFIG) as session:
             events = [event async for event in session.receive_events()]
 
@@ -75,7 +75,7 @@ def test_send_on_closed_connection_raises(client: SonioxClient) -> None:
     ws = MockWebSocket()
     ws.close_after_recv()
 
-    with patch("soniox.realtime.stt.sync_ws_connect", return_value=ws):
+    with patch("soniox.realtime._transport.sync_ws_connect", return_value=ws):
         with client.realtime.stt.connect(config=CONFIG) as session:
             ws.closed = True  # simulate the peer going away
             with pytest.raises(SonioxRealtimeError):
@@ -88,7 +88,7 @@ async def test_send_on_closed_connection_raises_async(
     ws = AsyncMockWebSocket()
     ws.close_after_recv()
 
-    with patch("soniox.realtime.async_stt.async_ws_connect", return_value=ws):
+    with patch("soniox.realtime._transport.async_ws_connect", return_value=ws):
         async with async_client.realtime.stt.connect(config=CONFIG) as session:
             ws.closed = True
             with pytest.raises(SonioxRealtimeError):
@@ -104,7 +104,7 @@ def test_handshake_failure_wraps_as_realtime_error(client: SonioxClient) -> None
     def _raise(*_args: object) -> None:
         raise ConnectionClosed(None, None)
 
-    with patch("soniox.realtime.stt.sync_ws_connect", side_effect=_raise):
+    with patch("soniox.realtime._transport.sync_ws_connect", side_effect=_raise):
         with pytest.raises(SonioxRealtimeError):
             with client.realtime.stt.connect(config=CONFIG):
                 pass
@@ -119,7 +119,7 @@ def test_unexpected_recv_error_propagates(client: SonioxClient) -> None:
     ws = MockWebSocket()
     ws.push_recv_error(RuntimeError("kaboom"))
 
-    with patch("soniox.realtime.stt.sync_ws_connect", return_value=ws):
+    with patch("soniox.realtime._transport.sync_ws_connect", return_value=ws):
         with client.realtime.stt.connect(config=CONFIG) as session:
             with pytest.raises(RuntimeError, match="kaboom"):
                 list(session.receive_events())
@@ -137,7 +137,7 @@ def test_server_error_event_surfaces_to_consumer(client: SonioxClient) -> None:
     ws = MockWebSocket()
     ws.push_recv({"error_code": 429, "error_message": "rate limited"})
 
-    with patch("soniox.realtime.stt.sync_ws_connect", return_value=ws):
+    with patch("soniox.realtime._transport.sync_ws_connect", return_value=ws):
         with client.realtime.stt.connect(config=CONFIG) as session:
             events = list(session.receive_events())
 
@@ -150,7 +150,7 @@ async def test_server_error_event_surfaces_to_consumer_async(
     ws = AsyncMockWebSocket()
     ws.push_recv({"error_code": 429, "error_message": "rate limited"})
 
-    with patch("soniox.realtime.async_stt.async_ws_connect", return_value=ws):
+    with patch("soniox.realtime._transport.async_ws_connect", return_value=ws):
         async with async_client.realtime.stt.connect(config=CONFIG) as session:
             events = [event async for event in session.receive_events()]
 

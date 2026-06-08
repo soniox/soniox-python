@@ -4,7 +4,21 @@ from functools import cached_property
 from typing import TYPE_CHECKING
 
 from ..types.realtime import RealtimeEvent, RealtimeSTTConfig, RealtimeTTSConfig, RealtimeTTSEvent
+from .async_stt_preconnect import (
+    AsyncRealtimeSTTConnection,
+    AsyncRealtimeSTTConnectionPool,
+    AsyncRealtimeSTTPooledSession,
+    AsyncRealtimeSTTPreconnectPool,
+    AsyncRealtimeSTTStream,
+)
 from .stt import RealtimeSTTClient, RealtimeSTTSession
+from .stt_preconnect import (
+    RealtimeSTTConnection,
+    RealtimeSTTConnectionPool,
+    RealtimeSTTPooledSession,
+    RealtimeSTTPreconnectPool,
+    RealtimeSTTStream,
+)
 from .tts import (
     RealtimeTTSClient,
     RealtimeTTSConnection,
@@ -46,7 +60,17 @@ __all__ = [
     "RealtimeTTSEvent",
     "AsyncRealtimeAPI",
     "AsyncRealtimeSTTClient",
+    "AsyncRealtimeSTTConnection",
+    "AsyncRealtimeSTTConnectionPool",
+    "AsyncRealtimeSTTPooledSession",
+    "AsyncRealtimeSTTPreconnectPool",
     "AsyncRealtimeSTTSession",
+    "AsyncRealtimeSTTStream",
+    "RealtimeSTTConnection",
+    "RealtimeSTTConnectionPool",
+    "RealtimeSTTPooledSession",
+    "RealtimeSTTPreconnectPool",
+    "RealtimeSTTStream",
     "AsyncRealtimeTTSClient",
     "AsyncRealtimeTTSConnection",
     "AsyncRealtimeTTSMultiplexedConnection",

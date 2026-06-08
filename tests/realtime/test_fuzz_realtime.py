@@ -90,7 +90,7 @@ def test_realtime_session_survives_random_failures(client: SonioxClient, seed: i
     ws = MockWebSocket()
     actions = _script_session(rng, ws)
 
-    with patch("soniox.realtime.stt.sync_ws_connect", return_value=ws):
+    with patch("soniox.realtime._transport.sync_ws_connect", return_value=ws):
         try:
             with client.realtime.stt.connect(config=CONFIG) as session:
                 _drive(session, actions)

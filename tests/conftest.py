@@ -16,11 +16,11 @@ from .helpers import API_KEY
 
 @pytest.fixture
 def client():
-    with SonioxClient(api_key=API_KEY) as c:
+    with SonioxClient(api_key=API_KEY, stt_connection_pool_size=0) as c:
         yield c
 
 
 @pytest.fixture
 async def async_client():
-    async with AsyncSonioxClient(api_key=API_KEY) as c:
+    async with AsyncSonioxClient(api_key=API_KEY, stt_connection_pool_size=0) as c:
         yield c

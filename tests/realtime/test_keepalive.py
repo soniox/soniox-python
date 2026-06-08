@@ -31,7 +31,7 @@ def test_keepalive_thread_fires_while_paused(
     ws.close_after_recv()
     monkeypatch.setattr("soniox.realtime.stt.KEEP_ALIVE_INTERVAL_SEC", 0.01)
 
-    with patch("soniox.realtime.stt.sync_ws_connect", return_value=ws):
+    with patch("soniox.realtime._transport.sync_ws_connect", return_value=ws):
         with client.realtime.stt.connect(config=CONFIG) as session:
             session.pause()
             time.sleep(0.1)
@@ -48,7 +48,7 @@ async def test_keepalive_task_fires_while_paused(
     ws.close_after_recv()
     monkeypatch.setattr("soniox.realtime.async_stt.KEEP_ALIVE_INTERVAL_SEC", 0.01)
 
-    with patch("soniox.realtime.async_stt.async_ws_connect", return_value=ws):
+    with patch("soniox.realtime._transport.async_ws_connect", return_value=ws):
         async with async_client.realtime.stt.connect(config=CONFIG) as session:
             await session.pause()
             await asyncio.sleep(0.1)
@@ -66,7 +66,7 @@ def test_keepalive_thread_stops_after_resume(
     ws.close_after_recv()
     monkeypatch.setattr("soniox.realtime.stt.KEEP_ALIVE_INTERVAL_SEC", 0.01)
 
-    with patch("soniox.realtime.stt.sync_ws_connect", return_value=ws):
+    with patch("soniox.realtime._transport.sync_ws_connect", return_value=ws):
         with client.realtime.stt.connect(config=CONFIG) as session:
             session.pause()
             time.sleep(0.05)

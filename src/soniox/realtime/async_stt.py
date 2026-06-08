@@ -5,12 +5,12 @@ from collections.abc import AsyncIterator, Awaitable, Callable
 from types import TracebackType
 from typing import TYPE_CHECKING
 
-from websockets import connect as async_ws_connect
 from websockets.exceptions import ConnectionClosed
 
 from ..errors import SonioxRealtimeError, SonioxValidationError
 from ..types.realtime import RealtimeControlType, RealtimeEvent, RealtimeSTTConfig
-from ._utils import KEEP_ALIVE_INTERVAL_SEC, KeepaliveTask, resolve_connect_timeout_sec, ws_connect_kwargs
+from . import _transport
+from ._utils import DEFAULT_STT_CONNECTION_POOL_SIZE, KEEP_ALIVE_INTERVAL_SEC, KeepaliveTask, resolve_connect_timeout_sec, ws_connect_kwargs
 
 if TYPE_CHECKING:
     from ..client import AsyncSonioxClient
@@ -87,7 +87,7 @@ class AsyncRealtimeSTTSession:
                 If the WebSocket connection or session initialization fails.
         """
         try:
-            self._ws = await async_ws_connect(
+            self._ws = await _transport.async_ws_connect(
                 self._url,
                 **ws_connect_kwargs(self._connect_timeout_sec),
             )
@@ -397,6 +397,30 @@ class AsyncRealtimeSTTClient:
                 Parent Soniox client providing configuration and credentials.
         """
         self._client = client
+        self._connection_pool = None
+
+    def _uses_connection_pool(self) -> bool:
+        return self._client.stt_connection_pool_size > 0
+
+    def _get_connection_pool(self):
+        if self._connection_pool is None:
+            self._connection_pool = self.create_connection_pool(
+                pool_size=self._client.stt_connection_pool_size,
+                idle_max_lifetime_sec=self._client.stt_idle_max_lifetime_sec,
+                idle_refresh_before_sec=self._client.stt_idle_refresh_before_sec,
+            )
+        return self._connection_pool
+
+    async def warmup_connection_pool(self) -> None:
+        """Pre-open idle WebSocket links for upcoming STT sessions."""
+        if self._uses_connection_pool():
+            await self._get_connection_pool().warmup()
+
+    def close_connection_pool(self) -> None:
+        """Close all idle links in the internal STT connection pool."""
+        if self._connection_pool is not None:
+            self._connection_pool.close()
+            self._connection_pool = None
 
     def connect(
         self,
@@ -404,34 +428,31 @@ class AsyncRealtimeSTTClient:
         config: RealtimeSTTConfig,
         api_key: str | None = None,
         connect_timeout_sec: float | None = None,
+        use_connection_pool: bool | None = None,
     ) -> AsyncRealtimeSTTSession:
         """
-        Create a new realtime STT session.
+        Create a new async realtime STT session.
+
+        When ``stt_connection_pool_size`` on the parent client is greater
+        than zero (the default is ``5``), the session claims a pre-connected
+        WebSocket from the internal pool on enter.
 
         The returned session is not connected until entered as an async
         context manager.
-
-        Args:
-            config:
-                Realtime transcription configuration.
-            api_key:
-                Optional API key override. If not provided, the client's
-                default API key is used.
-            connect_timeout_sec:
-                Maximum seconds to wait for the WebSocket handshake.
-                ``None`` uses the client default (also ``None`` by default,
-                which keeps the ``websockets`` library default behavior).
-
-        Returns:
-            A new AsyncRealtimeSTTSession instance.
-
-        Raises:
-            SonioxValidationError:
-                If no API key is available.
         """
         key = api_key or self._client.api_key
         if not key:
             raise SonioxValidationError("API key is required to start a realtime session")
+
+        pool_enabled = self._uses_connection_pool() if use_connection_pool is None else use_connection_pool
+        if pool_enabled and self._uses_connection_pool():
+            from .async_stt_preconnect import AsyncRealtimeSTTPooledSession
+
+            return AsyncRealtimeSTTPooledSession(
+                self._get_connection_pool(),
+                config,
+                api_key=api_key,
+            )
 
         timeout = resolve_connect_timeout_sec(
             self._client.connect_timeout_sec,
@@ -443,4 +464,113 @@ class AsyncRealtimeSTTClient:
             self._client.websocket_base_url,
             payload,
             connect_timeout_sec=timeout,
+        )
+
+    def connect_idle(
+        self,
+        *,
+        api_key: str | None = None,
+        connect_timeout_sec: float | None = None,
+    ):
+        """
+        Open a pre-connected async WebSocket link without starting a session.
+
+        Returns:
+            An :class:`~soniox.realtime.async_stt_preconnect.AsyncRealtimeSTTConnection`.
+        """
+        from .async_stt_preconnect import AsyncRealtimeSTTConnection
+
+        key = api_key or self._client.api_key
+        if not key:
+            raise SonioxValidationError("API key is required to open a realtime connection")
+
+        timeout = resolve_connect_timeout_sec(
+            self._client.connect_timeout_sec,
+            connect_timeout_sec,
+        )
+        return AsyncRealtimeSTTConnection(
+            self._client.websocket_base_url,
+            key,
+            connect_timeout_sec=timeout,
+        )
+
+    def create_connection_pool(
+        self,
+        *,
+        pool_size: int = DEFAULT_STT_CONNECTION_POOL_SIZE,
+        api_key: str | None = None,
+        connect_timeout_sec: float | None = None,
+        idle_keepalive: bool = True,
+        keepalive_interval_sec: float | None = None,
+        idle_max_lifetime_sec: float | None = None,
+        idle_refresh_before_sec: float | None = None,
+    ):
+        """
+        Create an async pool of idle WebSocket links (handshake only).
+
+        Idle links send periodic STT keepalive messages but no session config.
+        Each link is replaced before ``idle_max_lifetime_sec`` (default 10
+        minutes) expires.
+
+        Returns:
+            An :class:`~soniox.realtime.async_stt_preconnect.AsyncRealtimeSTTConnectionPool`.
+        """
+        from ._utils import (
+            DEFAULT_IDLE_MAX_LIFETIME_SEC,
+            DEFAULT_IDLE_REFRESH_BEFORE_SEC,
+            KEEP_ALIVE_INTERVAL_SEC,
+        )
+        from .async_stt_preconnect import AsyncRealtimeSTTConnectionPool
+
+        key = api_key or self._client.api_key
+        if not key:
+            raise SonioxValidationError("API key is required to open a realtime connection")
+
+        timeout = resolve_connect_timeout_sec(
+            self._client.connect_timeout_sec,
+            connect_timeout_sec,
+        )
+        return AsyncRealtimeSTTConnectionPool(
+            url=self._client.websocket_base_url,
+            api_key=key,
+            pool_size=pool_size,
+            connect_timeout_sec=timeout,
+            idle_keepalive=idle_keepalive,
+            keepalive_interval_sec=(
+                KEEP_ALIVE_INTERVAL_SEC
+                if keepalive_interval_sec is None
+                else keepalive_interval_sec
+            ),
+            idle_max_lifetime_sec=(
+                self._client.stt_idle_max_lifetime_sec
+                if idle_max_lifetime_sec is None
+                else idle_max_lifetime_sec
+            ),
+            idle_refresh_before_sec=(
+                self._client.stt_idle_refresh_before_sec
+                if idle_refresh_before_sec is None
+                else idle_refresh_before_sec
+            ),
+        )
+
+    def create_preconnect_pool(
+        self,
+        *,
+        pool_size: int = DEFAULT_STT_CONNECTION_POOL_SIZE,
+        api_key: str | None = None,
+        connect_timeout_sec: float | None = None,
+        idle_keepalive: bool = True,
+        keepalive_interval_sec: float | None = None,
+        idle_max_lifetime_sec: float | None = None,
+        idle_refresh_before_sec: float | None = None,
+    ):
+        """Alias for :meth:`create_connection_pool`."""
+        return self.create_connection_pool(
+            pool_size=pool_size,
+            api_key=api_key,
+            connect_timeout_sec=connect_timeout_sec,
+            idle_keepalive=idle_keepalive,
+            keepalive_interval_sec=keepalive_interval_sec,
+            idle_max_lifetime_sec=idle_max_lifetime_sec,
+            idle_refresh_before_sec=idle_refresh_before_sec,
         )
