@@ -104,7 +104,7 @@ Create a realtime STT client bound to an existing API client.
 ### connect()
 
 ```python
-connect(*, config: RealtimeSTTConfig, api_key: str | None = None) -> RealtimeSTTSession
+connect(*, config: RealtimeSTTConfig, api_key: str | None = None, connect_timeout_sec: float = DEFAULT_CONNECT_TIMEOUT_SEC) -> RealtimeSTTSession
 ```
 
 Create a new realtime STT session.
@@ -118,6 +118,7 @@ context manager.
 | ------ | ------ | ------ |
 | `config` | `RealtimeSTTConfig` | Realtime transcription configuration. |
 | `api_key` | `str \| None` | Optional API key override. If not provided, the client's default API key is used. |
+| `connect_timeout_sec` | `float` | Maximum seconds to wait for the WebSocket handshake. Defaults to 10 seconds. |
 
 **Returns**
 
@@ -163,7 +164,7 @@ Create a realtime STT client bound to an existing API client.
 ### connect()
 
 ```python
-connect(*, config: RealtimeSTTConfig, api_key: str | None = None) -> AsyncRealtimeSTTSession
+connect(*, config: RealtimeSTTConfig, api_key: str | None = None, connect_timeout_sec: float = DEFAULT_CONNECT_TIMEOUT_SEC) -> AsyncRealtimeSTTSession
 ```
 
 Create a new realtime STT session.
@@ -177,6 +178,7 @@ context manager.
 | ------ | ------ | ------ |
 | `config` | `RealtimeSTTConfig` | Realtime transcription configuration. |
 | `api_key` | `str \| None` | Optional API key override. If not provided, the client's default API key is used. |
+| `connect_timeout_sec` | `float` | Maximum seconds to wait for the WebSocket handshake. Defaults to 10 seconds. |
 
 **Returns**
 
@@ -206,7 +208,7 @@ Instances are designed to be used as context managers.
 ### Constructor
 
 ```python
-RealtimeSTTSession(url: str, config: RealtimeSTTConfig)
+RealtimeSTTSession(url: str, config: RealtimeSTTConfig, *, connect_timeout_sec: float = DEFAULT_CONNECT_TIMEOUT_SEC)
 ```
 
 Create a new realtime STT session.
@@ -220,6 +222,7 @@ is established when entering the context manager.
 | ------ | ------ | ------ |
 | `url` | `str` | WebSocket URL for the realtime transcription endpoint. |
 | `config` | `RealtimeSTTConfig` | Configuration describing the audio format and transcription behavior for this session. |
+| `connect_timeout_sec` | `float` | Maximum seconds to wait for the WebSocket handshake to complete. Defaults to 10 seconds. |
 
 **Returns**
 
@@ -575,7 +578,7 @@ Instances are designed to be used as async context managers.
 ### Constructor
 
 ```python
-AsyncRealtimeSTTSession(url: str, config: RealtimeSTTConfig)
+AsyncRealtimeSTTSession(url: str, config: RealtimeSTTConfig, *, connect_timeout_sec: float = DEFAULT_CONNECT_TIMEOUT_SEC)
 ```
 
 Create a new realtime STT session.
@@ -589,6 +592,7 @@ is established when entering the async context manager.
 | ------ | ------ | ------ |
 | `url` | `str` | WebSocket URL for the realtime transcription endpoint. |
 | `config` | `RealtimeSTTConfig` | Configuration describing the audio format and transcription behavior for this session. |
+| `connect_timeout_sec` | `float` | Maximum seconds to wait for the WebSocket handshake to complete. Defaults to 10 seconds. |
 
 **Returns**
 
@@ -955,7 +959,7 @@ RealtimeTTSClient(client: SonioxClient)
 ### connect()
 
 ```python
-connect(*, config: RealtimeTTSConfig, api_key: str | None = None) -> RealtimeTTSConnection
+connect(*, config: RealtimeTTSConfig, api_key: str | None = None, connect_timeout_sec: float = DEFAULT_CONNECT_TIMEOUT_SEC) -> RealtimeTTSConnection
 ```
 
 Create a single-stream realtime Text-to-Speech connection.
@@ -966,6 +970,7 @@ Create a single-stream realtime Text-to-Speech connection.
 | ------ | ------ | ------ |
 | `config` | `RealtimeTTSConfig` | Configuration options for this operation. |
 | `api_key` | `str \| None` | API key used for authentication. |
+| `connect_timeout_sec` | `float` | - |
 
 **Returns**
 
@@ -978,10 +983,16 @@ Create a single-stream realtime Text-to-Speech connection.
 ### connect_multi_stream()
 
 ```python
-connect_multi_stream() -> RealtimeTTSMultiplexedConnection
+connect_multi_stream(*, connect_timeout_sec: float = DEFAULT_CONNECT_TIMEOUT_SEC) -> RealtimeTTSMultiplexedConnection
 ```
 
 Create a multiplexed realtime Text-to-Speech connection.
+
+**Parameters**
+
+| Parameter | Type | Description |
+| ------ | ------ | ------ |
+| `connect_timeout_sec` | `float` | - |
 
 **Returns**
 
@@ -1016,7 +1027,7 @@ AsyncRealtimeTTSClient(client: AsyncSonioxClient)
 ### connect()
 
 ```python
-connect(*, config: RealtimeTTSConfig, api_key: str | None = None) -> AsyncRealtimeTTSConnection
+connect(*, config: RealtimeTTSConfig, api_key: str | None = None, connect_timeout_sec: float = DEFAULT_CONNECT_TIMEOUT_SEC) -> AsyncRealtimeTTSConnection
 ```
 
 Create a single-stream realtime Text-to-Speech connection.
@@ -1027,6 +1038,7 @@ Create a single-stream realtime Text-to-Speech connection.
 | ------ | ------ | ------ |
 | `config` | `RealtimeTTSConfig` | Configuration options for this operation. |
 | `api_key` | `str \| None` | API key used for authentication. |
+| `connect_timeout_sec` | `float` | - |
 
 **Returns**
 
@@ -1039,10 +1051,16 @@ Create a single-stream realtime Text-to-Speech connection.
 ### connect_multi_stream()
 
 ```python
-connect_multi_stream() -> AsyncRealtimeTTSMultiplexedConnection
+connect_multi_stream(*, connect_timeout_sec: float = DEFAULT_CONNECT_TIMEOUT_SEC) -> AsyncRealtimeTTSMultiplexedConnection
 ```
 
 Create a multiplexed realtime Text-to-Speech connection.
+
+**Parameters**
+
+| Parameter | Type | Description |
+| ------ | ------ | ------ |
+| `connect_timeout_sec` | `float` | - |
 
 **Returns**
 
@@ -1059,7 +1077,7 @@ Synchronous WebSocket connection for one realtime Text-to-Speech stream.
 ### Constructor
 
 ```python
-RealtimeTTSConnection(url: str, config: RealtimeTTSConfig)
+RealtimeTTSConnection(url: str, config: RealtimeTTSConfig, *, connect_timeout_sec: float = DEFAULT_CONNECT_TIMEOUT_SEC)
 ```
 
 **Parameters**
@@ -1068,6 +1086,7 @@ RealtimeTTSConnection(url: str, config: RealtimeTTSConfig)
 | ------ | ------ | ------ |
 | `url` | `str` | WebSocket URL for realtime transcription. |
 | `config` | `RealtimeTTSConfig` | Configuration options for this operation. |
+| `connect_timeout_sec` | `float` | - |
 
 **Returns**
 
@@ -1320,7 +1339,7 @@ Asynchronous WebSocket connection for one realtime Text-to-Speech stream.
 ### Constructor
 
 ```python
-AsyncRealtimeTTSConnection(url: str, config: RealtimeTTSConfig)
+AsyncRealtimeTTSConnection(url: str, config: RealtimeTTSConfig, *, connect_timeout_sec: float = DEFAULT_CONNECT_TIMEOUT_SEC)
 ```
 
 **Parameters**
@@ -1329,6 +1348,7 @@ AsyncRealtimeTTSConnection(url: str, config: RealtimeTTSConfig)
 | ------ | ------ | ------ |
 | `url` | `str` | WebSocket URL for realtime transcription. |
 | `config` | `RealtimeTTSConfig` | Configuration options for this operation. |
+| `connect_timeout_sec` | `float` | - |
 
 **Returns**
 
@@ -1603,7 +1623,7 @@ Synchronous websocket connection that can host multiple Text-to-Speech streams.
 ### Constructor
 
 ```python
-RealtimeTTSMultiplexedConnection(url: str, api_key: str)
+RealtimeTTSMultiplexedConnection(url: str, api_key: str, *, connect_timeout_sec: float = DEFAULT_CONNECT_TIMEOUT_SEC)
 ```
 
 **Parameters**
@@ -1612,6 +1632,7 @@ RealtimeTTSMultiplexedConnection(url: str, api_key: str)
 | ------ | ------ | ------ |
 | `url` | `str` | WebSocket URL for realtime transcription. |
 | `api_key` | `str` | API key used for authentication. |
+| `connect_timeout_sec` | `float` | - |
 
 **Returns**
 
@@ -1721,7 +1742,7 @@ Asynchronous websocket connection that can host multiple TTS streams.
 ### Constructor
 
 ```python
-AsyncRealtimeTTSMultiplexedConnection(url: str, api_key: str)
+AsyncRealtimeTTSMultiplexedConnection(url: str, api_key: str, *, connect_timeout_sec: float = DEFAULT_CONNECT_TIMEOUT_SEC)
 ```
 
 **Parameters**
@@ -1730,6 +1751,7 @@ AsyncRealtimeTTSMultiplexedConnection(url: str, api_key: str)
 | ------ | ------ | ------ |
 | `url` | `str` | WebSocket URL for realtime transcription. |
 | `api_key` | `str` | API key used for authentication. |
+| `connect_timeout_sec` | `float` | - |
 
 **Returns**
 
