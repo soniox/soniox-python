@@ -10,7 +10,12 @@ from websockets.exceptions import ConnectionClosed
 
 from ..errors import SonioxRealtimeError, SonioxValidationError
 from ..types.realtime import RealtimeControlType, RealtimeEvent, RealtimeSTTConfig
-from ._utils import KEEP_ALIVE_INTERVAL_SEC, KeepaliveTask, resolve_connect_timeout_sec, ws_connect_kwargs
+from ._utils import (
+    KEEP_ALIVE_INTERVAL_SEC,
+    KeepaliveTask,
+    resolve_connect_timeout_sec,
+    ws_connect_kwargs,
+)
 
 if TYPE_CHECKING:
     from ..client import AsyncSonioxClient
