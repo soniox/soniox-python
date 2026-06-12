@@ -3,11 +3,20 @@ from __future__ import annotations
 import asyncio
 import threading
 from collections.abc import Awaitable, Callable
+from typing import TypedDict
+
+from typing_extensions import NotRequired
 
 KEEP_ALIVE_INTERVAL_SEC: float = 5.0
 
 
-def ws_connect_kwargs(connect_timeout_sec: float | None) -> dict[str, float]:
+class WsConnectKwargs(TypedDict):
+    """Optional ``websockets.connect`` kwargs for realtime open timeouts."""
+
+    open_timeout: NotRequired[float]
+
+
+def ws_connect_kwargs(connect_timeout_sec: float | None) -> WsConnectKwargs:
     """Build ``websockets.connect`` kwargs for realtime open timeouts."""
     if connect_timeout_sec is None:
         return {}
