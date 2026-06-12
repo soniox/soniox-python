@@ -27,6 +27,8 @@ just docs          # regenerate docs/*.md from source
 
 ## Opening a pull request
 
+Open PRs against the `dev` branch. `main` tracks releases.
+
 Before you push:
 
 1. Keep the PR focused. One bug fix, one feature, or one refactor. Mixed PRs are slower to review.
