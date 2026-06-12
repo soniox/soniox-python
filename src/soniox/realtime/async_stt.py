@@ -11,10 +11,10 @@ from websockets.exceptions import ConnectionClosed
 from ..errors import SonioxRealtimeError, SonioxValidationError
 from ..types.realtime import RealtimeControlType, RealtimeEvent, RealtimeSTTConfig
 from ._utils import (
+    DEFAULT_CONNECT_TIMEOUT_SEC,
     KEEP_ALIVE_INTERVAL_SEC,
     KeepaliveTask,
-    resolve_connect_timeout_sec,
-    ws_connect_kwargs,
+    validate_connect_timeout_sec,
 )
 
 if TYPE_CHECKING:
@@ -38,7 +38,7 @@ class AsyncRealtimeSTTSession:
         url: str,
         config: RealtimeSTTConfig,
         *,
-        connect_timeout_sec: float | None = None,
+        connect_timeout_sec: float = DEFAULT_CONNECT_TIMEOUT_SEC,
     ) -> None:
         """
         Create a new realtime STT session.
@@ -54,7 +54,7 @@ class AsyncRealtimeSTTSession:
                 behavior for this session.
             connect_timeout_sec:
                 Maximum seconds to wait for the WebSocket handshake to
-                complete. ``None`` uses the ``websockets`` library default.
+                complete. Defaults to 10 seconds.
         """
         self._url = url
         self._config = config
@@ -94,7 +94,7 @@ class AsyncRealtimeSTTSession:
         try:
             self._ws = await async_ws_connect(
                 self._url,
-                **ws_connect_kwargs(self._connect_timeout_sec),
+                open_timeout=self._connect_timeout_sec,
             )
         except TimeoutError as exc:
             raise SonioxRealtimeError("Connection timed out") from exc
@@ -408,7 +408,7 @@ class AsyncRealtimeSTTClient:
         *,
         config: RealtimeSTTConfig,
         api_key: str | None = None,
-        connect_timeout_sec: float | None = None,
+        connect_timeout_sec: float = DEFAULT_CONNECT_TIMEOUT_SEC,
     ) -> AsyncRealtimeSTTSession:
         """
         Create a new realtime STT session.
@@ -424,8 +424,7 @@ class AsyncRealtimeSTTClient:
                 default API key is used.
             connect_timeout_sec:
                 Maximum seconds to wait for the WebSocket handshake.
-                ``None`` uses the client default (also ``None`` by default,
-                which keeps the ``websockets`` library default behavior).
+                Defaults to 10 seconds.
 
         Returns:
             A new AsyncRealtimeSTTSession instance.
@@ -438,14 +437,11 @@ class AsyncRealtimeSTTClient:
         if not key:
             raise SonioxValidationError("API key is required to start a realtime session")
 
-        timeout = resolve_connect_timeout_sec(
-            self._client.connect_timeout_sec,
-            connect_timeout_sec,
-        )
+        timeout_sec = validate_connect_timeout_sec(connect_timeout_sec)
 
         payload = config.build_payload(key)
         return AsyncRealtimeSTTSession(
             self._client.websocket_base_url,
             payload,
-            connect_timeout_sec=timeout,
+            connect_timeout_sec=timeout_sec,
         )

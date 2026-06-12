@@ -3,37 +3,18 @@ from __future__ import annotations
 import asyncio
 import threading
 from collections.abc import Awaitable, Callable
-from typing import TypedDict
 
-from typing_extensions import NotRequired
+from ..errors import SonioxValidationError
 
 KEEP_ALIVE_INTERVAL_SEC: float = 5.0
+DEFAULT_CONNECT_TIMEOUT_SEC: float = 10.0
 
 
-class WsConnectKwargs(TypedDict):
-    """Optional ``websockets.connect`` kwargs for realtime open timeouts."""
-
-    open_timeout: NotRequired[float]
-
-
-def ws_connect_kwargs(connect_timeout_sec: float | None) -> WsConnectKwargs:
-    """Build ``websockets.connect`` kwargs for realtime open timeouts."""
-    if connect_timeout_sec is None:
-        return {}
-    return {"open_timeout": connect_timeout_sec}
-
-
-def resolve_connect_timeout_sec(
-    client_default: float | None,
-    override: float | None,
-) -> float | None:
-    """Resolve the effective connect timeout and validate it."""
-    from ..errors import SonioxValidationError
-
-    timeout = client_default if override is None else override
-    if timeout is not None and timeout <= 0:
+def validate_connect_timeout_sec(timeout_sec: float) -> float:
+    """Validate a realtime WebSocket connect timeout."""
+    if timeout_sec <= 0:
         raise SonioxValidationError("connect_timeout_sec must be greater than zero")
-    return timeout
+    return timeout_sec
 
 
 class KeepaliveThread:

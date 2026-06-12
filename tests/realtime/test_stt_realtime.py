@@ -15,6 +15,7 @@ import pytest
 
 from soniox.client import AsyncSonioxClient, SonioxClient
 from soniox.errors import SonioxRealtimeError, SonioxValidationError
+from soniox.realtime._utils import validate_connect_timeout_sec
 from soniox.types.realtime import RealtimeSTTConfig
 
 from .cases import REALTIME_CASES, RealtimeCase
@@ -425,7 +426,7 @@ async def test_async_send_control_message_wraps_send_errors(
                 await session.keep_alive()
 
 
-def test_connect_default_does_not_pass_open_timeout() -> None:
+def test_connect_default_uses_default_open_timeout() -> None:
     ws = MockWebSocket()
     ws.close_after_recv()
     client = SonioxClient(api_key="test_key")
@@ -434,25 +435,13 @@ def test_connect_default_does_not_pass_open_timeout() -> None:
         with client.realtime.stt.connect(config=RealtimeSTTConfig(model="v1")) as session:
             session.finish()
 
-    mock_connect.assert_called_once_with(client.websocket_base_url)
+    mock_connect.assert_called_once_with(client.websocket_base_url, open_timeout=10.0)
 
 
-def test_connect_uses_client_connect_timeout() -> None:
+def test_connect_passes_connect_timeout() -> None:
     ws = MockWebSocket()
     ws.close_after_recv()
-    client = SonioxClient(api_key="test_key", connect_timeout_sec=5.0)
-
-    with patch("soniox.realtime.stt.sync_ws_connect", return_value=ws) as mock_connect:
-        with client.realtime.stt.connect(config=RealtimeSTTConfig(model="v1")) as session:
-            session.finish()
-
-    mock_connect.assert_called_once_with(client.websocket_base_url, open_timeout=5.0)
-
-
-def test_connect_session_override_connect_timeout() -> None:
-    ws = MockWebSocket()
-    ws.close_after_recv()
-    client = SonioxClient(api_key="test_key", connect_timeout_sec=5.0)
+    client = SonioxClient(api_key="test_key")
 
     with patch("soniox.realtime.stt.sync_ws_connect", return_value=ws) as mock_connect:
         with client.realtime.stt.connect(
@@ -464,20 +453,23 @@ def test_connect_session_override_connect_timeout() -> None:
     mock_connect.assert_called_once_with(client.websocket_base_url, open_timeout=2.0)
 
 
-async def test_async_connect_uses_client_connect_timeout() -> None:
+async def test_async_connect_passes_connect_timeout() -> None:
     ws = AsyncMockWebSocket()
     ws.close_after_recv()
-    client = AsyncSonioxClient(api_key="test_key", connect_timeout_sec=3.0)
+    client = AsyncSonioxClient(api_key="test_key")
 
     with patch("soniox.realtime.async_stt.async_ws_connect", return_value=ws) as mock_connect:
-        async with client.realtime.stt.connect(config=RealtimeSTTConfig(model="v1")) as session:
+        async with client.realtime.stt.connect(
+            config=RealtimeSTTConfig(model="v1"),
+            connect_timeout_sec=3.0,
+        ) as session:
             await session.finish()
 
     mock_connect.assert_called_once_with(client.websocket_base_url, open_timeout=3.0)
 
 
 def test_connect_timeout_maps_to_realtime_error() -> None:
-    client = SonioxClient(api_key="test_key", connect_timeout_sec=1.0)
+    client = SonioxClient(api_key="test_key")
 
     with patch(
         "soniox.realtime.stt.sync_ws_connect",
@@ -488,9 +480,43 @@ def test_connect_timeout_maps_to_realtime_error() -> None:
                 pass
 
 
-def test_invalid_connect_timeout_on_client_raises() -> None:
+def test_invalid_connect_timeout_raises() -> None:
+    client = SonioxClient(api_key="test_key")
+
     with pytest.raises(SonioxValidationError, match="connect_timeout_sec"):
-        SonioxClient(api_key="test_key", connect_timeout_sec=0.0)
+        client.realtime.stt.connect(
+            config=RealtimeSTTConfig(model="v1"),
+            connect_timeout_sec=0.0,
+        )
+
+
+def test_async_invalid_connect_timeout_raises() -> None:
+    client = AsyncSonioxClient(api_key="test_key")
+
+    with pytest.raises(SonioxValidationError, match="connect_timeout_sec"):
+        client.realtime.stt.connect(
+            config=RealtimeSTTConfig(model="v1"),
+            connect_timeout_sec=-1.0,
+        )
+
+
+async def test_async_connect_timeout_maps_to_realtime_error() -> None:
+    client = AsyncSonioxClient(api_key="test_key")
+
+    with patch(
+        "soniox.realtime.async_stt.async_ws_connect",
+        side_effect=TimeoutError("timed out"),
+    ):
+        with pytest.raises(SonioxRealtimeError, match="Connection timed out"):
+            async with client.realtime.stt.connect(config=RealtimeSTTConfig(model="v1")):
+                pass
+
+
+def test_validate_connect_timeout_sec_contract() -> None:
+    assert validate_connect_timeout_sec(5.0) == 5.0
+    for invalid in (0.0, -1.0):
+        with pytest.raises(SonioxValidationError, match="connect_timeout_sec"):
+            validate_connect_timeout_sec(invalid)
 
 
 async def test_async_client_aclose_releases_http_transport() -> None:
