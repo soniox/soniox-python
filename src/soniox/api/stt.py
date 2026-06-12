@@ -21,7 +21,7 @@ from ._utils import build_create_payload, build_translate_config, ensure_success
 if TYPE_CHECKING:
     from ..client import SonioxClient
 
-DEFAULT_MODEL = "stt-async-v4"
+DEFAULT_MODEL = "stt-async-v5"
 
 
 class SttAPI:

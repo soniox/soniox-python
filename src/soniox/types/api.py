@@ -295,7 +295,7 @@ TranslationConfigInput: TypeAlias = TranslationConfig | dict[str, Any]
 class CreateTranscriptionPayload(BaseModel):
     """Payload sent to create an asynchronous transcription job."""
 
-    model: str = "stt-async-v4"
+    model: str = "stt-async-v5"
     """Speech-to-text model to use."""
 
     audio_url: str | None = None
