@@ -10,7 +10,12 @@ from websockets.exceptions import ConnectionClosed
 
 from ..errors import SonioxRealtimeError, SonioxValidationError
 from ..types.realtime import RealtimeControlType, RealtimeEvent, RealtimeSTTConfig
-from ._utils import KEEP_ALIVE_INTERVAL_SEC, KeepaliveTask
+from ._utils import (
+    DEFAULT_CONNECT_TIMEOUT_SEC,
+    KEEP_ALIVE_INTERVAL_SEC,
+    KeepaliveTask,
+    validate_connect_timeout_sec,
+)
 
 if TYPE_CHECKING:
     from ..client import AsyncSonioxClient
@@ -28,7 +33,13 @@ class AsyncRealtimeSTTSession:
     Instances are designed to be used as async context managers.
     """
 
-    def __init__(self, url: str, config: RealtimeSTTConfig) -> None:
+    def __init__(
+        self,
+        url: str,
+        config: RealtimeSTTConfig,
+        *,
+        connect_timeout_sec: float = DEFAULT_CONNECT_TIMEOUT_SEC,
+    ) -> None:
         """
         Create a new realtime STT session.
 
@@ -41,9 +52,13 @@ class AsyncRealtimeSTTSession:
             config:
                 Configuration describing the audio format and transcription
                 behavior for this session.
+            connect_timeout_sec:
+                Maximum seconds to wait for the WebSocket handshake to
+                complete. Defaults to 10 seconds.
         """
         self._url = url
         self._config = config
+        self._connect_timeout_sec = connect_timeout_sec
         self._ws = None
         self._last_message: RealtimeEvent | None = None
         self._paused = False
@@ -77,7 +92,16 @@ class AsyncRealtimeSTTSession:
                 If the WebSocket connection or session initialization fails.
         """
         try:
-            self._ws = await async_ws_connect(self._url)
+            self._ws = await async_ws_connect(
+                self._url,
+                open_timeout=self._connect_timeout_sec,
+            )
+        except TimeoutError as exc:
+            raise SonioxRealtimeError("Connection timed out") from exc
+        except Exception as exc:
+            raise SonioxRealtimeError("Failed to start realtime session") from exc
+
+        try:
             await self._ws.send(json.dumps(self._config.model_dump(exclude_none=True)))
             return self
         except Exception as exc:
@@ -384,6 +408,7 @@ class AsyncRealtimeSTTClient:
         *,
         config: RealtimeSTTConfig,
         api_key: str | None = None,
+        connect_timeout_sec: float = DEFAULT_CONNECT_TIMEOUT_SEC,
     ) -> AsyncRealtimeSTTSession:
         """
         Create a new realtime STT session.
@@ -397,6 +422,9 @@ class AsyncRealtimeSTTClient:
             api_key:
                 Optional API key override. If not provided, the client's
                 default API key is used.
+            connect_timeout_sec:
+                Maximum seconds to wait for the WebSocket handshake.
+                Defaults to 10 seconds.
 
         Returns:
             A new AsyncRealtimeSTTSession instance.
@@ -409,8 +437,11 @@ class AsyncRealtimeSTTClient:
         if not key:
             raise SonioxValidationError("API key is required to start a realtime session")
 
+        timeout_sec = validate_connect_timeout_sec(connect_timeout_sec)
+
         payload = config.build_payload(key)
         return AsyncRealtimeSTTSession(
             self._client.websocket_base_url,
             payload,
+            connect_timeout_sec=timeout_sec,
         )

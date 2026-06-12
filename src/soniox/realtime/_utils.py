@@ -4,7 +4,17 @@ import asyncio
 import threading
 from collections.abc import Awaitable, Callable
 
+from ..errors import SonioxValidationError
+
 KEEP_ALIVE_INTERVAL_SEC: float = 5.0
+DEFAULT_CONNECT_TIMEOUT_SEC: float = 10.0
+
+
+def validate_connect_timeout_sec(timeout_sec: float) -> float:
+    """Validate a realtime WebSocket connect timeout."""
+    if timeout_sec <= 0:
+        raise SonioxValidationError("connect_timeout_sec must be greater than zero")
+    return timeout_sec
 
 
 class KeepaliveThread:

@@ -66,12 +66,14 @@ Examples:
 - `LanguageCode` type alias (`Annotated[str, Field(min_length=2, max_length=2)]`) representing an ISO 639-1 two-letter code. Now used by `TranslationConfig.target_language`, `language_a`, `language_b`, and by the `language_hints` lists on `CreateTranscriptionPayload`, `CreateTranscriptionConfig`, and `RealtimeSTTConfig`.
 - `SupportedLanguage` model (renamed from `Language`) describing a `{code, name}` language entry returned by `client.models.list()`.
 - `translate*` methods on the async and sync STT clients (`translate`, `translate_from_url`, `translate_from_file_id`, `translate_from_file`, `translate_and_wait`, `translate_and_wait_with_tokens`). Pass `to=` for one-way translation (optionally with `source=` as a strict language hint) or `between=("en", "fr")` for two-way; exactly one of `to` or `between` is required.
+- `connect_timeout_sec` parameter on the realtime `connect()` and `connect_multi_stream()` methods (STT and TTS, sync and async): maximum seconds to wait for the WebSocket handshake. Defaults to 10 seconds; must be greater than zero. ([#4](https://github.com/soniox/soniox-python/pull/4) by [@imcooder](https://github.com/imcooder))
 
 ### Changed
 
 - Reorganized reference docs: `async_client.md` now documents only the async surface (the sync `SonioxClient` is a line-by-line mirror, called out in a preamble); `realtime_client.md` continues to cover both sync and async realtime clients.
 - Expanded the `output_file_for_audio_format` docstring with a proper `Args` block.
 - `language_hints` fields now validate each entry as a two-letter code; previously any string was accepted client-side.
+- Realtime WebSocket connection failures now raise `SonioxRealtimeError` (with message `"Connection timed out"` when the handshake times out) instead of propagating raw `websockets` exceptions. ([#4](https://github.com/soniox/soniox-python/pull/4) by [@imcooder](https://github.com/imcooder))
 
 ### Deprecated
 

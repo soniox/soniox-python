@@ -23,7 +23,7 @@ from ._constants import (
     TTS_KEEP_ALIVE_INTERVAL_SEC,
     TTS_STREAM_EVENT_TIMEOUT_SEC,
 )
-from ._utils import KeepaliveTask
+from ._utils import DEFAULT_CONNECT_TIMEOUT_SEC, KeepaliveTask, validate_connect_timeout_sec
 
 if TYPE_CHECKING:
     from ..client import AsyncSonioxClient
@@ -32,9 +32,16 @@ if TYPE_CHECKING:
 class AsyncRealtimeTTSConnection:
     """Asynchronous WebSocket connection for one realtime Text-to-Speech stream."""
 
-    def __init__(self, url: str, config: RealtimeTTSConfig) -> None:
+    def __init__(
+        self,
+        url: str,
+        config: RealtimeTTSConfig,
+        *,
+        connect_timeout_sec: float = DEFAULT_CONNECT_TIMEOUT_SEC,
+    ) -> None:
         self._url = url
         self._config = config
+        self._connect_timeout_sec = connect_timeout_sec
         self._ws = None
         self._last_message: RealtimeTTSEvent | None = None
         self._paused = False
@@ -53,7 +60,16 @@ class AsyncRealtimeTTSConnection:
     async def __aenter__(self) -> AsyncRealtimeTTSConnection:
         """Open the websocket and start the realtime stream."""
         try:
-            self._ws = await async_ws_connect(self._url)
+            self._ws = await async_ws_connect(
+                self._url,
+                open_timeout=self._connect_timeout_sec,
+            )
+        except TimeoutError as exc:
+            raise SonioxRealtimeError("Connection timed out") from exc
+        except Exception as exc:
+            raise SonioxRealtimeError("Failed to start realtime Text-to-Speech connection") from exc
+
+        try:
             await self._ws.send(json.dumps(self._config.model_dump(exclude_none=True)))
             return self
         except Exception as exc:
@@ -245,33 +261,55 @@ class AsyncRealtimeTTSClient:
         *,
         config: RealtimeTTSConfig,
         api_key: str | None = None,
+        connect_timeout_sec: float = DEFAULT_CONNECT_TIMEOUT_SEC,
     ) -> AsyncRealtimeTTSConnection:
         """Create a single-stream realtime Text-to-Speech connection."""
         key = api_key or self._client.api_key
         if not key:
             raise SonioxValidationError("API key is required to start a realtime session")
 
+        timeout_sec = validate_connect_timeout_sec(connect_timeout_sec)
         payload = config.build_payload(key)
-        return AsyncRealtimeTTSConnection(self._client.tts_websocket_base_url, payload)
+        return AsyncRealtimeTTSConnection(
+            self._client.tts_websocket_base_url,
+            payload,
+            connect_timeout_sec=timeout_sec,
+        )
 
-    def connect_multi_stream(self) -> AsyncRealtimeTTSMultiplexedConnection:
+    def connect_multi_stream(
+        self,
+        *,
+        connect_timeout_sec: float = DEFAULT_CONNECT_TIMEOUT_SEC,
+    ) -> AsyncRealtimeTTSMultiplexedConnection:
         """Create a multiplexed realtime Text-to-Speech connection."""
+
         key = self._client.api_key
         if not key:
             raise SonioxValidationError(
                 "API key is required to start a realtime Text-to-Speech connection"
             )
+
+        timeout_sec = validate_connect_timeout_sec(connect_timeout_sec)
         return AsyncRealtimeTTSMultiplexedConnection(
-            self._client.tts_websocket_base_url, key
+            self._client.tts_websocket_base_url,
+            key,
+            connect_timeout_sec=timeout_sec,
         )
 
 
 class AsyncRealtimeTTSMultiplexedConnection:
     """Asynchronous websocket connection that can host multiple TTS streams."""
 
-    def __init__(self, url: str, api_key: str) -> None:
+    def __init__(
+        self,
+        url: str,
+        api_key: str,
+        *,
+        connect_timeout_sec: float = DEFAULT_CONNECT_TIMEOUT_SEC,
+    ) -> None:
         self._url = url
         self._api_key = api_key
+        self._connect_timeout_sec = connect_timeout_sec
         self._ws = None
         self._events_by_stream: dict[str, deque[RealtimeTTSEvent]] = {}
         self._active_stream_ids: set[str] = set()
@@ -294,15 +332,14 @@ class AsyncRealtimeTTSMultiplexedConnection:
     async def __aenter__(self) -> AsyncRealtimeTTSMultiplexedConnection:
         """Open the shared websocket connection."""
         try:
-            self._ws = await async_ws_connect(self._url)
+            self._ws = await async_ws_connect(
+                self._url,
+                open_timeout=self._connect_timeout_sec,
+            )
             return self
+        except TimeoutError as exc:
+            raise SonioxRealtimeError("Connection timed out") from exc
         except Exception as exc:
-            if self._ws:
-                try:
-                    await self._ws.close()
-                except Exception:
-                    pass
-                self._ws = None
             raise SonioxRealtimeError("Failed to start realtime Text-to-Speech connection") from exc
 
     async def __aexit__(
@@ -388,7 +425,9 @@ class AsyncRealtimeTTSMultiplexedConnection:
         self._events_by_stream.setdefault(stream_id, deque())
         return AsyncRealtimeTTSStream(self, config)
 
-    async def _recv_next_event(self, *, timeout_sec: float | None = None) -> RealtimeTTSEvent | None:
+    async def _recv_next_event(
+        self, *, timeout_sec: float | None = None
+    ) -> RealtimeTTSEvent | None:
         """Receive and parse the next event from the shared websocket."""
         if not self._ws:
             raise SonioxRealtimeError("Realtime Text-to-Speech is not connected")
@@ -402,7 +441,9 @@ class AsyncRealtimeTTSMultiplexedConnection:
         except ConnectionClosed:
             return None
         except TimeoutError as exc:
-            raise SonioxRealtimeError("Timed out waiting for realtime Text-to-Speech event") from exc
+            raise SonioxRealtimeError(
+                "Timed out waiting for realtime Text-to-Speech event"
+            ) from exc
         raw = message.encode("utf-8") if isinstance(message, str) else message
         event = RealtimeTTSEvent.validate_event(raw)
         self._last_message = event
