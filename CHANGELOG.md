@@ -73,6 +73,14 @@ Examples:
 
 ---
 
+## [2.6.0] - 15 jun 2026
+
+### Added
+
+- `endpoint_sensitivity` field on `RealtimeSTTConfig`: adjusts how likely the model is to emit a speech endpoint. Allowed values are between -1.0 and 1.0; the default is 0.0. Introduced in the Soniox v5 model.
+
+---
+
 ## [2.5.0] - 12 jun 2026
 
 ### Added
