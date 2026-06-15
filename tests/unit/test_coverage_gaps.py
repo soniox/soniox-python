@@ -163,7 +163,7 @@ def test_translation_config_two_way_clears_target_language() -> None:
 def test_create_transcription_payload_rejects_both_sources() -> None:
     with pytest.raises(ValidationError, match="Only one of audio_url or file_id"):
         CreateTranscriptionPayload(
-            model="stt-async-v4",
+            model="stt-async-v5",
             audio_url="https://a/b",
             file_id="f1",
         )
@@ -171,4 +171,4 @@ def test_create_transcription_payload_rejects_both_sources() -> None:
 
 def test_create_transcription_payload_requires_a_source() -> None:
     with pytest.raises(ValidationError, match="Either audio_url or file_id"):
-        CreateTranscriptionPayload(model="stt-async-v4")
+        CreateTranscriptionPayload(model="stt-async-v5")

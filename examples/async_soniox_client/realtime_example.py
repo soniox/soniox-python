@@ -10,7 +10,7 @@ DEMO_FILE = Path(__file__).resolve().parents[2] / "assets" / "coffee_shop.mp3"
 
 async def main() -> None:
     client = AsyncSonioxClient()
-    config = RealtimeSTTConfig(model="stt-rt-v4", audio_format="mp3")
+    config = RealtimeSTTConfig(model="stt-rt-v5", audio_format="mp3")
     final_tokens: list[Token] = []
     non_final_tokens: list[Token] = []
     async with client.realtime.stt.connect(config=config) as session:

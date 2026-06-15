@@ -86,9 +86,9 @@ SDK_BINDINGS: dict[str, SdkBinding] = {
         async_call=lambda c: c.stt.count(),
     ),
     "create_transcription": SdkBinding(
-        sync_call=lambda c: c.stt.create(model="stt-async-v4", audio_url=_AUDIO_URL),
-        async_call=lambda c: c.stt.create(model="stt-async-v4", audio_url=_AUDIO_URL),
-        expect_json={"model": "stt-async-v4", "audio_url": _AUDIO_URL},
+        sync_call=lambda c: c.stt.create(model="stt-async-v5", audio_url=_AUDIO_URL),
+        async_call=lambda c: c.stt.create(model="stt-async-v5", audio_url=_AUDIO_URL),
+        expect_json={"model": "stt-async-v5", "audio_url": _AUDIO_URL},
     ),
     "get_transcription": SdkBinding(
         sync_call=lambda c: c.stt.get(_ID),
@@ -168,19 +168,19 @@ SDK_BINDINGS_FULL: dict[str, SdkBinding] = {
     ),
     "create_transcription": SdkBinding(
         sync_call=lambda c: c.stt.create(
-            model="stt-async-v4",
+            model="stt-async-v5",
             audio_url=_AUDIO_URL,
             client_reference_id="ref-123",
             config=_FULL_CONFIG,
         ),
         async_call=lambda c: c.stt.create(
-            model="stt-async-v4",
+            model="stt-async-v5",
             audio_url=_AUDIO_URL,
             client_reference_id="ref-123",
             config=_FULL_CONFIG,
         ),
         expect_json={
-            "model": "stt-async-v4",
+            "model": "stt-async-v5",
             "audio_url": _AUDIO_URL,
             "client_reference_id": "ref-123",
             "language_hints": ["en", "de"],

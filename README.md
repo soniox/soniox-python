@@ -68,7 +68,7 @@ from soniox.utils import render_tokens, throttle_audio, start_audio_thread
 DEMO_FILE = "path_to_your_audio_file"
 
 client = SonioxClient()
-config = RealtimeSTTConfig(model="stt-rt-v4", audio_format="mp3")
+config = RealtimeSTTConfig(model="stt-rt-v5", audio_format="mp3")
 final_tokens: list[Token] = []
 non_final_tokens: list[Token] = []
 

@@ -208,7 +208,7 @@ def test_error_validation_errors_appear_in_message(client: SonioxClient) -> None
     )
 
     with pytest.raises(SonioxInvalidRequestError) as exc_info:
-        client.stt.create(model="stt-async-v4", audio_url="https://example.com/audio.mp3")
+        client.stt.create(model="stt-async-v5", audio_url="https://example.com/audio.mp3")
 
     message = str(exc_info.value)
     assert "Invalid payload" in message

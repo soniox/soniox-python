@@ -94,6 +94,14 @@ class RealtimeSTTConfig(BaseModel):
     Allowed values for maximum delay are between 500ms and 3000ms. The default value is 2000ms
     """
 
+    endpoint_sensitivity: float | None = Field(default=None, ge=-1.0, le=1.0)
+    """
+    Adjusts how likely the model is to emit an endpoint. Higher values make
+    endpoints more likely (finalizing sooner); lower values make them less
+    likely. Allowed values are between -1.0 and 1.0; the default is 0.0.
+    Introduced in the Soniox v5 model; earlier models reject it.
+    """
+
     translation: TranslationConfigInput | None = None
     """Translation configuration."""
 
