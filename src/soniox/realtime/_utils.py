@@ -17,6 +17,19 @@ def validate_connect_timeout_sec(timeout_sec: float) -> float:
     return timeout_sec
 
 
+def validate_recv_timeout_sec(timeout_sec: float | None) -> float | None:
+    """Validate a realtime WebSocket receive timeout.
+
+    ``None`` disables the receive timeout (the default), in which case
+    receives block until a message arrives or the connection closes.
+    """
+    if timeout_sec is None:
+        return None
+    if timeout_sec <= 0:
+        raise SonioxValidationError("recv_timeout_sec must be greater than zero")
+    return timeout_sec
+
+
 class KeepaliveThread:
     """
     Background thread that periodically invokes a callback until stopped.

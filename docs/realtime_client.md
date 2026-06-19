@@ -104,7 +104,7 @@ Create a realtime STT client bound to an existing API client.
 ### connect()
 
 ```python
-connect(*, config: RealtimeSTTConfig, api_key: str | None = None, connect_timeout_sec: float = DEFAULT_CONNECT_TIMEOUT_SEC) -> RealtimeSTTSession
+connect(*, config: RealtimeSTTConfig, api_key: str | None = None, connect_timeout_sec: float = DEFAULT_CONNECT_TIMEOUT_SEC, recv_timeout_sec: float | None = None) -> RealtimeSTTSession
 ```
 
 Create a new realtime STT session.
@@ -119,6 +119,7 @@ context manager.
 | `config` | `RealtimeSTTConfig` | Realtime transcription configuration. |
 | `api_key` | `str \| None` | Optional API key override. If not provided, the client's default API key is used. |
 | `connect_timeout_sec` | `float` | Maximum seconds to wait for the WebSocket handshake. Defaults to 10 seconds. |
+| `recv_timeout_sec` | `float \| None` | Maximum seconds to wait for a message from the server before raising ``SonioxRealtimeError``. If not provided, the client's ``realtime_recv_timeout_sec`` is used (``None`` disables the receive timeout). |
 
 **Returns**
 
@@ -164,7 +165,7 @@ Create a realtime STT client bound to an existing API client.
 ### connect()
 
 ```python
-connect(*, config: RealtimeSTTConfig, api_key: str | None = None, connect_timeout_sec: float = DEFAULT_CONNECT_TIMEOUT_SEC) -> AsyncRealtimeSTTSession
+connect(*, config: RealtimeSTTConfig, api_key: str | None = None, connect_timeout_sec: float = DEFAULT_CONNECT_TIMEOUT_SEC, recv_timeout_sec: float | None = None) -> AsyncRealtimeSTTSession
 ```
 
 Create a new realtime STT session.
@@ -179,6 +180,7 @@ context manager.
 | `config` | `RealtimeSTTConfig` | Realtime transcription configuration. |
 | `api_key` | `str \| None` | Optional API key override. If not provided, the client's default API key is used. |
 | `connect_timeout_sec` | `float` | Maximum seconds to wait for the WebSocket handshake. Defaults to 10 seconds. |
+| `recv_timeout_sec` | `float \| None` | Maximum seconds to wait for a message from the server before raising ``SonioxRealtimeError``. If not provided, the client's ``realtime_recv_timeout_sec`` is used (``None`` disables the receive timeout). |
 
 **Returns**
 
@@ -208,7 +210,7 @@ Instances are designed to be used as context managers.
 ### Constructor
 
 ```python
-RealtimeSTTSession(url: str, config: RealtimeSTTConfig, *, connect_timeout_sec: float = DEFAULT_CONNECT_TIMEOUT_SEC)
+RealtimeSTTSession(url: str, config: RealtimeSTTConfig, *, connect_timeout_sec: float = DEFAULT_CONNECT_TIMEOUT_SEC, recv_timeout_sec: float | None = None)
 ```
 
 Create a new realtime STT session.
@@ -223,6 +225,7 @@ is established when entering the context manager.
 | `url` | `str` | WebSocket URL for the realtime transcription endpoint. |
 | `config` | `RealtimeSTTConfig` | Configuration describing the audio format and transcription behavior for this session. |
 | `connect_timeout_sec` | `float` | Maximum seconds to wait for the WebSocket handshake to complete. Defaults to 10 seconds. |
+| `recv_timeout_sec` | `float \| None` | Maximum seconds to wait for a message from the server before raising ``SonioxRealtimeError``. ``None`` (the default) disables the receive timeout. This guards against an unresponsive server; it is not a silence detector, so during expected silence keep the session alive with ``pause()`` / ``keep_alive()`` instead of relying on this timeout. |
 
 **Returns**
 
@@ -578,7 +581,7 @@ Instances are designed to be used as async context managers.
 ### Constructor
 
 ```python
-AsyncRealtimeSTTSession(url: str, config: RealtimeSTTConfig, *, connect_timeout_sec: float = DEFAULT_CONNECT_TIMEOUT_SEC)
+AsyncRealtimeSTTSession(url: str, config: RealtimeSTTConfig, *, connect_timeout_sec: float = DEFAULT_CONNECT_TIMEOUT_SEC, recv_timeout_sec: float | None = None)
 ```
 
 Create a new realtime STT session.
@@ -593,6 +596,7 @@ is established when entering the async context manager.
 | `url` | `str` | WebSocket URL for the realtime transcription endpoint. |
 | `config` | `RealtimeSTTConfig` | Configuration describing the audio format and transcription behavior for this session. |
 | `connect_timeout_sec` | `float` | Maximum seconds to wait for the WebSocket handshake to complete. Defaults to 10 seconds. |
+| `recv_timeout_sec` | `float \| None` | Maximum seconds to wait for a message from the server before raising ``SonioxRealtimeError``. ``None`` (the default) disables the receive timeout. This guards against an unresponsive server; it is not a silence detector, so during expected silence keep the session alive with ``pause()`` / ``keep_alive()`` instead of relying on this timeout. |
 
 **Returns**
 

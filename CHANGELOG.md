@@ -63,6 +63,12 @@ Examples:
 
 ### Added
 
+- `recv_timeout_sec` on `client.realtime.stt.connect()` (and the async variant) and a
+  `realtime_recv_timeout_sec` client-wide default, raising `SonioxRealtimeError` when the
+  server sends no message within the timeout. Defaults to `None` (disabled). Intended to
+  detect an unresponsive server; during expected silence keep the session alive with
+  `pause()` / `keep_alive()` instead.
+
 ### Changed
 
 ### Deprecated
