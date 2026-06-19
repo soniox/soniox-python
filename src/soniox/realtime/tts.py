@@ -161,13 +161,8 @@ class RealtimeTTSConnection:
             raise SonioxRealtimeError("Realtime Text-to-Speech is not connected")
         if self._paused:
             return
-        interval_sec = TTS_KEEP_ALIVE_INTERVAL_SEC
-        if interval_sec <= 0:
-            raise SonioxValidationError("keep-alive interval must be greater than 0")
-        if self._keepalive is not None:
-            return
         self._paused = True
-        self._keepalive = KeepaliveThread(self.keep_alive, interval_sec)
+        self._keepalive = KeepaliveThread(self.keep_alive, TTS_KEEP_ALIVE_INTERVAL_SEC)
         self._keepalive.start()
 
     def resume(self) -> None:
@@ -380,13 +375,8 @@ class RealtimeTTSMultiplexedConnection:
             raise SonioxRealtimeError("Realtime Text-to-Speech connection is not connected")
         if self._paused:
             return
-        interval_sec = TTS_KEEP_ALIVE_INTERVAL_SEC
-        if interval_sec <= 0:
-            raise SonioxValidationError("keepalive interval must be greater than 0")
-        if self._keepalive is not None:
-            return
         self._paused = True
-        self._keepalive = KeepaliveThread(self.keep_alive, interval_sec)
+        self._keepalive = KeepaliveThread(self.keep_alive, TTS_KEEP_ALIVE_INTERVAL_SEC)
         self._keepalive.start()
 
     def resume(self) -> None:
