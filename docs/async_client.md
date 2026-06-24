@@ -1245,12 +1245,16 @@ AsyncTtsAPI(client: AsyncSonioxClient)
 ### generate()
 
 ```python
-generate(*, text: str, voice: str, model: str = DEFAULT_MODEL, language: str = DEFAULT_LANGUAGE, audio_format: TtsAudioFormat = DEFAULT_AUDIO_FORMAT, sample_rate: TtsSampleRate | None = None, bitrate: TtsBitrate | None = None, config: CreateTtsConfig | None = None) -> bytes
+generate(*, text: str, voice: str, model: str = DEFAULT_MODEL, config: CreateTtsConfig | None = None, language: str | None = None, audio_format: TtsAudioFormat | None = None, sample_rate: TtsSampleRate | None = None, bitrate: TtsBitrate | None = None) -> bytes
 ```
 
 Generate speech audio from text and return raw audio bytes.
 
 Performs a POST request to the TTS REST endpoint.
+
+``audio_format``/``sample_rate``/``bitrate`` are deprecated; set them on
+``CreateTtsConfig`` instead. Pass ``language`` explicitly — relying on the default
+("en") is deprecated and ``language`` will be required in the next major release.
 
 **Parameters**
 
@@ -1259,11 +1263,11 @@ Performs a POST request to the TTS REST endpoint.
 | `text` | `str` | Longer free-form background text, prior interaction history, reference documents, or meeting notes. |
 | `voice` | `str` | Voice identifier to generate speech audio with. |
 | `model` | `str` | Speech-to-text model to use. |
-| `language` | `str` | Language code for Text-to-Speech (e.g., "en"). |
-| `audio_format` | `TtsAudioFormat` | Audio format for realtime transcription. |
+| `config` | `CreateTtsConfig \| None` | Configuration options for this operation. |
+| `language` | `str \| None` | Language code for Text-to-Speech (e.g., "en"). |
+| `audio_format` | `TtsAudioFormat \| None` | Audio format for realtime transcription. |
 | `sample_rate` | `TtsSampleRate \| None` | Audio sample rate in Hz. |
 | `bitrate` | `TtsBitrate \| None` | Output bitrate in bits-per-second for compressed formats. |
-| `config` | `CreateTtsConfig \| None` | Configuration options for this operation. |
 
 **Returns**
 
@@ -1280,10 +1284,14 @@ Performs a POST request to the TTS REST endpoint.
 ### generate_to_file()
 
 ```python
-generate_to_file(output: BinaryIO | Path | str, *, text: str, voice: str = DEFAULT_VOICE, model: str = DEFAULT_MODEL, language: str = DEFAULT_LANGUAGE, audio_format: TtsAudioFormat = DEFAULT_AUDIO_FORMAT, sample_rate: TtsSampleRate | None = None, bitrate: TtsBitrate | None = None, config: CreateTtsConfig | None = None) -> int
+generate_to_file(output: BinaryIO | Path | str, *, text: str, voice: str = DEFAULT_VOICE, model: str = DEFAULT_MODEL, config: CreateTtsConfig | None = None, language: str | None = None, audio_format: TtsAudioFormat | None = None, sample_rate: TtsSampleRate | None = None, bitrate: TtsBitrate | None = None) -> int
 ```
 
 Generate speech audio from text and write the audio bytes to a file-like output.
+
+``audio_format``/``sample_rate``/``bitrate`` are deprecated; set them on
+``CreateTtsConfig`` instead. Pass ``language`` explicitly — relying on the default
+("en") is deprecated and ``language`` will be required in the next major release.
 
 **Parameters**
 
@@ -1293,11 +1301,11 @@ Generate speech audio from text and write the audio bytes to a file-like output.
 | `text` | `str` | Longer free-form background text, prior interaction history, reference documents, or meeting notes. |
 | `voice` | `str` | Voice identifier to generate speech audio with. |
 | `model` | `str` | Speech-to-text model to use. |
-| `language` | `str` | Language code for Text-to-Speech (e.g., "en"). |
-| `audio_format` | `TtsAudioFormat` | Audio format for realtime transcription. |
+| `config` | `CreateTtsConfig \| None` | Configuration options for this operation. |
+| `language` | `str \| None` | Language code for Text-to-Speech (e.g., "en"). |
+| `audio_format` | `TtsAudioFormat \| None` | Audio format for realtime transcription. |
 | `sample_rate` | `TtsSampleRate \| None` | Audio sample rate in Hz. |
 | `bitrate` | `TtsBitrate \| None` | Output bitrate in bits-per-second for compressed formats. |
-| `config` | `CreateTtsConfig \| None` | Configuration options for this operation. |
 
 **Returns**
 

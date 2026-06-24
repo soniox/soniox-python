@@ -171,9 +171,9 @@ Helper config used when building Text-to-Speech payloads.
 
 | Property | Type | Description |
 | ------ | ------ | ------ |
-| `model` | `str \| None` | Text-to-Speech model to use. |
-| `language` | `str \| None` | Language code for Text-to-Speech (e.g., "en"). |
-| `voice` | `str \| None` | Voice identifier to generate speech audio with. |
+| `model` | `str \| None` | Deprecated: pass ``model`` to generate()/generate_to_file() instead. |
+| `language` | `str \| None` | Deprecated: pass ``language`` to generate()/generate_to_file() instead. |
+| `voice` | `str \| None` | Deprecated: pass ``voice`` to generate()/generate_to_file() instead. |
 | `audio_format` | `TtsAudioFormat \| None` | Requested output audio format. |
 | `sample_rate` | `TtsSampleRate \| None` | Output sample rate in Hz. |
 | `bitrate` | `TtsBitrate \| None` | Output bitrate in bits-per-second for compressed formats. |
@@ -216,7 +216,7 @@ Helper config used when building transcription payloads.
 
 | Property | Type | Description |
 | ------ | ------ | ------ |
-| `model` | `str \| None` | Speech-to-text model to use. |
+| `model` | `str \| None` | Deprecated: pass ``model`` to the create call instead. |
 | `language_hints` | `list[LanguageCode] \| None` | Array of expected ISO language codes to bias recognition. |
 | `language_hints_strict` | `bool \| None` | When true, model relies more heavily on language hints. |
 | `enable_speaker_diarization` | `bool \| None` | Enable speaker diarization to identify different speakers. |
@@ -226,7 +226,7 @@ Helper config used when building transcription payloads.
 | `webhook_url` | `str \| None` | URL to receive webhook notifications when transcription is completed or fails. |
 | `webhook_auth_header_name` | `str \| None` | Name of the authentication header sent with webhook notifications |
 | `webhook_auth_header_value` | `str \| None` | Authentication header value sent with webhook notifications |
-| `client_reference_id` | `str \| None` | Optional tracking identifier |
+| `client_reference_id` | `str \| None` | Deprecated: pass ``client_reference_id`` to the create call instead. |
 
 ---
 
