@@ -68,3 +68,14 @@ def test_raw_format_with_both_succeeds() -> None:
     assert cfg.audio_format == "pcm_s16le"
     assert cfg.sample_rate == 16000
     assert cfg.num_channels == 1
+
+
+def test_endpoint_latency_adjustment_level_accepts_0_to_3() -> None:
+    for level in (0, 3):
+        cfg = RealtimeSTTConfig(model="stt-rt-v5", endpoint_latency_adjustment_level=level)
+        assert cfg.endpoint_latency_adjustment_level == level
+
+
+def test_endpoint_latency_adjustment_level_rejects_out_of_range() -> None:
+    with pytest.raises(ValueError):
+        RealtimeSTTConfig(model="stt-rt-v5", endpoint_latency_adjustment_level=4)

@@ -102,6 +102,12 @@ class RealtimeSTTConfig(BaseModel):
     Introduced in the Soniox v5 model; earlier models reject it.
     """
 
+    endpoint_latency_adjustment_level: int | None = Field(default=None, ge=0, le=3)
+    """
+    Fine-tunes the latency/accuracy trade-off of endpoint detection. Allowed
+    values are integers from 0 to 3.
+    """
+
     translation: TranslationConfigInput | None = None
     """Translation configuration."""
 
