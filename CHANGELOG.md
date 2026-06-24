@@ -73,6 +73,30 @@ Examples:
 
 ---
 
+## [2.7.0] - 24 jun 2026
+
+### Added
+
+- `endpoint_latency_adjustment_level` field on `RealtimeSTTConfig` (integer 0–3) to fine-tune the latency/accuracy trade-off of realtime endpoint detection.
+
+### Changed
+
+- TTS REST output settings (`audio_format`, `sample_rate`, `bitrate`) now live on `CreateTtsConfig`; `generate()` and `generate_to_file()` take the utterance's `text`, `voice`, `model`, and `language` directly. Each field now has a single home (no more flat-vs-config overlap). Existing flat-keyword calls keep working (see Deprecated).
+- During the deprecation overlap, when a deprecated field is set both on the config and as a flat argument, the config value now takes precedence uniformly across STT and TTS (previously `client_reference_id` resolved the other way).
+
+### Deprecated
+
+- Passing `audio_format`, `sample_rate`, or `bitrate` as keyword arguments to TTS `generate()` / `generate_to_file()` is deprecated; set them on `CreateTtsConfig` instead. The keyword arguments still work but emit a `DeprecationWarning` and will be removed in a future major release.
+- Setting `model`, `voice`, or `language` on `CreateTtsConfig` is deprecated; pass them directly to `generate()` / `generate_to_file()` (they describe the utterance, not output encoding).
+- Relying on the default TTS `language` (`"en"`) is deprecated; pass `language` explicitly to `generate()` / `generate_to_file()`. It will become a required argument in the next major release.
+- Setting `model` or `client_reference_id` on `CreateTranscriptionConfig` is deprecated; pass them directly to the transcription `create*` calls.
+
+### Removed
+
+- The internal module constants `DEFAULT_LANGUAGE` and `DEFAULT_AUDIO_FORMAT` in `soniox.api.tts` / `soniox.api.async_tts`. The defaults (`"en"` / `"wav"`) are now applied inside payload construction. Behavior is unchanged.
+
+---
+
 ## [2.6.0] - 15 jun 2026
 
 ### Added
