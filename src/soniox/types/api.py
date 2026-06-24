@@ -347,8 +347,11 @@ class CreateTranscriptionPayload(BaseModel):
 class CreateTranscriptionConfig(BaseModel):
     """Helper config used when building transcription payloads."""
 
-    model: str | None = None
-    """Speech-to-text model to use."""
+    model: str | None = Field(
+        default=None,
+        deprecated="Pass model= directly to the create call instead.",
+    )
+    """Deprecated: pass ``model`` to the create call instead."""
 
     language_hints: list[LanguageCode] | None = None
     """Array of expected ISO language codes to bias recognition."""
@@ -377,8 +380,12 @@ class CreateTranscriptionConfig(BaseModel):
     webhook_auth_header_value: str | None = None
     """Authentication header value sent with webhook notifications"""
 
-    client_reference_id: str | None = Field(default=None, max_length=256)
-    """Optional tracking identifier"""
+    client_reference_id: str | None = Field(
+        default=None,
+        max_length=256,
+        deprecated="Pass client_reference_id= directly to the create call instead.",
+    )
+    """Deprecated: pass ``client_reference_id`` to the create call instead."""
 
 
 class CreateTtsPayload(BaseModel):
@@ -409,14 +416,29 @@ class CreateTtsPayload(BaseModel):
 class CreateTtsConfig(BaseModel):
     """Helper config used when building Text-to-Speech payloads."""
 
-    model: str | None = Field(default=None, min_length=1, max_length=50)
-    """Text-to-Speech model to use."""
+    model: str | None = Field(
+        default=None,
+        min_length=1,
+        max_length=50,
+        deprecated="Pass model= directly to generate()/generate_to_file() instead.",
+    )
+    """Deprecated: pass ``model`` to generate()/generate_to_file() instead."""
 
-    language: str | None = Field(default=None, min_length=1, max_length=50)
-    """Language code for Text-to-Speech (e.g., "en")."""
+    language: str | None = Field(
+        default=None,
+        min_length=1,
+        max_length=50,
+        deprecated="Pass language= directly to generate()/generate_to_file() instead.",
+    )
+    """Deprecated: pass ``language`` to generate()/generate_to_file() instead."""
 
-    voice: str | None = Field(default=None, min_length=1, max_length=50)
-    """Voice identifier to generate speech audio with."""
+    voice: str | None = Field(
+        default=None,
+        min_length=1,
+        max_length=50,
+        deprecated="Pass voice= directly to generate()/generate_to_file() instead.",
+    )
+    """Deprecated: pass ``voice`` to generate()/generate_to_file() instead."""
 
     audio_format: TtsAudioFormat | None = Field(default=None)
     """Requested output audio format."""

@@ -139,7 +139,6 @@ _FULL_CONFIG = CreateTranscriptionConfig(
     language_hints_strict=True,
     enable_speaker_diarization=True,
     enable_language_identification=True,
-    client_reference_id="ref-123",
 )
 
 SDK_BINDINGS_FULL: dict[str, SdkBinding] = {

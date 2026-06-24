@@ -28,23 +28,25 @@ def _mock_tts_endpoint(content: bytes = _AUDIO) -> respx.Route:
 async def test_generate_returns_audio_bytes(async_client: AsyncSonioxClient) -> None:
     route = _mock_tts_endpoint()
 
-    audio = await async_client.tts.generate(text="hello", voice="Adrian")
+    audio = await async_client.tts.generate(text="hello", voice="Adrian", language="en")
 
     assert audio == _AUDIO
     body = json.loads(route.calls.last.request.content)
     assert body["text"] == "hello"
     assert body["voice"] == "Adrian"
+    assert body["language"] == "en"
 
 
 @respx.mock
 async def test_generate_overrides_via_config(async_client: AsyncSonioxClient) -> None:
     route = _mock_tts_endpoint()
-    config = CreateTtsConfig(model="custom-model", language="de")
+    config = CreateTtsConfig(audio_format="mp3")
 
     await async_client.tts.generate(
         text="hallo",
         voice="Adrian",
-        audio_format="mp3",
+        model="custom-model",
+        language="de",
         config=config,
     )
 
@@ -61,7 +63,7 @@ async def test_generate_to_file_writes_path(
     _mock_tts_endpoint()
     out = tmp_path / "out.wav"
 
-    written = await async_client.tts.generate_to_file(out, text="hi", voice="Adrian")
+    written = await async_client.tts.generate_to_file(out, text="hi", voice="Adrian", language="en")
 
     assert written == len(_AUDIO)
     assert out.read_bytes() == _AUDIO
@@ -75,7 +77,7 @@ async def test_generate_to_file_writes_str_path(
     out = tmp_path / "out.wav"
 
     written = await async_client.tts.generate_to_file(
-        str(out), text="hi", voice="Adrian"
+        str(out), text="hi", voice="Adrian", language="en"
     )
 
     assert written == len(_AUDIO)
@@ -87,7 +89,7 @@ async def test_generate_to_file_writes_binaryio(async_client: AsyncSonioxClient)
     _mock_tts_endpoint()
     buf = BytesIO()
 
-    written = await async_client.tts.generate_to_file(buf, text="hi", voice="Adrian")
+    written = await async_client.tts.generate_to_file(buf, text="hi", voice="Adrian", language="en")
 
     assert written == len(_AUDIO)
     assert buf.getvalue() == _AUDIO
@@ -108,4 +110,4 @@ async def test_generate_raises_on_api_error(async_client: AsyncSonioxClient) -> 
     )
 
     with pytest.raises(SonioxAPIError):
-        await async_client.tts.generate(text="hi", voice="Adrian")
+        await async_client.tts.generate(text="hi", voice="Adrian", language="en")

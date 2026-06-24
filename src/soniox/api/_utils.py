@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import io
+import warnings
 from pathlib import Path
 from typing import BinaryIO, TypeVar
 
@@ -11,11 +12,33 @@ from ..errors import SonioxAPIError, SonioxValidationError
 from ..types import (
     CreateTranscriptionConfig,
     CreateTranscriptionPayload,
+    CreateTtsConfig,
+    CreateTtsPayload,
     LanguageCode,
     TranslationConfig,
 )
 
 ModelT = TypeVar("ModelT", bound=BaseModel)
+
+
+def _warn_deprecated_config_fields(
+    config: BaseModel | None, names: tuple[str, ...], advice: str
+) -> None:
+    """Emit a DeprecationWarning if any of ``names`` was explicitly set on ``config``.
+
+    Read via ``model_fields_set`` (not attribute access) so it never fires for
+    unset fields and never double-warns with pydantic's own ``deprecated=`` hook.
+    """
+    if config is None:
+        return
+    used = [n for n in names if n in config.model_fields_set]
+    if used:
+        warnings.warn(
+            f"Setting {', '.join(used)} on {type(config).__name__} is deprecated; "
+            f"{advice}. This will be removed in the next major release.",
+            DeprecationWarning,
+            stacklevel=3,
+        )
 
 
 def ensure_success(response: httpx.Response) -> None:
@@ -68,21 +91,107 @@ def build_create_payload(
     client_reference_id: str | None,
     config: CreateTranscriptionConfig | None,
 ) -> CreateTranscriptionPayload:
+    _warn_deprecated_config_fields(
+        config,
+        ("model", "client_reference_id"),
+        "pass it directly to the create call instead",
+    )
     config_data = config.model_dump(exclude_none=True) if config else {}
     model_override = config_data.pop("model", None)
     client_ref_override = config_data.pop("client_reference_id", None)
-    payload_model = model_override if model_override is not None else model
-    payload_client_reference_id = (
-        client_reference_id if client_reference_id is not None else client_ref_override
+    return CreateTranscriptionPayload.model_validate(
+        {
+            "model": model_override if model_override is not None else model,
+            "file_id": file_id,
+            "audio_url": audio_url,
+            "client_reference_id": (
+                client_ref_override if client_ref_override is not None else client_reference_id
+            ),
+            **config_data,
+        }
     )
-    payload_data: dict[str, object | None] = {
-        "model": payload_model,
-        "file_id": file_id,
-        "audio_url": audio_url,
-        "client_reference_id": payload_client_reference_id,
+
+
+def build_tts_payload(
+    *,
+    text: str,
+    voice: str,
+    model: str,
+    config: CreateTtsConfig | None,
+    language: str | None = None,
+    audio_format: str | None = None,
+    sample_rate: int | None = None,
+    bitrate: int | None = None,
+) -> CreateTtsPayload:
+    # ponytail: deprecation shim. Next major — make `language` required (drop its default +
+    # the omit-language warn), delete the flat audio_format/sample_rate/bitrate kwargs + their
+    # warn block, drop model/voice/language from CreateTtsConfig + the _warn_deprecated_config_fields
+    # call + the override dance. Body collapses to: model_dump → defaults → model_validate.
+    # Don't delete _warn_deprecated_config_fields or `import warnings` until STT's shim goes too.
+    """Assemble a TTS payload from flat identity args (``text``/``voice``/``model``/
+    ``language``) plus a ``config`` settings bag (``audio_format``/``sample_rate``/``bitrate``).
+
+    Deprecated, kept one release: the flat ``audio_format``/``sample_rate``/``bitrate`` kwargs
+    (move them to ``config``); ``model``/``voice``/``language`` set on ``config`` (pass them
+    flat); and omitting ``language`` — it will be required in the next major release.
+    """
+    deprecated_flat = {
+        k: v
+        for k, v in {
+            "audio_format": audio_format,
+            "sample_rate": sample_rate,
+            "bitrate": bitrate,
+        }.items()
+        if v is not None
     }
-    payload_data.update(config_data)
-    return CreateTranscriptionPayload.model_validate(payload_data)
+    if deprecated_flat:
+        warnings.warn(
+            f"Passing {', '.join(deprecated_flat)} directly to generate()/generate_to_file() "
+            "is deprecated; set them on CreateTtsConfig instead. This will be removed in the "
+            "next major release.",
+            DeprecationWarning,
+            stacklevel=3,
+        )
+
+    _warn_deprecated_config_fields(
+        config,
+        ("model", "voice", "language"),
+        "pass it directly to generate()/generate_to_file() instead",
+    )
+    config_data = config.model_dump(exclude_none=True) if config else {}
+    settings = {**deprecated_flat, **config_data}  # config wins for output settings
+    # settings never holds None (exclude_none + deprecated_flat filter), so absent-key is
+    # the only fallback case: get(key, default) and is-None, never falsy `or`.
+    voice_override = settings.pop("voice", None)
+    model_override = settings.pop("model", None)
+    config_language = settings.pop("language", None)
+
+    # language is identity, not a setting: the flat arg is the blessed path and wins; a
+    # config value is honored (deprecated) next; relying on the "en" default is deprecated.
+    if language is not None:
+        resolved_language = language
+    elif config_language is not None:
+        resolved_language = config_language
+    else:
+        warnings.warn(
+            "Relying on the default Text-to-Speech language 'en' is deprecated; pass "
+            "language= explicitly. It will be required in the next major release.",
+            DeprecationWarning,
+            stacklevel=3,
+        )
+        resolved_language = "en"
+
+    return CreateTtsPayload.model_validate(
+        {
+            "text": text,
+            "voice": voice if voice_override is None else voice_override,
+            "model": model if model_override is None else model_override,
+            "language": resolved_language,
+            "audio_format": settings.get("audio_format", "wav"),
+            "sample_rate": settings.get("sample_rate"),
+            "bitrate": settings.get("bitrate"),
+        }
+    )
 
 
 def build_translate_config(

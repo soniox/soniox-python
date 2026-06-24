@@ -10,7 +10,7 @@ import pytest
 import respx
 from httpx import Response
 
-from soniox.api._utils import build_translate_config
+from soniox.api._utils import build_create_payload, build_translate_config
 from soniox.client import AsyncSonioxClient, SonioxClient
 from soniox.errors import SonioxValidationError
 from soniox.types import (
@@ -59,13 +59,41 @@ def test_two_way_sets_both_language_codes() -> None:
 
 
 def test_preserves_user_supplied_config_fields() -> None:
-    user = CreateTranscriptionConfig(model="custom-model", enable_speaker_diarization=True)
+    user = CreateTranscriptionConfig(enable_speaker_diarization=True)
     cfg = build_translate_config(to="es", source=None, between=None, config=user)
-    assert cfg.model == "custom-model"
     assert cfg.enable_speaker_diarization is True
     assert cfg.translation == TranslationConfig(type="one_way", target_language="es")
     # original is untouched
     assert user.translation is None
+
+
+def test_deprecated_config_model_and_client_ref_still_override() -> None:
+    """model/client_reference_id on the config warn but still override until next major."""
+    cfg = CreateTranscriptionConfig(model="cfg-model", client_reference_id="cfg-ref")
+    with pytest.warns(DeprecationWarning, match="model, client_reference_id"):
+        payload = build_create_payload(
+            model="flat-model",
+            file_id=None,
+            audio_url="https://a/b",
+            client_reference_id=None,
+            config=cfg,
+        )
+    assert payload.model == "cfg-model"
+    assert payload.client_reference_id == "cfg-ref"
+
+
+def test_deprecated_config_fields_take_precedence_over_flat_args() -> None:
+    """When set both ways during the overlap, config wins (uniform with model/tts fields)."""
+    cfg = CreateTranscriptionConfig(client_reference_id="cfg-ref")
+    with pytest.warns(DeprecationWarning, match="client_reference_id"):
+        payload = build_create_payload(
+            model="flat-model",
+            file_id=None,
+            audio_url="https://a/b",
+            client_reference_id="flat-ref",
+            config=cfg,
+        )
+    assert payload.client_reference_id == "cfg-ref"
 
 
 def test_requires_exactly_one_of_to_or_between_none() -> None:

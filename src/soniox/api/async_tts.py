@@ -3,8 +3,8 @@ from __future__ import annotations
 from pathlib import Path
 from typing import TYPE_CHECKING, BinaryIO
 
-from ..types import CreateTtsConfig, CreateTtsPayload, TtsAudioFormat, TtsBitrate, TtsSampleRate
-from ._utils import ensure_success
+from ..types import CreateTtsConfig, TtsAudioFormat, TtsBitrate, TtsSampleRate
+from ._utils import build_tts_payload, ensure_success
 
 if TYPE_CHECKING:
     from ..client import AsyncSonioxClient
@@ -12,8 +12,6 @@ if TYPE_CHECKING:
 
 DEFAULT_MODEL = "tts-rt-v1"
 DEFAULT_VOICE = "Adrian"
-DEFAULT_LANGUAGE = "en"
-DEFAULT_AUDIO_FORMAT: TtsAudioFormat = "wav"
 
 
 class AsyncTtsAPI:
@@ -26,32 +24,34 @@ class AsyncTtsAPI:
         text: str,
         voice: str,
         model: str = DEFAULT_MODEL,
-        language: str = DEFAULT_LANGUAGE,
-        audio_format: TtsAudioFormat = DEFAULT_AUDIO_FORMAT,
+        config: CreateTtsConfig | None = None,
+        language: str | None = None,
+        audio_format: TtsAudioFormat | None = None,
         sample_rate: TtsSampleRate | None = None,
         bitrate: TtsBitrate | None = None,
-        config: CreateTtsConfig | None = None,
     ) -> bytes:
         """
         Generate speech audio from text and return raw audio bytes.
 
         Performs a POST request to the TTS REST endpoint.
 
+        ``audio_format``/``sample_rate``/``bitrate`` are deprecated; set them on
+        ``CreateTtsConfig`` instead. Pass ``language`` explicitly — relying on the default
+        ("en") is deprecated and ``language`` will be required in the next major release.
+
         Raises:
             SonioxAPIError: When the API returns an error.
         """
-        config_data = config.model_dump(exclude_none=True) if config else {}
-        payload_data: dict[str, object | None] = {
-            "model": model,
-            "language": language,
-            "voice": voice,
-            "audio_format": audio_format,
-            "sample_rate": sample_rate,
-            "bitrate": bitrate,
-            "text": text,
-        }
-        payload_data.update(config_data)
-        payload = CreateTtsPayload.model_validate(payload_data)
+        payload = build_tts_payload(
+            text=text,
+            voice=voice,
+            model=model,
+            config=config,
+            language=language,
+            audio_format=audio_format,
+            sample_rate=sample_rate,
+            bitrate=bitrate,
+        )
         response = await self._client.request(
             "POST",
             f"{self._client.tts_api_base_url}/tts",
@@ -67,14 +67,18 @@ class AsyncTtsAPI:
         text: str,
         voice: str = DEFAULT_VOICE,
         model: str = DEFAULT_MODEL,
-        language: str = DEFAULT_LANGUAGE,
-        audio_format: TtsAudioFormat = DEFAULT_AUDIO_FORMAT,
+        config: CreateTtsConfig | None = None,
+        language: str | None = None,
+        audio_format: TtsAudioFormat | None = None,
         sample_rate: TtsSampleRate | None = None,
         bitrate: TtsBitrate | None = None,
-        config: CreateTtsConfig | None = None,
     ) -> int:
         """
         Generate speech audio from text and write the audio bytes to a file-like output.
+
+        ``audio_format``/``sample_rate``/``bitrate`` are deprecated; set them on
+        ``CreateTtsConfig`` instead. Pass ``language`` explicitly — relying on the default
+        ("en") is deprecated and ``language`` will be required in the next major release.
 
         Returns:
             Number of bytes written.
@@ -83,11 +87,11 @@ class AsyncTtsAPI:
             text=text,
             voice=voice,
             model=model,
+            config=config,
             language=language,
             audio_format=audio_format,
             sample_rate=sample_rate,
             bitrate=bitrate,
-            config=config,
         )
         if isinstance(output, Path | str):
             path = Path(output)
