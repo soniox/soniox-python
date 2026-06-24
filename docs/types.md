@@ -502,7 +502,15 @@ Audio formats accepted by the realtime STT websocket.
 
 ```python
 RealtimeSTTHeaderFormat = Literal[
-    "aac", "aiff", "amr", "asf", "flac", "mp3", "ogg", "wav", "webm",
+    "aac",
+    "aiff",
+    "amr",
+    "asf",
+    "flac",
+    "mp3",
+    "ogg",
+    "wav",
+    "webm",
 ]
 ```
 
@@ -517,16 +525,25 @@ Container formats whose header carries sample rate and channels.
 ```python
 RealtimeSTTRawFormat = Literal[
     "pcm_s8",
-    "pcm_s16le", "pcm_s16be",
-    "pcm_s24le", "pcm_s24be",
-    "pcm_s32le", "pcm_s32be",
+    "pcm_s16le",
+    "pcm_s16be",
+    "pcm_s24le",
+    "pcm_s24be",
+    "pcm_s32le",
+    "pcm_s32be",
     "pcm_u8",
-    "pcm_u16le", "pcm_u16be",
-    "pcm_u24le", "pcm_u24be",
-    "pcm_u32le", "pcm_u32be",
-    "pcm_f32le", "pcm_f32be",
-    "pcm_f64le", "pcm_f64be",
-    "mulaw", "alaw",
+    "pcm_u16le",
+    "pcm_u16be",
+    "pcm_u24le",
+    "pcm_u24be",
+    "pcm_u32le",
+    "pcm_u32be",
+    "pcm_f32le",
+    "pcm_f32be",
+    "pcm_f64le",
+    "pcm_f64be",
+    "mulaw",
+    "alaw",
 ]
 ```
 
