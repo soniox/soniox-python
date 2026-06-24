@@ -25,22 +25,39 @@ TemporaryApiKeyUsageType = Literal["transcribe_websocket", "tts_rt"]
 
 
 RealtimeSTTHeaderFormat = Literal[
-    "aac", "aiff", "amr", "asf", "flac", "mp3", "ogg", "wav", "webm",
+    "aac",
+    "aiff",
+    "amr",
+    "asf",
+    "flac",
+    "mp3",
+    "ogg",
+    "wav",
+    "webm",
 ]
 """Container formats whose header carries sample rate and channels."""
 
 RealtimeSTTRawFormat = Literal[
     "pcm_s8",
-    "pcm_s16le", "pcm_s16be",
-    "pcm_s24le", "pcm_s24be",
-    "pcm_s32le", "pcm_s32be",
+    "pcm_s16le",
+    "pcm_s16be",
+    "pcm_s24le",
+    "pcm_s24be",
+    "pcm_s32le",
+    "pcm_s32be",
     "pcm_u8",
-    "pcm_u16le", "pcm_u16be",
-    "pcm_u24le", "pcm_u24be",
-    "pcm_u32le", "pcm_u32be",
-    "pcm_f32le", "pcm_f32be",
-    "pcm_f64le", "pcm_f64be",
-    "mulaw", "alaw",
+    "pcm_u16le",
+    "pcm_u16be",
+    "pcm_u24le",
+    "pcm_u24be",
+    "pcm_u32le",
+    "pcm_u32be",
+    "pcm_f32le",
+    "pcm_f32be",
+    "pcm_f64le",
+    "pcm_f64be",
+    "mulaw",
+    "alaw",
 ]
 """Raw formats with no header - require ``sample_rate`` and ``num_channels``."""
 
@@ -198,9 +215,7 @@ class StructuredContextTranslationTerm(BaseModel):
     """The target translation for the term."""
 
 
-StructuredContextGeneralInput: TypeAlias = (
-    list[StructuredContextGeneralItem] | dict[str, str]
-)
+StructuredContextGeneralInput: TypeAlias = list[StructuredContextGeneralItem] | dict[str, str]
 """Accepted input shapes for ``StructuredContext.general``."""
 
 StructuredContextTranslationTermsInput: TypeAlias = (
@@ -337,8 +352,7 @@ class CreateTranscriptionPayload(BaseModel):
     @model_validator(mode="after")
     def _validate_audio_source(self) -> Self:
         if self.audio_url and self.file_id:
-            raise ValueError(
-                "Only one of audio_url or file_id can be provided.")
+            raise ValueError("Only one of audio_url or file_id can be provided.")
         if not self.audio_url and not self.file_id:
             raise ValueError("Either audio_url or file_id must be provided.")
         return self

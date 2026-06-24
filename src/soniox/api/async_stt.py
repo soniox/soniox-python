@@ -694,4 +694,3 @@ class AsyncSttAPI:
             wait_timeout_sec=wait_timeout_sec,
             config=build_translate_config(to=to, source=source, between=between, config=config),
         )
-

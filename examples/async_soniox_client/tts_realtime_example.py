@@ -40,9 +40,7 @@ async def main() -> None:
     try:
         async with client.realtime.tts.connect(config=config) as connection:
             send_task = asyncio.create_task(
-                connection.send_text_chunks(
-                    _iter_text_chunks(TEXT_CHUNKS), text_end=True
-                ),
+                connection.send_text_chunks(_iter_text_chunks(TEXT_CHUNKS), text_end=True),
                 name="tts-async-sender",
             )
             try:

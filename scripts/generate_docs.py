@@ -281,7 +281,9 @@ def parse_raises_entries(lines: list[str]) -> list[tuple[str, str]]:
         match = re.match(r"^\s*([A-Za-z_][\w\.\[\], ]*)\s*:\s*(.*)$", line)
         if match:
             if current_name is not None:
-                entries.append((current_name.strip(), clean_paragraph_block("\n".join(current_desc))))
+                entries.append(
+                    (current_name.strip(), clean_paragraph_block("\n".join(current_desc)))
+                )
             current_name = match.group(1)
             current_desc = [match.group(2).strip()]
         elif current_name is not None:
@@ -343,7 +345,11 @@ def get_parsed_doc(obj: Object) -> ParsedDoc:
 
 
 def extract_name_target(node: ast.AST) -> str | None:
-    if isinstance(node, ast.Assign) and len(node.targets) == 1 and isinstance(node.targets[0], ast.Name):
+    if (
+        isinstance(node, ast.Assign)
+        and len(node.targets) == 1
+        and isinstance(node.targets[0], ast.Name)
+    ):
         return node.targets[0].id
     if isinstance(node, ast.AnnAssign) and isinstance(node.target, ast.Name):
         return node.target.id
@@ -434,7 +440,13 @@ def parse_dunder_all(path: Path) -> list[str]:
         name = extract_name_target(stmt)
         if name != "__all__":
             continue
-        value = stmt.value if isinstance(stmt, ast.Assign) else stmt.value if isinstance(stmt, ast.AnnAssign) else None
+        value = (
+            stmt.value
+            if isinstance(stmt, ast.Assign)
+            else stmt.value
+            if isinstance(stmt, ast.AnnAssign)
+            else None
+        )
         if not isinstance(value, (ast.List, ast.Tuple)):
             continue
         exports: list[str] = []
@@ -593,7 +605,9 @@ def get_call_name(call: ast.Call) -> str | None:
     return None
 
 
-def iter_function_nodes(tree: ast.Module) -> list[tuple[str, ast.FunctionDef | ast.AsyncFunctionDef]]:
+def iter_function_nodes(
+    tree: ast.Module,
+) -> list[tuple[str, ast.FunctionDef | ast.AsyncFunctionDef]]:
     nodes: list[tuple[str, ast.FunctionDef | ast.AsyncFunctionDef]] = []
     for stmt in tree.body:
         if isinstance(stmt, (ast.FunctionDef, ast.AsyncFunctionDef)):
@@ -695,7 +709,7 @@ def format_constructor_signature(cls: Class, constructor: Function) -> str:
     sig_text = str(constructor.signature())
     match = re.match(r"^__init__\((.*)\)\s*->\s*None$", sig_text)
     if not match:
-        return f"{cls.name}{sig_text[sig_text.find('('):]}"
+        return f"{cls.name}{sig_text[sig_text.find('(') :]}"
     params = match.group(1).strip()
     if params.startswith("self, "):
         params = params[len("self, ") :]

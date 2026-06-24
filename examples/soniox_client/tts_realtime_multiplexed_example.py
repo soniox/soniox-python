@@ -74,9 +74,7 @@ def write_outputs(audio_by_stream: dict[str, bytes]) -> None:
         )
         if audio:
             output_path.write_bytes(audio)
-            print(
-                f"Wrote stream {key.upper()} ({len(audio)} bytes) to {output_path.resolve()}"
-            )
+            print(f"Wrote stream {key.upper()} ({len(audio)} bytes) to {output_path.resolve()}")
         else:
             print(f"No audio file was written for stream {key.upper()}.")
 
@@ -101,10 +99,7 @@ def main() -> None:
 
     try:
         with client.realtime.tts.connect_multi_stream() as connection:
-            streams = {
-                key: connection.open_stream(config=configs[key])
-                for key in sorted(configs)
-            }
+            streams = {key: connection.open_stream(config=configs[key]) for key in sorted(configs)}
 
             receiver_threads = [
                 threading.Thread(
@@ -135,9 +130,7 @@ def main() -> None:
 
             with errors_lock:
                 for exc in errors:
-                    print(
-                        "Realtime multiplexed TTS error (keeping partial audio):", exc
-                    )
+                    print("Realtime multiplexed TTS error (keeping partial audio):", exc)
     finally:
         write_outputs(audio_by_stream)
         client.close()

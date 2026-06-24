@@ -69,9 +69,7 @@ def write_outputs(audio_by_stream: dict[str, bytes]) -> None:
         )
         if audio:
             output_path.write_bytes(audio)
-            print(
-                f"Wrote stream {key.upper()} ({len(audio)} bytes) to {output_path.resolve()}"
-            )
+            print(f"Wrote stream {key.upper()} ({len(audio)} bytes) to {output_path.resolve()}")
         else:
             print(f"No audio file was written for stream {key.upper()}.")
 
@@ -96,8 +94,7 @@ async def main() -> None:
     try:
         async with client.realtime.tts.connect_multi_stream() as connection:
             streams = {
-                key: await connection.open_stream(config=configs[key])
-                for key in sorted(configs)
+                key: await connection.open_stream(config=configs[key]) for key in sorted(configs)
             }
 
             receiver_tasks = [
@@ -124,9 +121,7 @@ async def main() -> None:
                 if isinstance(result, BaseException):
                     errors.append(result)
 
-            receiver_results = await asyncio.gather(
-                *receiver_tasks, return_exceptions=True
-            )
+            receiver_results = await asyncio.gather(*receiver_tasks, return_exceptions=True)
             for key, result in zip(streams.keys(), receiver_results, strict=True):
                 if isinstance(result, BaseException):
                     errors.append(result)
