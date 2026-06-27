@@ -80,7 +80,9 @@ async def test_async_connect_passes_connect_timeout() -> None:
         async with client.realtime.tts.connect(config=_config(), connect_timeout_sec=6.0):
             pass
 
-    mock_connect.assert_called_once_with(client.tts_websocket_base_url, open_timeout=6.0)
+    mock_connect.assert_called_once_with(
+        client.tts_websocket_base_url, open_timeout=6.0, ping_interval=None
+    )
 
 
 async def test_async_multiplexed_connect_passes_connect_timeout() -> None:
@@ -92,7 +94,9 @@ async def test_async_multiplexed_connect_passes_connect_timeout() -> None:
         async with client.realtime.tts.connect_multi_stream(connect_timeout_sec=3.5):
             pass
 
-    mock_connect.assert_called_once_with(client.tts_websocket_base_url, open_timeout=3.5)
+    mock_connect.assert_called_once_with(
+        client.tts_websocket_base_url, open_timeout=3.5, ping_interval=None
+    )
 
 
 async def test_async_connect_timeout_maps_to_realtime_error() -> None:
