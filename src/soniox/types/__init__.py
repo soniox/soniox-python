@@ -62,6 +62,7 @@ from .realtime import (
     RealtimeTTSConfig,
     RealtimeTTSEvent,
     RealtimeTTSTextMessage,
+    TtsTimestamps,
 )
 from .webhooks import (
     Headers,
@@ -142,6 +143,7 @@ __all__ = [
     "RealtimeTTSConfig",
     "RealtimeTTSEvent",
     "RealtimeTTSTextMessage",
+    "TtsTimestamps",
     # webhooks.py
     "Headers",
     "WebhookAuthConfig",

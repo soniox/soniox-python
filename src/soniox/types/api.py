@@ -423,6 +423,9 @@ class CreateTtsPayload(BaseModel):
     bitrate: TtsBitrate | None = Field(default=None)
     """Output bitrate in bits-per-second for compressed formats."""
 
+    speed: float | None = Field(default=None, ge=0.7, le=1.3)
+    """Speaking rate multiplier from 0.7 to 1.3; 1.0 (default) is normal speed."""
+
     text: str = Field(min_length=1, max_length=5000)
     """Input text to generate into speech."""
 
@@ -462,6 +465,9 @@ class CreateTtsConfig(BaseModel):
 
     bitrate: TtsBitrate | None = Field(default=None)
     """Output bitrate in bits-per-second for compressed formats."""
+
+    speed: float | None = Field(default=None, ge=0.7, le=1.3)
+    """Speaking rate multiplier from 0.7 to 1.3; 1.0 (default) is normal speed."""
 
 
 class CreateTemporaryApiKeyPayload(BaseModel):

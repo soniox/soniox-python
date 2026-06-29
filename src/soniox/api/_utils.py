@@ -190,6 +190,7 @@ def build_tts_payload(
             "audio_format": settings.get("audio_format", "wav"),
             "sample_rate": settings.get("sample_rate"),
             "bitrate": settings.get("bitrate"),
+            "speed": settings.get("speed"),
         }
     )
 

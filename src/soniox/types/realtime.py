@@ -161,6 +161,12 @@ class RealtimeTTSConfig(BaseModel):
     bitrate: TtsBitrate | None = Field(default=None)
     """Output bitrate in bits-per-second for compressed formats."""
 
+    speed: float | None = Field(default=None, ge=0.7, le=1.3)
+    """Speaking rate multiplier from 0.7 to 1.3; 1.0 (default) is normal speed."""
+
+    return_timestamps: bool | None = None
+    """Request character-to-audio timestamps on response events. Defaults to false."""
+
     def build_payload(self, api_key: str) -> RealtimeTTSConfig:
         return self.model_copy(update={"api_key": api_key})
 
@@ -195,6 +201,23 @@ class RealtimeTTSKeepAliveMessage(BaseModel):
     """Whether to send a keepalive control message."""
 
 
+class TtsTimestamps(BaseModel):
+    """Character-to-audio alignment attached to realtime Text-to-Speech events.
+
+    The three arrays are parallel and equal-length: each index maps one character
+    of the (preprocessed) spoken text to the audio span that pronounces it.
+    """
+
+    characters: list[str] = Field(default=[])
+    """One entry per character (Unicode codepoint) of the spoken text."""
+
+    character_start_times_seconds: list[float] = Field(default=[])
+    """Start time of each character, in seconds."""
+
+    character_end_times_seconds: list[float] = Field(default=[])
+    """End time of each character, in seconds."""
+
+
 class RealtimeTTSEvent(BaseModel):
     """Event payload received from the realtime Text-to-Speech websocket."""
 
@@ -217,6 +240,9 @@ class RealtimeTTSEvent(BaseModel):
 
     error_message: str | None = None
     """Human-readable error message."""
+
+    timestamps: TtsTimestamps | None = None
+    """Character-to-audio alignment for this chunk, when ``return_timestamps`` is set."""
 
     @classmethod
     def validate_event(cls, raw: str | bytes) -> RealtimeTTSEvent:

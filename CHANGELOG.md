@@ -63,6 +63,9 @@ Examples:
 
 ### Added
 
+- `speed` field on `CreateTtsConfig` and `RealtimeTTSConfig` (float 0.7–1.3, default 1.0) to control the speaking rate of generated speech. Supported on both REST and realtime.
+- `return_timestamps` field on `RealtimeTTSConfig` to request character-to-audio alignment. When enabled, realtime response events carry a `timestamps` object (new `TtsTimestamps` type: parallel `characters` / `character_start_times_seconds` / `character_end_times_seconds` arrays). Realtime only — the REST endpoint streams raw audio and ignores it.
+
 ### Changed
 
 ### Deprecated

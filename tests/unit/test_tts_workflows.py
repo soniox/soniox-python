@@ -38,6 +38,15 @@ def test_generate_returns_audio_bytes(client: SonioxClient) -> None:
 
 
 @respx.mock
+def test_generate_sends_speed_from_config(client: SonioxClient) -> None:
+    route = _mock_tts_endpoint()
+
+    client.tts.generate(text="hi", voice="Adrian", language="en", config=CreateTtsConfig(speed=1.2))
+
+    assert json.loads(route.calls.last.request.content)["speed"] == 1.2
+
+
+@respx.mock
 def test_generate_without_language_warns_and_defaults_en(client: SonioxClient) -> None:
     """Omitting language is deprecated: warns now, still defaults to 'en' until next major."""
     route = _mock_tts_endpoint()
