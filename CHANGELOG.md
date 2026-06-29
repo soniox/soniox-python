@@ -66,6 +66,8 @@ Examples:
 - `speed` field on `CreateTtsConfig` and `RealtimeTTSConfig` (float 0.7–1.3, default 1.0) to control the speaking rate of generated speech. Supported on both REST and realtime.
 - `return_timestamps` field on `RealtimeTTSConfig` to request character-to-audio alignment. When enabled, realtime response events carry a `timestamps` object (new `TtsTimestamps` type: parallel `characters` / `character_start_times_seconds` / `character_end_times_seconds` arrays). Realtime only — the REST endpoint streams raw audio and ignores it.
 - `supports_endpoint_sensitivity`, `supports_endpoint_latency_adjustment`, and `endpoint_latency_adjustment_max_level` capability fields on the STT `Model` type, surfacing which endpoint-detection options a model accepts.
+- Voices (voice-cloning) API at `client.voices` (sync and async): `list`, `list_all`, `count`, `get`, `get_or_none`, `create` (clone from a reference audio clip), `recompute` (prepare a voice for newly released models), `delete`, and `delete_if_exists`. New `Voice`, `VoiceModel`, and `VoiceModelStatus` types.
+- `supports_timestamps`, `supports_speed_adjustment`, `speed_min`, and `speed_max` capability fields on the `TtsModel` type, surfacing which models support timestamps and speed adjustment and the supported speed range.
 
 ### Changed
 

@@ -185,6 +185,79 @@ class UploadFilePayload(BaseModel):
     """Optional tracking identifier string. Does not need to be unique"""
 
 
+VoiceModelStatus = Literal["not_computed", "processing", "ready", "failed"]
+"""Readiness of a voice for a given model. Must be 'ready' to use the voice with that model."""
+
+
+class GetVoicesPayload(BaseModel):
+    """Parameters for listing voices."""
+
+    limit: int = Field(default=1000, ge=1, le=1000)
+    """Maximum number of voices to return."""
+
+    cursor: str | None = None
+    """Pagination cursor for the next page of results."""
+
+
+class VoiceModel(BaseModel):
+    """Per-model readiness status of a voice."""
+
+    model: str
+    """Name of the model."""
+
+    status: VoiceModelStatus
+    """Has to be 'ready' for the voice to be usable with this model."""
+
+    error_type: str | None = None
+    """Machine-readable error category when status is 'failed'; None otherwise."""
+
+    error_message: str | None = None
+    """Human-readable error message when status is 'failed'; None otherwise."""
+
+
+class Voice(BaseModel):
+    """A cloned Text-to-Speech voice created from a reference audio clip."""
+
+    id: str
+    """Unique identifier of the voice."""
+
+    name: str
+    """Name of the voice, unique within the project."""
+
+    filename: str
+    """Original file name of the uploaded reference clip."""
+
+    created_at: datetime
+    """UTC timestamp indicating when the voice was created."""
+
+    models: list[VoiceModel]
+    """Voice readiness status for each available model."""
+
+
+class GetVoicesResponse(BaseModel):
+    """Response returned when listing voices."""
+
+    voices: list[Voice]
+    """List of voices."""
+
+    next_page_cursor: str | None = None
+    """Pagination token for the next page of results, or None when no more results."""
+
+
+class GetVoicesCountResponse(BaseModel):
+    """Total number of voices in the project."""
+
+    total: int
+    """Total number of voices in the project."""
+
+
+class RecomputeVoicePayload(BaseModel):
+    """Body for preparing a voice for additional models."""
+
+    model: str | None = None
+    """Model to prepare the voice for. If None, prepares it for every not-yet-ready model."""
+
+
 class GetTranscriptionsPayload(BaseModel):
     """Parameters for listing transcription jobs."""
 
@@ -608,6 +681,18 @@ class TtsModel(BaseModel):
 
     languages: list[SupportedLanguage] = []
     """Languages supported by this model."""
+
+    supports_timestamps: bool = False
+    """If model supports character-to-audio timestamps ('return_timestamps')."""
+
+    supports_speed_adjustment: bool = False
+    """If model supports adjusting the speaking rate via the 'speed' parameter."""
+
+    speed_min: float | None = None
+    """Minimum supported speaking rate (None when speed adjustment is unsupported)."""
+
+    speed_max: float | None = None
+    """Maximum supported speaking rate (None when speed adjustment is unsupported)."""
 
 
 class GetTtsModelsResponse(BaseModel):

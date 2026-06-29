@@ -19,6 +19,7 @@ if TYPE_CHECKING:
     from .api.async_tts import AsyncTtsAPI
     from .api.async_tts_models import AsyncTtsModelsAPI
     from .api.async_usage_logs import AsyncUsageLogsAPI
+    from .api.async_voices import AsyncVoicesAPI
     from .api.async_webhooks import AsyncSonioxWebhooksAPI
     from .api.auth import AuthAPI
     from .api.concurrency_limits import ConcurrencyLimitsAPI
@@ -28,6 +29,7 @@ if TYPE_CHECKING:
     from .api.tts import TtsAPI
     from .api.tts_models import TtsModelsAPI
     from .api.usage_logs import UsageLogsAPI
+    from .api.voices import VoicesAPI
     from .api.webhooks import SonioxWebhooksAPI
     from .realtime import AsyncRealtimeAPI, RealtimeAPI
 
@@ -153,6 +155,12 @@ class SonioxClient(_BaseSonioxClient):
         from .api.tts_models import TtsModelsAPI
 
         return TtsModelsAPI(self)
+
+    @cached_property
+    def voices(self) -> VoicesAPI:
+        from .api.voices import VoicesAPI
+
+        return VoicesAPI(self)
 
     @cached_property
     def usage_logs(self) -> UsageLogsAPI:
@@ -285,6 +293,12 @@ class AsyncSonioxClient(_BaseSonioxClient):
         from .api.async_tts_models import AsyncTtsModelsAPI
 
         return AsyncTtsModelsAPI(self)
+
+    @cached_property
+    def voices(self) -> AsyncVoicesAPI:
+        from .api.async_voices import AsyncVoicesAPI
+
+        return AsyncVoicesAPI(self)
 
     @cached_property
     def usage_logs(self) -> AsyncUsageLogsAPI:
