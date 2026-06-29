@@ -549,6 +549,15 @@ class Model(BaseModel):
     supports_max_endpoint_delay: bool = False
     """If model supports 'max_endpoint_delay_ms' option."""
 
+    supports_endpoint_sensitivity: bool = False
+    """If model supports the 'endpoint_sensitivity' option."""
+
+    supports_endpoint_latency_adjustment: bool = False
+    """If model supports the 'endpoint_latency_adjustment_level' option."""
+
+    endpoint_latency_adjustment_max_level: int = 0
+    """Maximum endpoint_latency_adjustment_level the model accepts (0 means unsupported)."""
+
     translation_targets: list[TranslationTarget]
     """List of supported one-way translation targets. If list is empty, check for one_way_translation field."""
 

@@ -67,9 +67,10 @@ test-realtime:
 cov:
     uv run pytest --cov --cov-report=term-missing --cov-report=html tests/
 
-# Download latest OpenAPI schema from Soniox
+# Download latest published OpenAPI schema from Soniox docs (YAML) into the JSON test fixture
 download-schema:
-    curl -sSL https://api.soniox.com/v1/openapi.json -o tests/data/openapi.json
+    curl -sSL https://soniox.com/docs/openapi.yaml | \
+        uv run python -c "import sys, json, yaml; json.dump(yaml.safe_load(sys.stdin), open('tests/data/openapi.json', 'w'), indent=2)"
 
 # Clean caches
 clean-cache:

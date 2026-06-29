@@ -91,9 +91,19 @@ def _assert_wire_contract(request: httpx.Request, op: Operation, binding: SdkBin
 # ---------------------------------------------------------------------------
 
 
+# Operations intentionally not bound to this harness. ``generate_tts`` lives on a
+# different host (tts-rt.soniox.com) and returns raw audio bytes, which this
+# JSON/api.soniox.com harness does not model; it is covered by test_tts_workflows.py.
+_UNBOUND_OPERATIONS = {"generate_tts"}
+
+
 def test_all_operations_covered() -> None:
     """Every OpenAPI operation must have an SDK binding."""
-    missing = [op.operation_id for op in OPERATIONS if op.operation_id not in SDK_BINDINGS]
+    missing = [
+        op.operation_id
+        for op in OPERATIONS
+        if op.operation_id not in SDK_BINDINGS and op.operation_id not in _UNBOUND_OPERATIONS
+    ]
     assert not missing, (
         "New OpenAPI operations are missing SDK bindings. "
         "Add them to tests/unit/_sdk_bindings.py:\n  "

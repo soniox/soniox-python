@@ -34,6 +34,9 @@ KNOWN_REQUIRED_DRIFT: set[str] = {
     "CreateTranscriptionPayload.model",
     "Model.aliased_model_id",
     "Model.supports_max_endpoint_delay",
+    "Model.supports_endpoint_sensitivity",
+    "Model.supports_endpoint_latency_adjustment",
+    "Model.endpoint_latency_adjustment_max_level",
     "TTSModel.aliased_model_id",
     "TTSModel.languages",
 }
