@@ -123,11 +123,12 @@ def build_tts_payload(
     sample_rate: int | None = None,
     bitrate: int | None = None,
 ) -> CreateTtsPayload:
-    # ponytail: deprecation shim. Next major — make `language` required (drop its default +
-    # the omit-language warn), delete the flat audio_format/sample_rate/bitrate kwargs + their
-    # warn block, drop model/voice/language from CreateTtsConfig + the _warn_deprecated_config_fields
-    # call + the override dance. Body collapses to: model_dump → defaults → model_validate.
-    # Don't delete _warn_deprecated_config_fields or `import warnings` until STT's shim goes too.
+    # Deprecation shim — remove at the next major: make `language` required (drop its default
+    # and the omit-language warning), delete the flat audio_format/sample_rate/bitrate kwargs and
+    # their warning block, and drop model/voice/language from CreateTtsConfig along with the
+    # _warn_deprecated_config_fields call and the override dance. The body then collapses to:
+    # model_dump -> defaults -> model_validate. Keep _warn_deprecated_config_fields and the
+    # `warnings` import until STT's shim is removed too.
     """Assemble a TTS payload from flat identity args (``text``/``voice``/``model``/
     ``language``) plus a ``config`` settings bag (``audio_format``/``sample_rate``/``bitrate``).
 

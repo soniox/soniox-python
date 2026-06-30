@@ -49,8 +49,9 @@ AsyncSonioxClient(api_key: str | None = None, api_base_url: str | None = None, w
 | `files` | `AsyncFilesAPI` | List of uploaded files. |
 | `stt` | `AsyncSttAPI` | Speech-to-text API namespace. |
 | `tts` | `AsyncTtsAPI` | Text-to-Speech API namespace |
-| `models` | `AsyncModelsAPI` | List of available Text-to-Speech models. |
+| `models` | `AsyncModelsAPI` | Voice readiness status for each available model. |
 | `tts_models` | `AsyncTtsModelsAPI` | - |
+| `voices` | `AsyncVoicesAPI` | Voices supported by this model. |
 | `usage_logs` | `AsyncUsageLogsAPI` | Per-request usage log entries ordered by end_time. |
 | `concurrency_limits` | `AsyncConcurrencyLimitsAPI` | - |
 | `auth` | `AsyncAuthAPI` | Authentication API namespace. |

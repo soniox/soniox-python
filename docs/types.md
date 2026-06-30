@@ -1,7 +1,7 @@
 ---
 title: "Types"
 description: "Soniox Python SDK - Types Reference"
-keywords: "Token, ApiError, ApiErrorValidationError, CreateTemporaryApiKeyPayload, CreateTemporaryApiKeyResponse, CreateTtsPayload, ConcurrencyCurrentValues, ConcurrencyLimitValues, ConcurrencyScopeValues, CreateTtsConfig, CreateTranscriptionPayload, CreateTranscriptionConfig, File, GetConcurrencyLimitsResponse, GetFilesCountResponse, GetFilesPayload, GetFilesResponse, GetModelsResponse, GetTTSModelsResponse, GetTtsModelsResponse, GetTranscriptionsCountResponse, GetTranscriptionsPayload, GetTranscriptionsResponse, GetUsageLogsPayload, GetUsageLogsResponse, Language, LanguageCode, SupportedLanguage, Model, RealtimeSTTAudioFormat, RealtimeSTTHeaderFormat, RealtimeSTTRawFormat, StructuredContext, StructuredContextGeneralInput, StructuredContextGeneralItem, StructuredContextInput, StructuredContextTranslationTerm, StructuredContextTranslationTermsInput, Transcription, TranscriptionStatus, TranscriptionTranscript, TranslationConfig, TranslationConfigInput, TranslationTarget, TranslationType, TTSModel, TTSVoice, TtsAudioFormat, TtsBitrate, TtsModel, TtsSampleRate, TtsVoice, TtsVoiceGender, TemporaryApiKeyUsageType, UploadFilePayload, UsageLogEntry, UsageLogsSort, RealtimeEvent, RealtimeSTTConfig, RealtimeTTSConfig, RealtimeTTSEvent, RealtimeTTSTextMessage, Headers, WebhookAuthConfig, WebhookEvent"
+keywords: "Token, ApiError, ApiErrorValidationError, CreateTemporaryApiKeyPayload, CreateTemporaryApiKeyResponse, CreateTtsPayload, ConcurrencyCurrentValues, ConcurrencyLimitValues, ConcurrencyScopeValues, CreateTtsConfig, CreateTranscriptionPayload, CreateTranscriptionConfig, File, GetConcurrencyLimitsResponse, GetFilesCountResponse, GetFilesPayload, GetFilesResponse, GetModelsResponse, GetTTSModelsResponse, GetTtsModelsResponse, GetTranscriptionsCountResponse, GetTranscriptionsPayload, GetTranscriptionsResponse, GetUsageLogsPayload, GetUsageLogsResponse, GetVoicesCountResponse, GetVoicesPayload, GetVoicesResponse, Language, LanguageCode, SupportedLanguage, Model, RealtimeSTTAudioFormat, RealtimeSTTHeaderFormat, RealtimeSTTRawFormat, RecomputeVoicePayload, StructuredContext, StructuredContextGeneralInput, StructuredContextGeneralItem, StructuredContextInput, StructuredContextTranslationTerm, StructuredContextTranslationTermsInput, Transcription, TranscriptionStatus, TranscriptionTranscript, TranslationConfig, TranslationConfigInput, TranslationTarget, TranslationType, TTSModel, TTSVoice, TtsAudioFormat, TtsBitrate, TtsModel, TtsSampleRate, TtsVoice, TtsVoiceGender, TemporaryApiKeyUsageType, UploadFilePayload, UsageLogEntry, UsageLogsSort, Voice, VoiceModel, VoiceModelStatus, RealtimeEvent, RealtimeSTTConfig, RealtimeTTSConfig, RealtimeTTSEvent, RealtimeTTSTextMessage, TtsTimestamps, Headers, WebhookAuthConfig, WebhookEvent"
 ---
 
 ---
@@ -112,6 +112,7 @@ Payload sent to generate speech audio from text via REST.
 | `audio_format` | `TtsAudioFormat` | Requested output audio format. |
 | `sample_rate` | `TtsSampleRate \| None` | Output sample rate in Hz. |
 | `bitrate` | `TtsBitrate \| None` | Output bitrate in bits-per-second for compressed formats. |
+| `speed` | `float \| None` | Speaking rate multiplier from 0.7 to 1.3; 1.0 (default) is normal speed. |
 | `text` | `str` | Input text to generate into speech. |
 
 ---
@@ -177,6 +178,7 @@ Helper config used when building Text-to-Speech payloads.
 | `audio_format` | `TtsAudioFormat \| None` | Requested output audio format. |
 | `sample_rate` | `TtsSampleRate \| None` | Output sample rate in Hz. |
 | `bitrate` | `TtsBitrate \| None` | Output bitrate in bits-per-second for compressed formats. |
+| `speed` | `float \| None` | Speaking rate multiplier from 0.7 to 1.3; 1.0 (default) is normal speed. |
 
 ---
 
@@ -426,6 +428,50 @@ Paginated response for usage-log listings.
 
 ---
 
+## GetVoicesCountResponse
+
+Total number of voices in the project.
+
+<a id="getvoicescountresponse-properties"></a>
+
+### Properties
+
+| Property | Type | Description |
+| ------ | ------ | ------ |
+| `total` | `int` | Total number of voices in the project. |
+
+---
+
+## GetVoicesPayload
+
+Parameters for listing voices.
+
+<a id="getvoicespayload-properties"></a>
+
+### Properties
+
+| Property | Type | Description |
+| ------ | ------ | ------ |
+| `limit` | `int` | Maximum number of voices to return. |
+| `cursor` | `str \| None` | Pagination cursor for the next page of results. |
+
+---
+
+## GetVoicesResponse
+
+Response returned when listing voices.
+
+<a id="getvoicesresponse-properties"></a>
+
+### Properties
+
+| Property | Type | Description |
+| ------ | ------ | ------ |
+| `voices` | `list[Voice]` | List of voices. |
+| `next_page_cursor` | `str \| None` | Pagination token for the next page of results, or None when no more results. |
+
+---
+
 ## Language
 
 Deprecated alias for :class:`SupportedLanguage`.
@@ -477,6 +523,9 @@ Describes a Soniox transcription model.
 | `languages` | `list[SupportedLanguage]` | List of languages supported by the model. |
 | `supports_language_hints_strict` | `bool` | If model supports 'language_hints_strict' option. |
 | `supports_max_endpoint_delay` | `bool` | If model supports 'max_endpoint_delay_ms' option. |
+| `supports_endpoint_sensitivity` | `bool` | If model supports the 'endpoint_sensitivity' option. |
+| `supports_endpoint_latency_adjustment` | `bool` | If model supports the 'endpoint_latency_adjustment_level' option. |
+| `endpoint_latency_adjustment_max_level` | `int` | Maximum endpoint_latency_adjustment_level the model accepts (0 means unsupported). |
 | `translation_targets` | `list[TranslationTarget]` | List of supported one-way translation targets. If list is empty, check for one_way_translation field. |
 | `two_way_translation_pairs` | `list[str]` | List of supported two-way translation pairs. If list is empty, check for one_way_translation field. |
 | `one_way_translation` | `str \| None` | When contains string 'all_languages', any language from languages can be used |
@@ -548,6 +597,20 @@ RealtimeSTTRawFormat = Literal[
 ```
 
 Raw formats with no header - require ``sample_rate`` and ``num_channels``.
+
+---
+
+## RecomputeVoicePayload
+
+Body for preparing a voice for additional models.
+
+<a id="recomputevoicepayload-properties"></a>
+
+### Properties
+
+| Property | Type | Description |
+| ------ | ------ | ------ |
+| `model` | `str \| None` | Model to prepare the voice for. If None, prepares it for every not-yet-ready model. |
 
 ---
 
@@ -837,6 +900,10 @@ Represents a Text-to-Speech model.
 | `name` | `str` | Name of the model. |
 | `voices` | `list[TtsVoice]` | Voices supported by this model. |
 | `languages` | `list[SupportedLanguage]` | Languages supported by this model. |
+| `supports_timestamps` | `bool` | If model supports character-to-audio timestamps ('return_timestamps'). |
+| `supports_speed_adjustment` | `bool` | If model supports adjusting the speaking rate via the 'speed' parameter. |
+| `speed_min` | `float \| None` | Minimum supported speaking rate (None when speed adjustment is unsupported). |
+| `speed_max` | `float \| None` | Maximum supported speaking rate (None when speed adjustment is unsupported). |
 
 ---
 
@@ -950,6 +1017,53 @@ Sort order for usage-log entries by end_time.
 
 ---
 
+## Voice
+
+A cloned Text-to-Speech voice created from a reference audio clip.
+
+<a id="voice-properties"></a>
+
+### Properties
+
+| Property | Type | Description |
+| ------ | ------ | ------ |
+| `id` | `str` | Unique identifier of the voice. |
+| `name` | `str` | Name of the voice, unique within the project. |
+| `filename` | `str` | Original file name of the uploaded reference clip. |
+| `created_at` | `datetime` | UTC timestamp indicating when the voice was created. |
+| `models` | `list[VoiceModel]` | Voice readiness status for each available model. |
+
+---
+
+## VoiceModel
+
+Per-model readiness status of a voice.
+
+<a id="voicemodel-properties"></a>
+
+### Properties
+
+| Property | Type | Description |
+| ------ | ------ | ------ |
+| `model` | `str` | Name of the model. |
+| `status` | `VoiceModelStatus` | Has to be 'ready' for the voice to be usable with this model. |
+| `error_type` | `str \| None` | Machine-readable error category when status is 'failed'; None otherwise. |
+| `error_message` | `str \| None` | Human-readable error message when status is 'failed'; None otherwise. |
+
+---
+
+<a id="voicemodelstatus"></a>
+
+## VoiceModelStatus
+
+```python
+VoiceModelStatus = Literal["not_computed", "processing", "ready", "failed"]
+```
+
+Readiness of a voice for a given model. Must be 'ready' to use the voice with that model.
+
+---
+
 ## RealtimeEvent
 
 Event payload received from the realtime STT websocket.
@@ -1052,6 +1166,8 @@ Configuration for initiating a realtime Text-to-Speech stream.
 | `audio_format` | `TtsAudioFormat` | Requested output audio format. |
 | `sample_rate` | `TtsSampleRate \| None` | Output sample rate in Hz. |
 | `bitrate` | `TtsBitrate \| None` | Output bitrate in bits-per-second for compressed formats. |
+| `speed` | `float \| None` | Speaking rate multiplier from 0.7 to 1.3; 1.0 (default) is normal speed. |
+| `return_timestamps` | `bool \| None` | Request character-to-audio timestamps on response events. Defaults to false. |
 
 <a id="realtimettsconfig-build_payload"></a>
 
@@ -1089,6 +1205,7 @@ Event payload received from the realtime Text-to-Speech websocket.
 | `terminated` | `bool` | Whether the stream has been fully terminated. |
 | `error_code` | `int \| None` | Error code if the Text-to-Speech stream failed. |
 | `error_message` | `str \| None` | Human-readable error message. |
+| `timestamps` | `TtsTimestamps \| None` | Character-to-audio alignment for this chunk, when ``return_timestamps`` is set. |
 
 <a id="realtimettsevent-validate_event"></a>
 
@@ -1139,6 +1256,25 @@ Text chunk message sent over realtime Text-to-Speech websocket.
 | `text` | `str` | Text chunk to generate into speech. |
 | `text_end` | `bool` | Whether this message marks the final text chunk for the stream. |
 | `stream_id` | `str` | Stream identifier the chunk belongs to. |
+
+---
+
+## TtsTimestamps
+
+Character-to-audio alignment attached to realtime Text-to-Speech events.
+
+The three arrays are parallel and equal-length: each index maps one character
+of the (preprocessed) spoken text to the audio span that pronounces it.
+
+<a id="ttstimestamps-properties"></a>
+
+### Properties
+
+| Property | Type | Description |
+| ------ | ------ | ------ |
+| `characters` | `list[str]` | One entry per character (Unicode codepoint) of the spoken text. |
+| `character_start_times_seconds` | `list[float]` | Start time of each character, in seconds. |
+| `character_end_times_seconds` | `list[float]` | End time of each character, in seconds. |
 
 ---
 
