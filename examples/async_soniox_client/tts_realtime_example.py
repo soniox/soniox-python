@@ -9,8 +9,9 @@ from soniox.utils import output_file_for_audio_format
 
 MODEL = "tts-rt-v1"
 LANGUAGE = "en"
-VOICE = "Maya"
+VOICE = "Maya"  # a built-in voice name, or a cloned voice id from client.voices.create()
 AUDIO_FORMAT: TtsAudioFormat = "wav"
+SPEED = 1.1  # speaking rate, 0.7-1.3 (1.0 is normal speed)
 
 TEXT_CHUNKS = [
     "Welcome to Soniox real-time Text-to-Speech. ",
@@ -34,6 +35,8 @@ async def main() -> None:
         language=LANGUAGE,
         voice=VOICE,
         audio_format=AUDIO_FORMAT,
+        speed=SPEED,
+        return_timestamps=True,  # ask for character-to-audio timestamps on each event
     )
 
     audio_chunks: list[bytes] = []
@@ -44,8 +47,14 @@ async def main() -> None:
                 name="tts-async-sender",
             )
             try:
-                async for chunk in connection.receive_audio_chunks():
-                    audio_chunks.append(chunk)
+                # Iterate events (not just audio chunks) so we can read timestamps too.
+                async for event in connection.receive_events():
+                    chunk = event.audio_bytes()
+                    if chunk:
+                        audio_chunks.append(chunk)
+                    if event.timestamps:
+                        spoken = "".join(event.timestamps.characters)
+                        print(f"timestamps for {spoken!r}")
             except SonioxRealtimeError as exc:
                 print("Realtime TTS error (keeping partial audio):", exc)
             await asyncio.gather(send_task, return_exceptions=True)

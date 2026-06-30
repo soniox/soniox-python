@@ -4,6 +4,7 @@ The SDK exposes two clients: `SonioxClient` (sync) and `AsyncSonioxClient` (asyn
 
 - STT over REST (`client.stt`) and realtime WebSocket (`client.realtime.stt`)
 - TTS over REST (`client.tts`) and realtime WebSocket (`client.realtime.tts`)
+- voice cloning (`client.voices`) - clone a voice from a reference clip and use it in TTS
 - auth, file uploads, model listing, webhooks, and typed request/response models
 
 ## Install
@@ -57,6 +58,16 @@ client.close()
 ```
 
 Run the full example at [`examples/soniox_client/tts_api_example.py`](https://github.com/soniox/soniox-python/blob/main/examples/soniox_client/tts_api_example.py) or async version at [`examples/async_soniox_client/tts_api_example.py`](https://github.com/soniox/soniox-python/blob/main/examples/async_soniox_client/tts_api_example.py).
+
+The `voice` above is a built-in voice name. You can also **clone a voice** from a reference audio clip and pass the returned voice id as `voice`:
+
+```python
+voice = client.voices.create("reference.wav", name="my-cloned-voice")
+# Cloning runs asynchronously; poll client.voices.get(voice.id) until a model
+# reports status "ready", then synthesize with voice=voice.id.
+```
+
+See the [voice cloning guide](https://soniox.com/docs/tts/concepts/voice-cloning) for details.
 
 3. **Realtime STT streaming**: open `client.realtime.stt.connect`, call `session.send_byte_chunk` or `session.send_bytes`, then iterate `session.receive_events()` to render tokens:
 
