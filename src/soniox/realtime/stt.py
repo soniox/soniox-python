@@ -95,6 +95,7 @@ class RealtimeSTTSession:
             self._ws = sync_ws_connect(
                 self._url,
                 open_timeout=self._connect_timeout_sec,
+                ping_interval=None,
             )
         except TimeoutError as exc:
             raise SonioxRealtimeError("Connection timed out") from exc
