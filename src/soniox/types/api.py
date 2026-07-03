@@ -137,7 +137,10 @@ class GetFilesPayload(BaseModel):
 
 
 class File(BaseModel):
-    """Metadata describing an uploaded file in the Soniox API."""
+    """Metadata describing an uploaded file in the Soniox API.
+
+    Uploaded files are automatically deleted 30 days after upload.
+    """
 
     id: str
     """Unique identifier of the file (UUID)."""
@@ -716,7 +719,10 @@ class TranscriptionTranscript(BaseModel):
 
 
 class Transcription(BaseModel):
-    """Represents a transcription job tracked by Soniox."""
+    """Represents a transcription job tracked by Soniox.
+
+    Transcriptions are automatically deleted 30 days after creation.
+    """
 
     id: str
     """Unique identifier of the transcription (UUID)."""

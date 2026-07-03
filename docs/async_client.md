@@ -324,6 +324,8 @@ Upload a file.
 
 Performs a multipart POST request to ``/files``.
 
+Uploaded files are automatically deleted 30 days after upload.
+
 **Parameters**
 
 | Parameter | Type | Description |
@@ -508,6 +510,8 @@ create(*, model: str = DEFAULT_MODEL, file_id: str | None = None, audio_url: str
 Create a transcription.
 
 Performs a POST request to ``/transcriptions``.
+
+Transcriptions are automatically deleted 30 days after creation.
 
 **Parameters**
 

@@ -100,6 +100,8 @@ class SttAPI:
 
         Performs a POST request to ``/transcriptions``.
 
+        Transcriptions are automatically deleted 30 days after creation.
+
         Raises:
             SonioxAPIError: When the API returns an error.
         """

@@ -236,6 +236,8 @@ Helper config used when building transcription payloads.
 
 Metadata describing an uploaded file in the Soniox API.
 
+Uploaded files are automatically deleted 30 days after upload.
+
 <a id="file-properties"></a>
 
 ### Properties
@@ -706,6 +708,8 @@ Accepted input shapes for ``StructuredContext.translation_terms``.
 ## Transcription
 
 Represents a transcription job tracked by Soniox.
+
+Transcriptions are automatically deleted 30 days after creation.
 
 <a id="transcription-properties"></a>
 

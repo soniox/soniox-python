@@ -138,6 +138,8 @@ class AsyncFilesAPI:
 
         Performs a multipart POST request to ``/files``.
 
+        Uploaded files are automatically deleted 30 days after upload.
+
         Raises:
             SonioxAPIError: When the API returns an error.
         """

@@ -7,6 +7,7 @@ The SDK exposes two clients: `SonioxClient` (sync) and `AsyncSonioxClient` (asyn
 - voice cloning (`client.voices`) - clone a voice from a reference clip and use it in TTS
 - auth, file uploads, model listing, webhooks, and typed request/response models
 
+
 ## Install
 
 ```bash
