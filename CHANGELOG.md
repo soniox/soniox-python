@@ -73,6 +73,26 @@ Examples:
 
 ---
 
+## [2.9.0] - 11 aug 2026
+
+### Added
+
+- `client.usage.summary()` (and async variant) returning daily cost and activity for a project, per model and in total.
+- `client.concurrency_limits.history()` (and async variant) returning historical concurrent stream counts per minute, hour, or day, for `stt` or `tts`.
+- `reduce_silence` on `CreateTtsConfig` and `RealtimeTTSConfig`, shortening the pauses between words. Supported models report `supports_silence_reduction` in `TtsModel`.
+
+### Changed
+
+- Default TTS model is now `tts-rt-v2` (previously `tts-rt-v1`).
+
+### Deprecated
+
+### Fixed
+
+### Removed
+
+---
+
 ## [2.8.0] - 30 jun 2026
 
 ### Added
