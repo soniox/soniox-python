@@ -10,7 +10,7 @@ if TYPE_CHECKING:
     from ..client import AsyncSonioxClient
 
 
-DEFAULT_MODEL = "tts-rt-v1"
+DEFAULT_MODEL = "tts-rt-v2"
 DEFAULT_VOICE = "Adrian"
 
 

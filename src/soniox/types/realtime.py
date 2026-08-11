@@ -164,6 +164,9 @@ class RealtimeTTSConfig(BaseModel):
     speed: float | None = Field(default=None, ge=0.7, le=1.3)
     """Speaking rate multiplier from 0.7 to 1.3; 1.0 (default) is normal speed."""
 
+    reduce_silence: bool | None = None
+    """Shorten the pauses between words. Only for models with 'supports_silence_reduction'."""
+
     return_timestamps: bool | None = None
     """Request character-to-audio timestamps on response events. Defaults to false."""
 

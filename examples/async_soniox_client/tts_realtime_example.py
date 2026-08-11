@@ -7,7 +7,7 @@ from soniox.errors import SonioxRealtimeError
 from soniox.types import RealtimeTTSConfig, TtsAudioFormat
 from soniox.utils import output_file_for_audio_format
 
-MODEL = "tts-rt-v1"
+MODEL = "tts-rt-v2"
 LANGUAGE = "en"
 VOICE = "Maya"  # a built-in voice name, or a cloned voice id from client.voices.create()
 AUDIO_FORMAT: TtsAudioFormat = "wav"

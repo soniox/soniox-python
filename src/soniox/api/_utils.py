@@ -192,6 +192,7 @@ def build_tts_payload(
             "sample_rate": settings.get("sample_rate"),
             "bitrate": settings.get("bitrate"),
             "speed": settings.get("speed"),
+            "reduce_silence": settings.get("reduce_silence"),
         }
     )
 

@@ -47,6 +47,27 @@ def test_generate_sends_speed_from_config(client: SonioxClient) -> None:
 
 
 @respx.mock
+def test_generate_sends_reduce_silence_from_config(client: SonioxClient) -> None:
+    route = _mock_tts_endpoint()
+
+    client.tts.generate(
+        text="hi", voice="Adrian", language="en", config=CreateTtsConfig(reduce_silence=True)
+    )
+
+    assert json.loads(route.calls.last.request.content)["reduce_silence"] is True
+
+
+@respx.mock
+def test_generate_omits_reduce_silence_when_unset(client: SonioxClient) -> None:
+    """exclude_none keeps the field off the wire, so models without support are unaffected."""
+    route = _mock_tts_endpoint()
+
+    client.tts.generate(text="hi", voice="Adrian", language="en")
+
+    assert "reduce_silence" not in json.loads(route.calls.last.request.content)
+
+
+@respx.mock
 def test_generate_without_language_warns_and_defaults_en(client: SonioxClient) -> None:
     """Omitting language is deprecated: warns now, still defaults to 'en' until next major."""
     route = _mock_tts_endpoint()

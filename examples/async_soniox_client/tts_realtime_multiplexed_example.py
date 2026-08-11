@@ -6,7 +6,7 @@ from soniox.client import AsyncSonioxClient
 from soniox.types import RealtimeTTSConfig, TtsAudioFormat
 from soniox.utils import output_file_for_audio_format
 
-MODEL = "tts-rt-v1"
+MODEL = "tts-rt-v2"
 AUDIO_FORMAT: TtsAudioFormat = "wav"
 
 STREAM_SPECS = {

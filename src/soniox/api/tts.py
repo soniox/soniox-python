@@ -10,7 +10,7 @@ if TYPE_CHECKING:
     from ..client import SonioxClient
 
 
-DEFAULT_MODEL = "tts-rt-v1"
+DEFAULT_MODEL = "tts-rt-v2"
 DEFAULT_VOICE = "Adrian"
 
 
