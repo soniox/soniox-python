@@ -1,7 +1,7 @@
 ---
 title: "Types"
 description: "Soniox Python SDK - Types Reference"
-keywords: "Token, ApiError, ApiErrorValidationError, CreateTemporaryApiKeyPayload, CreateTemporaryApiKeyResponse, CreateTtsPayload, ConcurrencyCurrentValues, ConcurrencyLimitValues, ConcurrencyScopeValues, CreateTtsConfig, CreateTranscriptionPayload, CreateTranscriptionConfig, File, GetConcurrencyLimitsResponse, GetFilesCountResponse, GetFilesPayload, GetFilesResponse, GetModelsResponse, GetTTSModelsResponse, GetTtsModelsResponse, GetTranscriptionsCountResponse, GetTranscriptionsPayload, GetTranscriptionsResponse, GetUsageLogsPayload, GetUsageLogsResponse, GetVoicesCountResponse, GetVoicesPayload, GetVoicesResponse, Language, LanguageCode, SupportedLanguage, Model, RealtimeSTTAudioFormat, RealtimeSTTHeaderFormat, RealtimeSTTRawFormat, RecomputeVoicePayload, StructuredContext, StructuredContextGeneralInput, StructuredContextGeneralItem, StructuredContextInput, StructuredContextTranslationTerm, StructuredContextTranslationTermsInput, Transcription, TranscriptionStatus, TranscriptionTranscript, TranslationConfig, TranslationConfigInput, TranslationTarget, TranslationType, TTSModel, TTSVoice, TtsAudioFormat, TtsBitrate, TtsModel, TtsSampleRate, TtsVoice, TtsVoiceGender, TemporaryApiKeyUsageType, UploadFilePayload, UsageLogEntry, UsageLogsSort, Voice, VoiceModel, VoiceModelStatus, RealtimeEvent, RealtimeSTTConfig, RealtimeTTSConfig, RealtimeTTSEvent, RealtimeTTSTextMessage, TtsTimestamps, Headers, WebhookAuthConfig, WebhookEvent"
+keywords: "Token, ApiError, ApiErrorValidationError, CreateTemporaryApiKeyPayload, CreateTemporaryApiKeyResponse, CreateTtsPayload, ConcurrencyCurrentValues, ConcurrencyLimitValues, ConcurrencyScopeValues, CreateTtsConfig, CreateTranscriptionPayload, CreateTranscriptionConfig, File, GetConcurrencyLimitsResponse, GetFilesCountResponse, GetFilesPayload, GetFilesResponse, GetModelsResponse, GetTTSModelsResponse, GetTtsModelsResponse, GetTranscriptionsCountResponse, GetTranscriptionsPayload, GetTranscriptionsResponse, GetUsageLogsPayload, GetUsageLogsResponse, GetConcurrentStreamsHistoryPayload, GetConcurrentStreamsHistoryResponse, GetUsageSummaryPayload, GetUsageSummaryResponse, GetVoicesCountResponse, GetVoicesPayload, GetVoicesResponse, Language, LanguageCode, SupportedLanguage, Model, RealtimeSTTAudioFormat, RealtimeSTTHeaderFormat, RealtimeSTTRawFormat, RecomputeVoicePayload, StructuredContext, StructuredContextGeneralInput, StructuredContextGeneralItem, StructuredContextInput, StructuredContextTranslationTerm, StructuredContextTranslationTermsInput, Transcription, TranscriptionStatus, TranscriptionTranscript, TranslationConfig, TranslationConfigInput, TranslationTarget, TranslationType, TTSModel, TTSVoice, TtsAudioFormat, TtsBitrate, TtsModel, TtsSampleRate, TtsVoice, TtsVoiceGender, TemporaryApiKeyUsageType, UploadFilePayload, UsageLogEntry, ConcurrentStreamKind, ConcurrentStreamsHistoryEntry, ConcurrentStreamsPeriodSec, UsageLogsSort, UsageSummaryEntry, Voice, VoiceModel, VoiceModelStatus, RealtimeEvent, RealtimeSTTConfig, RealtimeTTSConfig, RealtimeTTSEvent, RealtimeTTSTextMessage, TtsTimestamps, Headers, WebhookAuthConfig, WebhookEvent"
 ---
 
 ---
@@ -113,6 +113,7 @@ Payload sent to generate speech audio from text via REST.
 | `sample_rate` | `TtsSampleRate \| None` | Output sample rate in Hz. |
 | `bitrate` | `TtsBitrate \| None` | Output bitrate in bits-per-second for compressed formats. |
 | `speed` | `float \| None` | Speaking rate multiplier from 0.7 to 1.3; 1.0 (default) is normal speed. |
+| `reduce_silence` | `bool \| None` | Shorten the pauses between words. Only for models with 'supports_silence_reduction'. |
 | `text` | `str` | Input text to generate into speech. |
 
 ---
@@ -179,6 +180,7 @@ Helper config used when building Text-to-Speech payloads.
 | `sample_rate` | `TtsSampleRate \| None` | Output sample rate in Hz. |
 | `bitrate` | `TtsBitrate \| None` | Output bitrate in bits-per-second for compressed formats. |
 | `speed` | `float \| None` | Speaking rate multiplier from 0.7 to 1.3; 1.0 (default) is normal speed. |
+| `reduce_silence` | `bool \| None` | Shorten the pauses between words. Only for models with 'supports_silence_reduction'. |
 
 ---
 
@@ -427,6 +429,68 @@ Paginated response for usage-log listings.
 | ------ | ------ | ------ |
 | `usage_logs` | `list[UsageLogEntry]` | Per-request usage log entries ordered by end_time. |
 | `next_page_cursor` | `str \| None` | Pagination cursor for the next page of results. None if no more pages. |
+
+---
+
+## GetConcurrentStreamsHistoryPayload
+
+Parameters accepted by the concurrent streams history endpoint.
+
+<a id="getconcurrentstreamshistorypayload-properties"></a>
+
+### Properties
+
+| Property | Type | Description |
+| ------ | ------ | ------ |
+| `start_time` | `str` | Start of the window (inclusive), ISO 8601 UTC. Filters by ``period_start``. |
+| `end_time` | `str` | End of the window (exclusive), ISO 8601 UTC. Must be strictly after ``start_time``. |
+| `period_sec` | `ConcurrentStreamsPeriodSec` | Aggregation period. Also caps how long the requested window may be. |
+| `kind` | `ConcurrentStreamKind` | Stream kind to return. |
+
+---
+
+## GetConcurrentStreamsHistoryResponse
+
+Per-period concurrent stream aggregates for a project.
+
+<a id="getconcurrentstreamshistoryresponse-properties"></a>
+
+### Properties
+
+| Property | Type | Description |
+| ------ | ------ | ------ |
+| `kind` | `ConcurrentStreamKind` | Stream kind these entries describe. |
+| `entries` | `list[ConcurrentStreamsHistoryEntry]` | Aggregates ordered by ``period_start`` ascending. Every period in the window is present with no gaps; periods without activity have every field set to 0. |
+
+---
+
+## GetUsageSummaryPayload
+
+Parameters accepted by the usage summary endpoint.
+
+<a id="getusagesummarypayload-properties"></a>
+
+### Properties
+
+| Property | Type | Description |
+| ------ | ------ | ------ |
+| `start_time` | `str` | Start of the time window (inclusive), ISO 8601 UTC. |
+| `end_time` | `str` | End of the time window (exclusive), ISO 8601 UTC. At most 366 days after start. |
+
+---
+
+## GetUsageSummaryResponse
+
+Daily cost and activity for a project, per model and across all models.
+
+<a id="getusagesummaryresponse-properties"></a>
+
+### Properties
+
+| Property | Type | Description |
+| ------ | ------ | ------ |
+| `total` | `UsageSummaryEntry` | Totals across all models. Its ``model`` is None. |
+| `models` | `list[UsageSummaryEntry]` | One entry per model that recorded usage. Empty when the project had none. |
 
 ---
 
@@ -908,6 +972,7 @@ Represents a Text-to-Speech model.
 | `supports_speed_adjustment` | `bool` | If model supports adjusting the speaking rate via the 'speed' parameter. |
 | `speed_min` | `float \| None` | Minimum supported speaking rate (None when speed adjustment is unsupported). |
 | `speed_max` | `float \| None` | Maximum supported speaking rate (None when speed adjustment is unsupported). |
+| `supports_silence_reduction` | `bool` | If model supports shortening pauses between words via 'reduce_silence'. |
 
 ---
 
@@ -1009,6 +1074,50 @@ A single usage-log entry describing one API request.
 
 ---
 
+<a id="concurrentstreamkind"></a>
+
+## ConcurrentStreamKind
+
+```python
+ConcurrentStreamKind = Literal["stt", "tts"]
+```
+
+Stream kind: `stt` for Speech-to-Text sessions, `tts` for Text-to-Speech streams.
+
+---
+
+## ConcurrentStreamsHistoryEntry
+
+Concurrent stream counts aggregated over one period.
+
+<a id="concurrentstreamshistoryentry-properties"></a>
+
+### Properties
+
+| Property | Type | Description |
+| ------ | ------ | ------ |
+| `period_start` | `datetime` | Start of the aggregation period, UTC. Aligned to a multiple of ``period_sec``. |
+| `period_sec` | `int` | Aggregation period in seconds. |
+| `sample_min` | `int` | Lowest recorded count in the period. Always 0; use ``sample_max`` for the peak. |
+| `sample_max` | `int` | Peak concurrent stream count in the period. Exact even when rolled up to hours or days. |
+| `sample_sum` | `int` | Sum of recorded concurrency values. Divide by ``sample_count`` for the average while streams were active, or by ``total_count`` to count idle slots as zero. |
+| `sample_count` | `int` | Number of values actually recorded in the period. 0 when the period had no activity. |
+| `total_count` | `int` | Number of slots the period covers: 1 for per-minute, 60 for hourly, 24 for daily. |
+
+---
+
+<a id="concurrentstreamsperiodsec"></a>
+
+## ConcurrentStreamsPeriodSec
+
+```python
+ConcurrentStreamsPeriodSec = Literal[60, 3600, 86400]
+```
+
+Aggregation period in seconds: per-minute, hourly, or daily.
+
+---
+
 <a id="usagelogssort"></a>
 
 ## UsageLogsSort
@@ -1017,7 +1126,47 @@ A single usage-log entry describing one API request.
 UsageLogsSort = Literal["end_time_asc", "end_time_desc"]
 ```
 
-Sort order for usage-log entries by end_time.
+---
+
+## UsageSummaryEntry
+
+Daily usage rolled up for one model, or for all models when ``model`` is None.
+
+The per-day lists are aligned by index with ``days``; every day in the window is
+present, so days without usage are zeros.
+
+<a id="usagesummaryentry-properties"></a>
+
+### Properties
+
+| Property | Type | Description |
+| ------ | ------ | ------ |
+| `model` | `str \| None` | Model identifier, or None for the entry totalling all models. |
+| `days` | `list[date]` | UTC dates covered, ascending. Indexes into every per-day list below. |
+| `total_cost_usd` | `str` | - |
+| `total_input_cost_usd` | `str` | - |
+| `total_output_cost_usd` | `str` | - |
+| `total_duration_cost_usd` | `str` | - |
+| `cost_usd` | `list[str]` | - |
+| `input_cost_usd` | `list[str]` | - |
+| `output_cost_usd` | `list[str]` | - |
+| `duration_cost_usd` | `list[str]` | - |
+| `total_num_requests` | `int` | - |
+| `total_input_text_tokens` | `int` | - |
+| `total_input_audio_tokens` | `int` | - |
+| `total_input_audio_duration_ms` | `int` | - |
+| `total_output_text_tokens` | `int` | - |
+| `total_output_audio_tokens` | `int` | - |
+| `total_output_audio_duration_ms` | `int` | - |
+| `total_duration_ms` | `int` | - |
+| `num_requests` | `list[int]` | - |
+| `input_text_tokens` | `list[int]` | - |
+| `input_audio_tokens` | `list[int]` | - |
+| `input_audio_duration_ms` | `list[int]` | - |
+| `output_text_tokens` | `list[int]` | - |
+| `output_audio_tokens` | `list[int]` | - |
+| `output_audio_duration_ms` | `list[int]` | - |
+| `duration_ms` | `list[int]` | - |
 
 ---
 
@@ -1171,6 +1320,7 @@ Configuration for initiating a realtime Text-to-Speech stream.
 | `sample_rate` | `TtsSampleRate \| None` | Output sample rate in Hz. |
 | `bitrate` | `TtsBitrate \| None` | Output bitrate in bits-per-second for compressed formats. |
 | `speed` | `float \| None` | Speaking rate multiplier from 0.7 to 1.3; 1.0 (default) is normal speed. |
+| `reduce_silence` | `bool \| None` | Shorten the pauses between words. Only for models with 'supports_silence_reduction'. |
 | `return_timestamps` | `bool \| None` | Request character-to-audio timestamps on response events. Defaults to false. |
 
 <a id="realtimettsconfig-build_payload"></a>

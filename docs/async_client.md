@@ -46,17 +46,18 @@ AsyncSonioxClient(api_key: str | None = None, api_base_url: str | None = None, w
 
 | Property | Type | Description |
 | ------ | ------ | ------ |
-| `files` | `AsyncFilesAPI` | List of uploaded files. |
+| `files` | `AsyncFilesAPI` | File upload and management API namespace. |
 | `stt` | `AsyncSttAPI` | Speech-to-text API namespace. |
-| `tts` | `AsyncTtsAPI` | Text-to-Speech API namespace |
-| `models` | `AsyncModelsAPI` | Voice readiness status for each available model. |
-| `tts_models` | `AsyncTtsModelsAPI` | - |
-| `voices` | `AsyncVoicesAPI` | Voices supported by this model. |
-| `usage_logs` | `AsyncUsageLogsAPI` | Per-request usage log entries ordered by end_time. |
-| `concurrency_limits` | `AsyncConcurrencyLimitsAPI` | - |
+| `tts` | `AsyncTtsAPI` | Text-to-Speech API namespace. |
+| `models` | `AsyncModelsAPI` | Speech-to-text model listing API namespace. |
+| `tts_models` | `AsyncTtsModelsAPI` | Text-to-Speech model listing API namespace. |
+| `voices` | `AsyncVoicesAPI` | Voice cloning and voice management API namespace. |
+| `usage_logs` | `AsyncUsageLogsAPI` | Per-request usage log API namespace. |
+| `usage` | `AsyncUsageAPI` | Usage and cost summary API namespace. |
+| `concurrency_limits` | `AsyncConcurrencyLimitsAPI` | Concurrency limit API namespace. |
 | `auth` | `AsyncAuthAPI` | Authentication API namespace. |
 | `webhooks` | `AsyncSonioxWebhooksAPI` | Webhook utilities API namespace. |
-| `realtime` | `AsyncRealtimeAPI` | Entrypoint for async realtime helpers on AsyncSonioxClient. |
+| `realtime` | `AsyncRealtimeAPI` | Realtime websocket API namespace (STT and TTS). |
 
 <a id="asyncsonioxclient-request"></a>
 
@@ -1519,6 +1520,37 @@ Performs a GET request to ``/concurrency-limits``.
 
 Project- and organization-scoped current counts and configured
 limits for realtime STT and TTS sessions.
+
+**Raises**
+
+- `SonioxAPIError` When the API returns an error.
+
+***
+
+<a id="asyncconcurrencylimitsapi-history"></a>
+
+### history()
+
+```python
+history(start_time: str, end_time: str, *, period_sec: ConcurrentStreamsPeriodSec, kind: ConcurrentStreamKind) -> GetConcurrentStreamsHistoryResponse
+```
+
+Get historical concurrent stream counts, aggregated per period.
+
+Performs a GET request to ``/concurrent-streams-history``.
+
+**Parameters**
+
+| Parameter | Type | Description |
+| ------ | ------ | ------ |
+| `start_time` | `str` | Start of the window (inclusive), ISO 8601 UTC. |
+| `end_time` | `str` | End of the window (exclusive), ISO 8601 UTC, after ``start_time``. |
+| `period_sec` | `ConcurrentStreamsPeriodSec` | Aggregation period: 60, 3600, or 86400. Also caps the window length the server accepts (7 days for 60). |
+| `kind` | `ConcurrentStreamKind` | ``stt`` for Speech-to-Text sessions, ``tts`` for Text-to-Speech. |
+
+**Returns**
+
+`GetConcurrentStreamsHistoryResponse`
 
 **Raises**
 
