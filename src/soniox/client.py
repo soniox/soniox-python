@@ -18,6 +18,7 @@ if TYPE_CHECKING:
     from .api.async_stt import AsyncSttAPI
     from .api.async_tts import AsyncTtsAPI
     from .api.async_tts_models import AsyncTtsModelsAPI
+    from .api.async_usage import AsyncUsageAPI
     from .api.async_usage_logs import AsyncUsageLogsAPI
     from .api.async_voices import AsyncVoicesAPI
     from .api.async_webhooks import AsyncSonioxWebhooksAPI
@@ -28,6 +29,7 @@ if TYPE_CHECKING:
     from .api.stt import SttAPI
     from .api.tts import TtsAPI
     from .api.tts_models import TtsModelsAPI
+    from .api.usage import UsageAPI
     from .api.usage_logs import UsageLogsAPI
     from .api.voices import VoicesAPI
     from .api.webhooks import SonioxWebhooksAPI
@@ -128,60 +130,77 @@ class SonioxClient(_BaseSonioxClient):
 
     @cached_property
     def files(self) -> FilesAPI:
+        """File upload and management API namespace."""
         from .api.files import FilesAPI
 
         return FilesAPI(self)
 
     @cached_property
     def stt(self) -> SttAPI:
+        """Speech-to-text API namespace."""
         from .api.stt import SttAPI
 
         return SttAPI(self)
 
     @cached_property
     def tts(self) -> TtsAPI:
+        """Text-to-Speech API namespace."""
         from .api.tts import TtsAPI
 
         return TtsAPI(self)
 
     @cached_property
     def models(self) -> ModelsAPI:
+        """Speech-to-text model listing API namespace."""
         from .api.models import ModelsAPI
 
         return ModelsAPI(self)
 
     @cached_property
     def tts_models(self) -> TtsModelsAPI:
+        """Text-to-Speech model listing API namespace."""
         from .api.tts_models import TtsModelsAPI
 
         return TtsModelsAPI(self)
 
     @cached_property
     def voices(self) -> VoicesAPI:
+        """Voice cloning and voice management API namespace."""
         from .api.voices import VoicesAPI
 
         return VoicesAPI(self)
 
     @cached_property
     def usage_logs(self) -> UsageLogsAPI:
+        """Per-request usage log API namespace."""
         from .api.usage_logs import UsageLogsAPI
 
         return UsageLogsAPI(self)
 
     @cached_property
+    def usage(self) -> UsageAPI:
+        """Usage and cost summary API namespace."""
+        from .api.usage import UsageAPI
+
+        return UsageAPI(self)
+
+    @cached_property
     def concurrency_limits(self) -> ConcurrencyLimitsAPI:
+        """Concurrency limit API namespace."""
         from .api.concurrency_limits import ConcurrencyLimitsAPI
 
         return ConcurrencyLimitsAPI(self)
 
     @cached_property
     def auth(self) -> AuthAPI:
+        """Authentication API namespace."""
         from .api.auth import AuthAPI
 
         return AuthAPI(self)
 
     @cached_property
     def webhooks(self) -> SonioxWebhooksAPI:
+        """Webhook utilities API namespace."""
         from .api.webhooks import SonioxWebhooksAPI
 
         return SonioxWebhooksAPI(
@@ -191,6 +210,7 @@ class SonioxClient(_BaseSonioxClient):
 
     @cached_property
     def realtime(self) -> RealtimeAPI:
+        """Realtime websocket API namespace (STT and TTS)."""
         from .realtime import RealtimeAPI
 
         return RealtimeAPI(self)
@@ -266,60 +286,77 @@ class AsyncSonioxClient(_BaseSonioxClient):
 
     @cached_property
     def files(self) -> AsyncFilesAPI:
+        """File upload and management API namespace."""
         from .api.async_files import AsyncFilesAPI
 
         return AsyncFilesAPI(self)
 
     @cached_property
     def stt(self) -> AsyncSttAPI:
+        """Speech-to-text API namespace."""
         from .api.async_stt import AsyncSttAPI
 
         return AsyncSttAPI(self)
 
     @cached_property
     def tts(self) -> AsyncTtsAPI:
+        """Text-to-Speech API namespace."""
         from .api.async_tts import AsyncTtsAPI
 
         return AsyncTtsAPI(self)
 
     @cached_property
     def models(self) -> AsyncModelsAPI:
+        """Speech-to-text model listing API namespace."""
         from .api.async_models import AsyncModelsAPI
 
         return AsyncModelsAPI(self)
 
     @cached_property
     def tts_models(self) -> AsyncTtsModelsAPI:
+        """Text-to-Speech model listing API namespace."""
         from .api.async_tts_models import AsyncTtsModelsAPI
 
         return AsyncTtsModelsAPI(self)
 
     @cached_property
     def voices(self) -> AsyncVoicesAPI:
+        """Voice cloning and voice management API namespace."""
         from .api.async_voices import AsyncVoicesAPI
 
         return AsyncVoicesAPI(self)
 
     @cached_property
     def usage_logs(self) -> AsyncUsageLogsAPI:
+        """Per-request usage log API namespace."""
         from .api.async_usage_logs import AsyncUsageLogsAPI
 
         return AsyncUsageLogsAPI(self)
 
     @cached_property
+    def usage(self) -> AsyncUsageAPI:
+        """Usage and cost summary API namespace."""
+        from .api.async_usage import AsyncUsageAPI
+
+        return AsyncUsageAPI(self)
+
+    @cached_property
     def concurrency_limits(self) -> AsyncConcurrencyLimitsAPI:
+        """Concurrency limit API namespace."""
         from .api.async_concurrency_limits import AsyncConcurrencyLimitsAPI
 
         return AsyncConcurrencyLimitsAPI(self)
 
     @cached_property
     def auth(self) -> AsyncAuthAPI:
+        """Authentication API namespace."""
         from .api.async_auth import AsyncAuthAPI
 
         return AsyncAuthAPI(self)
 
     @cached_property
     def webhooks(self) -> AsyncSonioxWebhooksAPI:
+        """Webhook utilities API namespace."""
         from .api.async_webhooks import AsyncSonioxWebhooksAPI
 
         return AsyncSonioxWebhooksAPI(
@@ -329,6 +366,7 @@ class AsyncSonioxClient(_BaseSonioxClient):
 
     @cached_property
     def realtime(self) -> AsyncRealtimeAPI:
+        """Realtime websocket API namespace (STT and TTS)."""
         from .realtime import AsyncRealtimeAPI
 
         return AsyncRealtimeAPI(self)

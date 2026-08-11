@@ -110,6 +110,34 @@ SDK_BINDINGS: dict[str, SdkBinding] = {
         sync_call=lambda c: c.tts_models.list(),
         async_call=lambda c: c.tts_models.list(),
     ),
+    "get_voices": SdkBinding(
+        sync_call=lambda c: c.voices.list(limit=5),
+        async_call=lambda c: c.voices.list(limit=5),
+        expect_params={"limit": "5"},
+    ),
+    "get_voices_count": SdkBinding(
+        sync_call=lambda c: c.voices.count(),
+        async_call=lambda c: c.voices.count(),
+    ),
+    "create_voice": SdkBinding(
+        sync_call=lambda c: c.voices.create(BytesIO(b"audio-bytes"), name="Ada", filename="ada.mp3"),
+        async_call=lambda c: c.voices.create(
+            BytesIO(b"audio-bytes"), name="Ada", filename="ada.mp3"
+        ),
+        expect_multipart=True,
+    ),
+    "get_voice": SdkBinding(
+        sync_call=lambda c: c.voices.get(_ID),
+        async_call=lambda c: c.voices.get(_ID),
+    ),
+    "delete_voice": SdkBinding(
+        sync_call=lambda c: c.voices.delete(_ID),
+        async_call=lambda c: c.voices.delete(_ID),
+    ),
+    "recompute_voice": SdkBinding(
+        sync_call=lambda c: c.voices.recompute(_ID),
+        async_call=lambda c: c.voices.recompute(_ID),
+    ),
     "get_usage_logs": SdkBinding(
         sync_call=lambda c: c.usage_logs.list(
             start_time="2026-01-01T00:00:00Z", end_time="2026-02-01T00:00:00Z"
@@ -187,6 +215,16 @@ SDK_BINDINGS_FULL: dict[str, SdkBinding] = {
             "enable_speaker_diarization": True,
             "enable_language_identification": True,
         },
+    ),
+    "get_voices": SdkBinding(
+        sync_call=lambda c: c.voices.list(limit=10, cursor="page-token"),
+        async_call=lambda c: c.voices.list(limit=10, cursor="page-token"),
+        expect_params={"limit": "10", "cursor": "page-token"},
+    ),
+    "recompute_voice": SdkBinding(
+        sync_call=lambda c: c.voices.recompute(_ID, model="tts-1"),
+        async_call=lambda c: c.voices.recompute(_ID, model="tts-1"),
+        expect_json={"model": "tts-1"},
     ),
     "create_temporary_api_key": SdkBinding(
         sync_call=lambda c: c.auth.create_temporary_api_key(

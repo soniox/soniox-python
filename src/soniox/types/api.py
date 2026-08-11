@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from datetime import datetime
+from datetime import date, datetime
 from typing import Annotated, Any, Literal, TypeAlias, cast
 
 from pydantic import BaseModel, Field, field_validator, model_validator
@@ -66,6 +66,12 @@ RealtimeSTTAudioFormat = Literal["auto"] | RealtimeSTTHeaderFormat | RealtimeSTT
 
 
 UsageLogsSort = Literal["end_time_asc", "end_time_desc"]
+
+ConcurrentStreamKind = Literal["stt", "tts"]
+"""Stream kind: `stt` for Speech-to-Text sessions, `tts` for Text-to-Speech streams."""
+
+ConcurrentStreamsPeriodSec = Literal[60, 3600, 86400]
+"""Aggregation period in seconds: per-minute, hourly, or daily."""
 """Sort order for usage-log entries by end_time."""
 
 TtsAudioFormat = Literal[
@@ -502,6 +508,9 @@ class CreateTtsPayload(BaseModel):
     speed: float | None = Field(default=None, ge=0.7, le=1.3)
     """Speaking rate multiplier from 0.7 to 1.3; 1.0 (default) is normal speed."""
 
+    reduce_silence: bool | None = Field(default=None)
+    """Shorten the pauses between words. Only for models with 'supports_silence_reduction'."""
+
     text: str = Field(min_length=1, max_length=5000)
     """Input text to generate into speech."""
 
@@ -544,6 +553,9 @@ class CreateTtsConfig(BaseModel):
 
     speed: float | None = Field(default=None, ge=0.7, le=1.3)
     """Speaking rate multiplier from 0.7 to 1.3; 1.0 (default) is normal speed."""
+
+    reduce_silence: bool | None = Field(default=None)
+    """Shorten the pauses between words. Only for models with 'supports_silence_reduction'."""
 
 
 class CreateTemporaryApiKeyPayload(BaseModel):
@@ -696,6 +708,9 @@ class TtsModel(BaseModel):
 
     speed_max: float | None = None
     """Maximum supported speaking rate (None when speed adjustment is unsupported)."""
+
+    supports_silence_reduction: bool = False
+    """If model supports shortening pauses between words via 'reduce_silence'."""
 
 
 class GetTtsModelsResponse(BaseModel):
@@ -868,6 +883,68 @@ class GetUsageLogsResponse(BaseModel):
     """Pagination cursor for the next page of results. None if no more pages."""
 
 
+class GetUsageSummaryPayload(BaseModel):
+    """Parameters accepted by the usage summary endpoint."""
+
+    start_time: str
+    """Start of the time window (inclusive), ISO 8601 UTC."""
+
+    end_time: str
+    """End of the time window (exclusive), ISO 8601 UTC. At most 366 days after start."""
+
+
+class UsageSummaryEntry(BaseModel):
+    """Daily usage rolled up for one model, or for all models when ``model`` is None.
+
+    The per-day lists are aligned by index with ``days``; every day in the window is
+    present, so days without usage are zeros.
+    """
+
+    model: str | None
+    """Model identifier, or None for the entry totalling all models."""
+
+    days: list[date]
+    """UTC dates covered, ascending. Indexes into every per-day list below."""
+
+    total_cost_usd: str
+    total_input_cost_usd: str
+    total_output_cost_usd: str
+    total_duration_cost_usd: str
+
+    cost_usd: list[str]
+    input_cost_usd: list[str]
+    output_cost_usd: list[str]
+    duration_cost_usd: list[str]
+
+    total_num_requests: int
+    total_input_text_tokens: int
+    total_input_audio_tokens: int
+    total_input_audio_duration_ms: int
+    total_output_text_tokens: int
+    total_output_audio_tokens: int
+    total_output_audio_duration_ms: int
+    total_duration_ms: int
+
+    num_requests: list[int]
+    input_text_tokens: list[int]
+    input_audio_tokens: list[int]
+    input_audio_duration_ms: list[int]
+    output_text_tokens: list[int]
+    output_audio_tokens: list[int]
+    output_audio_duration_ms: list[int]
+    duration_ms: list[int]
+
+
+class GetUsageSummaryResponse(BaseModel):
+    """Daily cost and activity for a project, per model and across all models."""
+
+    total: UsageSummaryEntry
+    """Totals across all models. Its ``model`` is None."""
+
+    models: list[UsageSummaryEntry]
+    """One entry per model that recorded usage. Empty when the project had none."""
+
+
 class ConcurrencyCurrentValues(BaseModel):
     """Live counts of concurrent sessions."""
 
@@ -906,3 +983,56 @@ class GetConcurrencyLimitsResponse(BaseModel):
 
     organization: ConcurrencyScopeValues
     """Organization-scoped current counts and configured limits."""
+
+
+class GetConcurrentStreamsHistoryPayload(BaseModel):
+    """Parameters accepted by the concurrent streams history endpoint."""
+
+    start_time: str
+    """Start of the window (inclusive), ISO 8601 UTC. Filters by ``period_start``."""
+
+    end_time: str
+    """End of the window (exclusive), ISO 8601 UTC. Must be strictly after ``start_time``."""
+
+    period_sec: ConcurrentStreamsPeriodSec
+    """Aggregation period. Also caps how long the requested window may be."""
+
+    kind: ConcurrentStreamKind
+    """Stream kind to return."""
+
+
+class ConcurrentStreamsHistoryEntry(BaseModel):
+    """Concurrent stream counts aggregated over one period."""
+
+    period_start: datetime
+    """Start of the aggregation period, UTC. Aligned to a multiple of ``period_sec``."""
+
+    period_sec: int
+    """Aggregation period in seconds."""
+
+    sample_min: int
+    """Lowest recorded count in the period. Always 0; use ``sample_max`` for the peak."""
+
+    sample_max: int
+    """Peak concurrent stream count in the period. Exact even when rolled up to hours or days."""
+
+    sample_sum: int
+    """Sum of recorded concurrency values. Divide by ``sample_count`` for the average while
+    streams were active, or by ``total_count`` to count idle slots as zero."""
+
+    sample_count: int
+    """Number of values actually recorded in the period. 0 when the period had no activity."""
+
+    total_count: int
+    """Number of slots the period covers: 1 for per-minute, 60 for hourly, 24 for daily."""
+
+
+class GetConcurrentStreamsHistoryResponse(BaseModel):
+    """Per-period concurrent stream aggregates for a project."""
+
+    kind: ConcurrentStreamKind
+    """Stream kind these entries describe."""
+
+    entries: list[ConcurrentStreamsHistoryEntry]
+    """Aggregates ordered by ``period_start`` ascending. Every period in the window is
+    present with no gaps; periods without activity have every field set to 0."""

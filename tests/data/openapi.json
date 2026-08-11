@@ -1400,6 +1400,519 @@
         ]
       }
     },
+    "/v1/voices": {
+      "get": {
+        "operationId": "get_voices",
+        "summary": "Get voices",
+        "parameters": [
+          {
+            "in": "query",
+            "name": "limit",
+            "schema": {
+              "default": 1000,
+              "description": "Maximum number of voices to return.",
+              "maximum": 1000,
+              "minimum": 1,
+              "title": "Limit",
+              "type": "integer"
+            },
+            "required": false,
+            "description": "Maximum number of voices to return."
+          },
+          {
+            "in": "query",
+            "name": "cursor",
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "description": "Pagination cursor for the next page of results.",
+              "title": "Cursor"
+            },
+            "required": false,
+            "description": "Pagination cursor for the next page of results."
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/GetVoicesResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad Request",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "Too Many Requests",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal Server Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                }
+              }
+            }
+          }
+        },
+        "description": "Retrieves the list of voices in your project.",
+        "tags": [
+          "Voices"
+        ],
+        "security": [
+          {
+            "PublicApiAuth": []
+          }
+        ]
+      },
+      "post": {
+        "operationId": "create_voice",
+        "summary": "Create voice",
+        "parameters": [],
+        "responses": {
+          "201": {
+            "description": "Created",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Voice"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad Request",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "Conflict",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "Too Many Requests",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal Server Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                }
+              }
+            }
+          }
+        },
+        "description": "Uploads a reference audio clip and creates a new voice.",
+        "tags": [
+          "Voices"
+        ],
+        "requestBody": {
+          "content": {
+            "multipart/form-data": {
+              "schema": {
+                "title": "MultiPartBodyParams",
+                "type": "object",
+                "properties": {
+                  "name": {
+                    "description": "A name for the voice, unique within your project.",
+                    "maxLength": 128,
+                    "minLength": 1,
+                    "title": "Name",
+                    "type": "string"
+                  },
+                  "file": {
+                    "description": "The reference audio clip for the voice.",
+                    "format": "binary",
+                    "title": "File",
+                    "type": "string"
+                  }
+                },
+                "required": [
+                  "name",
+                  "file"
+                ]
+              }
+            }
+          },
+          "required": true
+        },
+        "security": [
+          {
+            "PublicApiAuth": []
+          }
+        ]
+      }
+    },
+    "/v1/voices/count": {
+      "get": {
+        "operationId": "get_voices_count",
+        "summary": "Get voices count",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/GetVoicesCountResponse"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "Too Many Requests",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal Server Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                }
+              }
+            }
+          }
+        },
+        "description": "Returns the total number of voices in your project.",
+        "tags": [
+          "Voices"
+        ],
+        "security": [
+          {
+            "PublicApiAuth": []
+          }
+        ]
+      }
+    },
+    "/v1/voices/{voice_id}": {
+      "get": {
+        "operationId": "get_voice",
+        "summary": "Get voice",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "voice_id",
+            "schema": {
+              "format": "uuid",
+              "title": "Voice Id",
+              "type": "string"
+            },
+            "required": true
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Voice"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Not Found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "Too Many Requests",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal Server Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                }
+              }
+            }
+          }
+        },
+        "description": "Retrieve metadata for a voice.",
+        "tags": [
+          "Voices"
+        ],
+        "security": [
+          {
+            "PublicApiAuth": []
+          }
+        ]
+      },
+      "delete": {
+        "operationId": "delete_voice",
+        "summary": "Delete voice",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "voice_id",
+            "schema": {
+              "format": "uuid",
+              "title": "Voice Id",
+              "type": "string"
+            },
+            "required": true
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": "No Content"
+          },
+          "401": {
+            "description": "Unauthorized",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Not Found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "Too Many Requests",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal Server Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                }
+              }
+            }
+          }
+        },
+        "description": "Permanently deletes the specified voice and its embeddings.",
+        "tags": [
+          "Voices"
+        ],
+        "security": [
+          {
+            "PublicApiAuth": []
+          }
+        ]
+      }
+    },
+    "/v1/voices/{voice_id}/recompute": {
+      "post": {
+        "operationId": "recompute_voice",
+        "summary": "Recompute voice",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "voice_id",
+            "schema": {
+              "format": "uuid",
+              "title": "Voice Id",
+              "type": "string"
+            },
+            "required": true
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Voice"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad Request",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Not Found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "Too Many Requests",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal Server Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                }
+              }
+            }
+          }
+        },
+        "description": "Prepares the voice for use with available models it is not ready for yet. Use this after a new model is released to make an existing voice usable with it. Models the voice is already prepared for are left unchanged.",
+        "tags": [
+          "Voices"
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/RecomputeVoicePayload"
+              }
+            }
+          },
+          "required": true
+        },
+        "security": [
+          {
+            "PublicApiAuth": []
+          }
+        ]
+      }
+    },
     "/v1/models": {
       "get": {
         "operationId": "get_models",
@@ -2194,6 +2707,163 @@
   },
   "components": {
     "schemas": {
+      "Voice": {
+        "properties": {
+          "id": {
+            "description": "Unique identifier of the voice.",
+            "format": "uuid",
+            "title": "Id",
+            "type": "string"
+          },
+          "name": {
+            "description": "Name of the voice.",
+            "title": "Name",
+            "type": "string"
+          },
+          "filename": {
+            "description": "Original file name of the uploaded audio clip.",
+            "title": "Filename",
+            "type": "string"
+          },
+          "created_at": {
+            "description": "UTC timestamp indicating when the voice was created.",
+            "format": "date-time",
+            "title": "Created At",
+            "type": "string"
+          },
+          "models": {
+            "description": "Voice status for each available model. A model with status 'not_computed' is not prepared yet (e.g. it was released after the voice was created); call recompute to prepare the voice for it.",
+            "items": {
+              "$ref": "#/components/schemas/VoiceModel"
+            },
+            "title": "Models",
+            "type": "array"
+          }
+        },
+        "required": [
+          "id",
+          "name",
+          "filename",
+          "created_at",
+          "models"
+        ],
+        "title": "Voice",
+        "type": "object"
+      },
+      "VoiceModel": {
+        "properties": {
+          "model": {
+            "description": "Name of the model.",
+            "title": "Model",
+            "type": "string"
+          },
+          "status": {
+            "$ref": "#/components/schemas/VoiceModelStatus",
+            "description": "Has to be 'ready' for the voice to be usable with this model."
+          },
+          "error_type": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "description": "Machine-readable error category when status is 'failed'. Stable across releases \u2014 safe to use in control flow. `null` otherwise.",
+            "title": "Error Type"
+          },
+          "error_message": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "description": "Human-readable error message when status is 'failed' (e.g. the reference audio is too long). `null` otherwise.",
+            "title": "Error Message"
+          }
+        },
+        "required": [
+          "model",
+          "status"
+        ],
+        "title": "VoiceModel",
+        "type": "object"
+      },
+      "VoiceModelStatus": {
+        "enum": [
+          "not_computed",
+          "processing",
+          "ready",
+          "failed"
+        ],
+        "title": "VoiceModelStatus",
+        "type": "string"
+      },
+      "GetVoicesResponse": {
+        "properties": {
+          "voices": {
+            "description": "List of voices.",
+            "items": {
+              "$ref": "#/components/schemas/Voice"
+            },
+            "title": "Voices",
+            "type": "array"
+          },
+          "next_page_cursor": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "description": "A pagination token that references the next page of results. When more data is available, this field contains a value to pass in the cursor parameter of a subsequent request. When null, no additional results are available.",
+            "title": "Next Page Cursor"
+          }
+        },
+        "required": [
+          "voices"
+        ],
+        "title": "GetVoicesResponse",
+        "type": "object"
+      },
+      "GetVoicesCountResponse": {
+        "properties": {
+          "total": {
+            "description": "Total number of voices in your project.",
+            "title": "Total",
+            "type": "integer"
+          }
+        },
+        "required": [
+          "total"
+        ],
+        "title": "GetVoicesCountResponse",
+        "type": "object"
+      },
+      "RecomputeVoicePayload": {
+        "properties": {
+          "model": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "description": "The model to prepare this voice for. If omitted, the voice is prepared for every available model it is not ready for yet.",
+            "title": "Model"
+          }
+        },
+        "title": "RecomputeVoicePayload",
+        "type": "object"
+      },
       "GetFilesPayload": {
         "properties": {
           "limit": {
@@ -4896,6 +5566,25 @@
             },
             "title": "Voices",
             "type": "array"
+          },
+          "supports_timestamps": {
+            "title": "Does this model support returning timestamps for generated audio?",
+            "type": "boolean"
+          },
+          "supports_speed_adjustment": {
+            "description": "Whether the model supports adjusting the speaking rate via the `speed` parameter.",
+            "title": "Supports Speed Adjustment",
+            "type": "boolean"
+          },
+          "speed_min": {
+            "description": "Minimum supported speaking rate.",
+            "title": "Speed Min",
+            "type": "number"
+          },
+          "speed_max": {
+            "description": "Maximum supported speaking rate.",
+            "title": "Speed Max",
+            "type": "number"
           }
         },
         "required": [
@@ -4903,7 +5592,10 @@
           "aliased_model_id",
           "name",
           "languages",
-          "voices"
+          "voices",
+          "supports_speed_adjustment",
+          "speed_min",
+          "speed_max"
         ],
         "title": "TTSModel",
         "type": "object"
@@ -4951,7 +5643,8 @@
           "text": "Hello from Soniox Text-to-Speech.",
           "sample_rate": 24000,
           "bitrate": 128000,
-          "client_reference_id": "some_internal_id"
+          "client_reference_id": "some_internal_id",
+          "speed": 1.2
         },
         "properties": {
           "model": {
@@ -4966,7 +5659,7 @@
             "type": "string"
           },
           "voice": {
-            "description": "Voice identifier to use.",
+            "description": "Voice to use: a built-in voice name (for example `Adrian`) or the ID of a [cloned voice](https://soniox.com/docs/tts/concepts/voice-cloning).",
             "title": "Voice",
             "type": "string"
           },
@@ -5016,6 +5709,18 @@
             ],
             "description": "Optional tracking identifier string. Does not need to be unique. Ignored if the request authenticates with a temporary API key.",
             "title": "Client Reference Id"
+          },
+          "speed": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "description": "Optional speaking rate of the generated speech, from `0.7` to `1.3`. `1.0` is the normal speed; lower values slow speech down and higher values speed it up. Defaults to `1.0`.",
+            "title": "Speed"
           }
         },
         "required": [

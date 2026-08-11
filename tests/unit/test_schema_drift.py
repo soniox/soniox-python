@@ -39,6 +39,9 @@ KNOWN_REQUIRED_DRIFT: set[str] = {
     "Model.endpoint_latency_adjustment_max_level",
     "TTSModel.aliased_model_id",
     "TTSModel.languages",
+    "TTSModel.supports_speed_adjustment",
+    "TTSModel.speed_min",
+    "TTSModel.speed_max",
 }
 
 
