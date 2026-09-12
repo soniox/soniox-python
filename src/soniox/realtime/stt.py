@@ -15,6 +15,7 @@ from ._utils import (
     KEEP_ALIVE_INTERVAL_SEC,
     KeepaliveThread,
     validate_connect_timeout_sec,
+    validate_recv_timeout_sec,
 )
 
 if TYPE_CHECKING:
@@ -39,6 +40,7 @@ class RealtimeSTTSession:
         config: RealtimeSTTConfig,
         *,
         connect_timeout_sec: float = DEFAULT_CONNECT_TIMEOUT_SEC,
+        recv_timeout_sec: float | None = None,
     ) -> None:
         """
         Create a new realtime STT session.
@@ -55,10 +57,18 @@ class RealtimeSTTSession:
             connect_timeout_sec:
                 Maximum seconds to wait for the WebSocket handshake to
                 complete. Defaults to 10 seconds.
+            recv_timeout_sec:
+                Maximum seconds to wait for a message from the server before
+                raising ``SonioxRealtimeError``. ``None`` (the default)
+                disables the receive timeout. This guards against an
+                unresponsive server; it is not a silence detector, so during
+                expected silence keep the session alive with ``pause()`` /
+                ``keep_alive()`` instead of relying on this timeout.
         """
         self._url = url
         self._config = config
         self._connect_timeout_sec = connect_timeout_sec
+        self._recv_timeout_sec = recv_timeout_sec
         self._ws = None
         self._last_message: RealtimeEvent | None = None
         self._paused = False
@@ -262,9 +272,14 @@ class RealtimeSTTSession:
         if not self._ws:
             raise SonioxRealtimeError("Realtime session is not connected")
         try:
-            message = self._ws.recv()
+            if self._recv_timeout_sec is None:
+                message = self._ws.recv()
+            else:
+                message = self._ws.recv(timeout=self._recv_timeout_sec)
         except ConnectionClosed:
             return b""
+        except TimeoutError as exc:
+            raise SonioxRealtimeError("Timed out waiting for realtime event") from exc
         if isinstance(message, str):
             return message.encode("utf-8")
         return message
@@ -406,6 +421,7 @@ class RealtimeSTTClient:
         config: RealtimeSTTConfig,
         api_key: str | None = None,
         connect_timeout_sec: float = DEFAULT_CONNECT_TIMEOUT_SEC,
+        recv_timeout_sec: float | None = None,
     ) -> RealtimeSTTSession:
         """
         Create a new realtime STT session.
@@ -422,6 +438,11 @@ class RealtimeSTTClient:
             connect_timeout_sec:
                 Maximum seconds to wait for the WebSocket handshake.
                 Defaults to 10 seconds.
+            recv_timeout_sec:
+                Maximum seconds to wait for a message from the server before
+                raising ``SonioxRealtimeError``. If not provided, the client's
+                ``realtime_recv_timeout_sec`` is used (``None`` disables the
+                receive timeout).
 
         Returns:
             A new RealtimeSTTSession instance.
@@ -435,10 +456,14 @@ class RealtimeSTTClient:
             raise SonioxValidationError("API key is required to start a realtime session")
 
         timeout_sec = validate_connect_timeout_sec(connect_timeout_sec)
+        if recv_timeout_sec is None:
+            recv_timeout_sec = self._client.realtime_recv_timeout_sec
+        recv_timeout_sec = validate_recv_timeout_sec(recv_timeout_sec)
 
         payload = config.build_payload(key)
         return RealtimeSTTSession(
             self._client.websocket_base_url,
             payload,
             connect_timeout_sec=timeout_sec,
+            recv_timeout_sec=recv_timeout_sec,
         )

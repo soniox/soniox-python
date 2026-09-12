@@ -519,6 +519,133 @@ def test_validate_connect_timeout_sec_contract() -> None:
             validate_connect_timeout_sec(invalid)
 
 
+# ---------------------------------------------------------------------------
+# Receive timeout (recv_timeout_sec / realtime_recv_timeout_sec)
+# ---------------------------------------------------------------------------
+
+
+def test_recv_timeout_maps_to_realtime_error() -> None:
+    """A receive timeout surfaces as ``SonioxRealtimeError``."""
+    ws = MockWebSocket()
+    ws.push_recv_error(TimeoutError("recv timed out"))
+    client = SonioxClient(api_key="test_key")
+
+    with patch("soniox.realtime.stt.sync_ws_connect", return_value=ws):
+        with client.realtime.stt.connect(
+            config=RealtimeSTTConfig(model="v1"),
+            recv_timeout_sec=0.5,
+        ) as session:
+            with pytest.raises(SonioxRealtimeError, match="Timed out waiting"):
+                session.receive_event()
+
+
+def test_recv_timeout_passed_to_recv() -> None:
+    """``recv_timeout_sec`` is forwarded to ``recv(timeout=...)``."""
+    ws = MockWebSocket()
+    ws.push_recv({"tokens": [], "finished": True})
+    ws.close_after_recv()
+    recorded: list[float | None] = []
+    original_recv = ws.recv
+
+    def _recording_recv(timeout: float | None = None):
+        recorded.append(timeout)
+        return original_recv(timeout=timeout)
+
+    ws.recv = _recording_recv  # type: ignore[method-assign]
+    client = SonioxClient(api_key="test_key")
+
+    with patch("soniox.realtime.stt.sync_ws_connect", return_value=ws):
+        with client.realtime.stt.connect(
+            config=RealtimeSTTConfig(model="v1"),
+            recv_timeout_sec=1.5,
+        ) as session:
+            session.finish()
+            list(session.receive_events())
+
+    assert recorded and all(t == 1.5 for t in recorded)
+
+
+def test_recv_timeout_default_is_none() -> None:
+    """Without configuration, recv is called without a timeout argument."""
+    ws = MockWebSocket()
+    ws.push_recv({"tokens": [], "finished": True})
+    ws.close_after_recv()
+    recorded: list[float | None] = []
+    original_recv = ws.recv
+
+    def _recording_recv(timeout: float | None = None):
+        recorded.append(timeout)
+        return original_recv(timeout=timeout)
+
+    ws.recv = _recording_recv  # type: ignore[method-assign]
+    client = SonioxClient(api_key="test_key")
+
+    with patch("soniox.realtime.stt.sync_ws_connect", return_value=ws):
+        with client.realtime.stt.connect(config=RealtimeSTTConfig(model="v1")) as session:
+            session.finish()
+            list(session.receive_events())
+
+    assert recorded and all(t is None for t in recorded)
+
+
+def test_client_realtime_recv_timeout_is_default_for_connect() -> None:
+    """``SonioxClient(realtime_recv_timeout_sec=...)`` is used when connect omits it."""
+    ws = MockWebSocket()
+    ws.push_recv_error(TimeoutError("recv timed out"))
+    client = SonioxClient(api_key="test_key", realtime_recv_timeout_sec=0.5)
+
+    with patch("soniox.realtime.stt.sync_ws_connect", return_value=ws):
+        with client.realtime.stt.connect(config=RealtimeSTTConfig(model="v1")) as session:
+            with pytest.raises(SonioxRealtimeError, match="Timed out waiting"):
+                session.receive_event()
+
+
+def test_invalid_recv_timeout_raises() -> None:
+    client = SonioxClient(api_key="test_key")
+    with pytest.raises(SonioxValidationError, match="recv_timeout_sec"):
+        client.realtime.stt.connect(
+            config=RealtimeSTTConfig(model="v1"),
+            recv_timeout_sec=0.0,
+        )
+
+
+async def test_async_recv_timeout_maps_to_realtime_error() -> None:
+    ws = AsyncMockWebSocket()
+    ws.push_recv_error(TimeoutError("recv timed out"))
+    client = AsyncSonioxClient(api_key="test_key")
+
+    with patch("soniox.realtime.async_stt.async_ws_connect", return_value=ws):
+        async with client.realtime.stt.connect(
+            config=RealtimeSTTConfig(model="v1"),
+            recv_timeout_sec=0.5,
+        ) as session:
+            with pytest.raises(SonioxRealtimeError, match="Timed out waiting"):
+                await session.receive_event()
+
+
+async def test_async_client_realtime_recv_timeout_is_default() -> None:
+    ws = AsyncMockWebSocket()
+    ws.push_recv_error(TimeoutError("recv timed out"))
+    client = AsyncSonioxClient(api_key="test_key", realtime_recv_timeout_sec=0.5)
+
+    with patch("soniox.realtime.async_stt.async_ws_connect", return_value=ws):
+        async with client.realtime.stt.connect(
+            config=RealtimeSTTConfig(model="v1")
+        ) as session:
+            with pytest.raises(SonioxRealtimeError, match="Timed out waiting"):
+                await session.receive_event()
+
+
+def test_validate_recv_timeout_sec_contract() -> None:
+    from soniox.realtime._utils import validate_recv_timeout_sec
+
+    assert validate_recv_timeout_sec(None) is None
+    assert validate_recv_timeout_sec(5.0) == 5.0
+    for invalid in (0.0, -1.0):
+        with pytest.raises(SonioxValidationError, match="recv_timeout_sec"):
+            validate_recv_timeout_sec(invalid)
+
+
 async def test_async_client_aclose_releases_http_transport() -> None:
     """``aclose`` must close the httpx.AsyncClient so the connection pool is
     freed. After close, requests raise."""

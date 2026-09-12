@@ -19,7 +19,7 @@ Asynchronous Soniox REST client exposing HTTP and realtime helpers.
 ### Constructor
 
 ```python
-AsyncSonioxClient(api_key: str | None = None, api_base_url: str | None = None, websocket_base_url: str | None = None, tts_api_base_url: str | None = None, tts_websocket_base_url: str | None = None, timeout_sec: float | None = None, webhook_secret: str | None = None, webhook_signature_header: str | None = None, **client_kwargs: Any)
+AsyncSonioxClient(api_key: str | None = None, api_base_url: str | None = None, websocket_base_url: str | None = None, tts_api_base_url: str | None = None, tts_websocket_base_url: str | None = None, timeout_sec: float | None = None, realtime_recv_timeout_sec: float | None = None, webhook_secret: str | None = None, webhook_signature_header: str | None = None, **client_kwargs: Any)
 ```
 
 **Parameters**
@@ -32,6 +32,7 @@ AsyncSonioxClient(api_key: str | None = None, api_base_url: str | None = None, w
 | `tts_api_base_url` | `str \| None` | Base URL for Soniox Text-to-Speech REST API requests. |
 | `tts_websocket_base_url` | `str \| None` | Base URL for Soniox Text-to-Speech realtime WebSocket endpoint. |
 | `timeout_sec` | `float \| None` | Maximum wait time in seconds. |
+| `realtime_recv_timeout_sec` | `float \| None` | - |
 | `webhook_secret` | `str \| None` | Webhook secret used for signature verification. |
 | `webhook_signature_header` | `str \| None` | Webhook signature header name. |
 | `client_kwargs` | `Any` | Additional HTTP client keyword arguments. |

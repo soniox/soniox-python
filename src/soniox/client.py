@@ -54,6 +54,7 @@ class _BaseSonioxClient:
         tts_api_base_url: str | None = None,
         tts_websocket_base_url: str | None = None,
         timeout_sec: float | None = None,
+        realtime_recv_timeout_sec: float | None = None,
         webhook_secret: str | None = None,
         webhook_signature_header: str | None = None,
     ) -> None:
@@ -66,6 +67,7 @@ class _BaseSonioxClient:
         self.tts_api_base_url = tts_api_base_url or _DEFAULT_TTS_API_BASE_URL
         self.tts_websocket_base_url = tts_websocket_base_url or _DEFAULT_TTS_WEBSOCKET_BASE_URL
         self.timeout_sec = timeout_sec if timeout_sec is not None else _DEFAULT_TIMEOUT_SEC
+        self.realtime_recv_timeout_sec = realtime_recv_timeout_sec
         self.webhook_secret = webhook_secret
         self.webhook_signature_header = webhook_signature_header
 
@@ -87,6 +89,7 @@ class SonioxClient(_BaseSonioxClient):
         tts_api_base_url: str | None = None,
         tts_websocket_base_url: str | None = None,
         timeout_sec: float | None = None,
+        realtime_recv_timeout_sec: float | None = None,
         webhook_secret: str | None = None,
         webhook_signature_header: str | None = None,
         **client_kwargs: Any,
@@ -98,6 +101,7 @@ class SonioxClient(_BaseSonioxClient):
             tts_api_base_url=tts_api_base_url,
             tts_websocket_base_url=tts_websocket_base_url,
             timeout_sec=timeout_sec,
+            realtime_recv_timeout_sec=realtime_recv_timeout_sec,
             webhook_secret=webhook_secret,
             webhook_signature_header=webhook_signature_header,
         )
@@ -243,6 +247,7 @@ class AsyncSonioxClient(_BaseSonioxClient):
         tts_api_base_url: str | None = None,
         tts_websocket_base_url: str | None = None,
         timeout_sec: float | None = None,
+        realtime_recv_timeout_sec: float | None = None,
         webhook_secret: str | None = None,
         webhook_signature_header: str | None = None,
         **client_kwargs: Any,
@@ -254,6 +259,7 @@ class AsyncSonioxClient(_BaseSonioxClient):
             tts_api_base_url=tts_api_base_url,
             tts_websocket_base_url=tts_websocket_base_url,
             timeout_sec=timeout_sec,
+            realtime_recv_timeout_sec=realtime_recv_timeout_sec,
             webhook_secret=webhook_secret,
             webhook_signature_header=webhook_signature_header,
         )
