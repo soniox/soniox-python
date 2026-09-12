@@ -63,6 +63,7 @@ class AsyncRealtimeTTSConnection:
             self._ws = await async_ws_connect(
                 self._url,
                 open_timeout=self._connect_timeout_sec,
+                ping_interval=None,
             )
         except TimeoutError as exc:
             raise SonioxRealtimeError("Connection timed out") from exc
@@ -330,6 +331,7 @@ class AsyncRealtimeTTSMultiplexedConnection:
             self._ws = await async_ws_connect(
                 self._url,
                 open_timeout=self._connect_timeout_sec,
+                ping_interval=None,
             )
             return self
         except TimeoutError as exc:

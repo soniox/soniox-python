@@ -435,7 +435,9 @@ def test_connect_default_uses_default_open_timeout() -> None:
         with client.realtime.stt.connect(config=RealtimeSTTConfig(model="v1")) as session:
             session.finish()
 
-    mock_connect.assert_called_once_with(client.websocket_base_url, open_timeout=10.0)
+    mock_connect.assert_called_once_with(
+        client.websocket_base_url, open_timeout=10.0, ping_interval=None
+    )
 
 
 def test_connect_passes_connect_timeout() -> None:
@@ -450,7 +452,9 @@ def test_connect_passes_connect_timeout() -> None:
         ) as session:
             session.finish()
 
-    mock_connect.assert_called_once_with(client.websocket_base_url, open_timeout=2.0)
+    mock_connect.assert_called_once_with(
+        client.websocket_base_url, open_timeout=2.0, ping_interval=None
+    )
 
 
 async def test_async_connect_passes_connect_timeout() -> None:
@@ -465,7 +469,9 @@ async def test_async_connect_passes_connect_timeout() -> None:
         ) as session:
             await session.finish()
 
-    mock_connect.assert_called_once_with(client.websocket_base_url, open_timeout=3.0)
+    mock_connect.assert_called_once_with(
+        client.websocket_base_url, open_timeout=3.0, ping_interval=None
+    )
 
 
 def test_connect_timeout_maps_to_realtime_error() -> None:

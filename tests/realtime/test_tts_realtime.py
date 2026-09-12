@@ -82,7 +82,9 @@ def test_connect_default_uses_default_open_timeout(client: SonioxClient) -> None
         with client.realtime.tts.connect(config=_config()):
             pass
 
-    mock_connect.assert_called_once_with(client.tts_websocket_base_url, open_timeout=10.0)
+    mock_connect.assert_called_once_with(
+        client.tts_websocket_base_url, open_timeout=10.0, ping_interval=None
+    )
 
 
 def test_connect_passes_connect_timeout(client: SonioxClient) -> None:
@@ -93,7 +95,9 @@ def test_connect_passes_connect_timeout(client: SonioxClient) -> None:
         with client.realtime.tts.connect(config=_config(), connect_timeout_sec=5.0):
             pass
 
-    mock_connect.assert_called_once_with(client.tts_websocket_base_url, open_timeout=5.0)
+    mock_connect.assert_called_once_with(
+        client.tts_websocket_base_url, open_timeout=5.0, ping_interval=None
+    )
 
 
 def test_multiplexed_connect_passes_connect_timeout(client: SonioxClient) -> None:
@@ -104,7 +108,9 @@ def test_multiplexed_connect_passes_connect_timeout(client: SonioxClient) -> Non
         with client.realtime.tts.connect_multi_stream(connect_timeout_sec=4.0):
             pass
 
-    mock_connect.assert_called_once_with(client.tts_websocket_base_url, open_timeout=4.0)
+    mock_connect.assert_called_once_with(
+        client.tts_websocket_base_url, open_timeout=4.0, ping_interval=None
+    )
 
 
 def test_connect_timeout_maps_to_realtime_error() -> None:
