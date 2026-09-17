@@ -89,6 +89,8 @@ class SonioxAPIError(SonioxError):
                         "Unable to parse API error schema", response=response
                     ) from exc
         error_cls = cls._map_status_to_exception(response.status_code)
+        if api_error is not None and api_error.error_type == "permission_denied":
+            error_cls = SonioxPermissionDeniedError
         if api_error:
             message = api_error.message
         else:
@@ -118,6 +120,16 @@ class SonioxAPIError(SonioxError):
 
 class SonioxAuthenticationError(SonioxAPIError):
     """Authentication failures (`401`/`403`)."""
+
+
+class SonioxPermissionDeniedError(SonioxAuthenticationError):
+    """
+    The API key is valid but lacks the permission for this call (`403` with
+    ``error_type`` ``permission_denied``). Other `403` errors, such as an expired
+    temporary API key session, raise `SonioxAuthenticationError`.
+
+    See https://soniox.com/docs/guides/api-key-permissions.
+    """
 
 
 class SonioxInvalidRequestError(SonioxAPIError):

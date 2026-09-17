@@ -63,6 +63,7 @@ Examples:
 
 ### Added
 
+- `SonioxPermissionDeniedError`, raised when the API key lacks the [permission](https://soniox.com/docs/guides/api-key-permissions) for a call (HTTP `403`, `error_type` `permission_denied`). It subclasses `SonioxAuthenticationError`, which these errors raised before, so existing handlers still catch it. Other `403` errors, such as `temp_api_key_session_expired`, still raise `SonioxAuthenticationError`.
 - `client.voices.list_shared()` and `list_all_shared()` (and async variants) listing a TTS model's shared voices, filterable by gender, age, accent, use case and style.
 - `supports_voice_cloning` and `voice_cloning_max_audio_duration_ms` on `TtsModel`.
 - `TtsVoiceDetails`, `TtsVoiceAge`, `GetSharedVoicesPayload` and `GetSharedVoicesResponse` types, plus `TTSVoiceDetails` and `TTSVoiceAge` schema-cased aliases.

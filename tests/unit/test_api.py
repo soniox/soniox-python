@@ -24,6 +24,7 @@ from soniox.errors import (
     SonioxConflictError,
     SonioxInvalidRequestError,
     SonioxNotFoundError,
+    SonioxPermissionDeniedError,
     SonioxRateLimitError,
     SonioxServerError,
 )
@@ -186,6 +187,32 @@ def test_error_mapping_with_api_error_body(
     assert isinstance(err.api_error, ApiError)
     assert err.api_error.message == "specific message"
     assert "specific message" in str(err)
+
+
+@respx.mock
+def test_permission_denied_is_an_authentication_error(client: SonioxClient) -> None:
+    op = next(o for o in OPERATIONS if o.operation_id == "get_files")
+    body = api_error_body(403, message="no permission") | {"error_type": "permission_denied"}
+    respx.get(op.url).mock(return_value=Response(403, json=body))
+
+    with pytest.raises(SonioxAuthenticationError) as exc_info:
+        SDK_BINDINGS[op.operation_id].sync_call(client)
+
+    assert isinstance(exc_info.value, SonioxPermissionDeniedError)
+    assert exc_info.value.api_error is not None
+    assert exc_info.value.api_error.error_type == "permission_denied"
+
+
+@respx.mock
+def test_expired_temporary_key_session_is_not_permission_denied(client: SonioxClient) -> None:
+    op = next(o for o in OPERATIONS if o.operation_id == "get_files")
+    body = api_error_body(403, message="expired") | {"error_type": "temp_api_key_session_expired"}
+    respx.get(op.url).mock(return_value=Response(403, json=body))
+
+    with pytest.raises(SonioxAuthenticationError) as exc_info:
+        SDK_BINDINGS[op.operation_id].sync_call(client)
+
+    assert not isinstance(exc_info.value, SonioxPermissionDeniedError)
 
 
 @pytest.mark.parametrize("status, expected_exc", STATUS_TO_EXC)
