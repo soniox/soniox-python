@@ -1,7 +1,7 @@
 ---
 title: "Async Client"
 description: "Soniox Python SDK - Async Client Reference"
-keywords: "AsyncSonioxClient, AsyncFilesAPI, AsyncSttAPI, AsyncTtsAPI, AsyncTtsModelsAPI, AsyncModelsAPI, AsyncUsageLogsAPI, AsyncConcurrencyLimitsAPI, AsyncAuthAPI, AsyncSonioxWebhooksAPI"
+keywords: "AsyncSonioxClient, AsyncFilesAPI, AsyncSttAPI, AsyncTtsAPI, AsyncTtsModelsAPI, AsyncVoicesAPI, AsyncModelsAPI, AsyncUsageLogsAPI, AsyncUsageAPI, AsyncConcurrencyLimitsAPI, AsyncAuthAPI, AsyncSonioxWebhooksAPI"
 ---
 
 ---
@@ -51,7 +51,7 @@ AsyncSonioxClient(api_key: str | None = None, api_base_url: str | None = None, w
 | `tts` | `AsyncTtsAPI` | Text-to-Speech API namespace. |
 | `models` | `AsyncModelsAPI` | Speech-to-text model listing API namespace. |
 | `tts_models` | `AsyncTtsModelsAPI` | Text-to-Speech model listing API namespace. |
-| `voices` | `AsyncVoicesAPI` | Voice cloning and voice management API namespace. |
+| `voices` | `AsyncVoicesAPI` | Voice cloning, shared voice listing and voice management API namespace. |
 | `usage_logs` | `AsyncUsageLogsAPI` | Per-request usage log API namespace. |
 | `usage` | `AsyncUsageAPI` | Usage and cost summary API namespace. |
 | `concurrency_limits` | `AsyncConcurrencyLimitsAPI` | Concurrency limit API namespace. |
@@ -1363,6 +1363,354 @@ Performs a GET request to ``/tts-models``.
 
 ---
 
+## AsyncVoicesAPI
+
+<a id="asyncvoicesapi-constructor"></a>
+
+### Constructor
+
+```python
+AsyncVoicesAPI(client: AsyncSonioxClient)
+```
+
+**Parameters**
+
+| Parameter | Type | Description |
+| ------ | ------ | ------ |
+| `client` | `AsyncSonioxClient` | Soniox client instance. |
+
+**Returns**
+
+`None`
+
+<a id="asyncvoicesapi-list"></a>
+
+### list()
+
+```python
+list(limit: int = 100, cursor: str | None = None) -> GetVoicesResponse
+```
+
+List the voices you cloned in the project.
+
+For the built-in voices of a model, use ``list_shared()``.
+
+Performs a GET request to ``/voices`` with optional pagination.
+
+**Parameters**
+
+| Parameter | Type | Description |
+| ------ | ------ | ------ |
+| `limit` | `int` | Maximum number of voices to return. |
+| `cursor` | `str \| None` | Pagination cursor for the next page of results. |
+
+**Returns**
+
+`GetVoicesResponse`
+
+**Raises**
+
+- `SonioxAPIError` When the API returns an error.
+
+***
+
+<a id="asyncvoicesapi-count"></a>
+
+### count()
+
+```python
+count() -> GetVoicesCountResponse
+```
+
+Return the total number of voices in the project.
+
+Performs a GET request to ``/voices/count``.
+
+**Returns**
+
+`GetVoicesCountResponse`
+
+**Raises**
+
+- `SonioxAPIError` When the API returns an error.
+
+***
+
+<a id="asyncvoicesapi-list_all"></a>
+
+### list_all()
+
+```python
+list_all(limit: int = 100) -> AsyncGenerator[Voice, None]
+```
+
+Iterate through all cloned voices across all pages.
+
+For the built-in voices of a model, use ``list_all_shared()``.
+
+**Parameters**
+
+| Parameter | Type | Description |
+| ------ | ------ | ------ |
+| `limit` | `int` | Maximum number of voices to return. |
+
+**Yields**
+
+`AsyncGenerator[Voice, None]`
+
+Voice: The next voice object from the API.
+
+**Raises**
+
+- `SonioxAPIError` When the API returns an error.
+
+***
+
+<a id="asyncvoicesapi-list_shared"></a>
+
+### list_shared()
+
+```python
+list_shared(model: str, *, gender: TtsVoiceGender | None = None, age: TtsVoiceAge | None = None, accent: str | None = None, use_case: list[str] | None = None, style: list[str] | None = None, limit: int = 100, cursor: str | None = None) -> GetSharedVoicesResponse
+```
+
+List the shared voices built into a Text-to-Speech model.
+
+Performs a GET request to ``/shared-voices``. All given filters must match.
+For voices you cloned yourself, use ``list()``.
+
+**Parameters**
+
+| Parameter | Type | Description |
+| ------ | ------ | ------ |
+| `model` | `str` | Id of the TTS model whose voices to return. |
+| `gender` | `TtsVoiceGender \| None` | Only return voices of this gender. |
+| `age` | `TtsVoiceAge \| None` | Only return voices of this age. |
+| `accent` | `str \| None` | Only return voices with this accent. |
+| `use_case` | `list[str] \| None` | Only return voices tagged with every listed use case. |
+| `style` | `list[str] \| None` | Only return voices tagged with every listed style. |
+| `limit` | `int` | Maximum number of voices to return (1-200). |
+| `cursor` | `str \| None` | Pagination cursor. Pass the same filters alongside it; the cursor points into the filtered list, not the whole catalogue. |
+
+**Returns**
+
+`GetSharedVoicesResponse`
+
+**Raises**
+
+- `SonioxAPIError` When the API returns an error.
+
+***
+
+<a id="asyncvoicesapi-list_all_shared"></a>
+
+### list_all_shared()
+
+```python
+list_all_shared(model: str, *, gender: TtsVoiceGender | None = None, age: TtsVoiceAge | None = None, accent: str | None = None, use_case: list[str] | None = None, style: list[str] | None = None, limit: int = 100) -> AsyncGenerator[TtsVoiceDetails, None]
+```
+
+Iterate through all shared voices of a Text-to-Speech model across all pages.
+
+Accepts the same filters as ``list_shared()``; they are sent with every page.
+
+**Parameters**
+
+| Parameter | Type | Description |
+| ------ | ------ | ------ |
+| `model` | `str` | Id of the TTS model whose voices to return. |
+| `gender` | `TtsVoiceGender \| None` | Only return voices of this gender. |
+| `age` | `TtsVoiceAge \| None` | Only return voices of this age. |
+| `accent` | `str \| None` | Only return voices with this accent. |
+| `use_case` | `list[str] \| None` | Only return voices tagged with every listed use case. |
+| `style` | `list[str] \| None` | Only return voices tagged with every listed style. |
+| `limit` | `int` | Maximum number of voices to return. |
+
+**Yields**
+
+`AsyncGenerator[TtsVoiceDetails, None]`
+
+TtsVoiceDetails: The next voice matching the filters.
+
+**Raises**
+
+- `SonioxAPIError` When the API returns an error.
+
+***
+
+<a id="asyncvoicesapi-get"></a>
+
+### get()
+
+```python
+get(voice_id: str) -> Voice
+```
+
+Retrieve a voice by ID.
+
+Performs a GET request to ``/voices/{voice_id}``.
+
+**Parameters**
+
+| Parameter | Type | Description |
+| ------ | ------ | ------ |
+| `voice_id` | `str` | Voice identifier. |
+
+**Returns**
+
+`Voice`
+
+**Raises**
+
+- `SonioxAPIError` When the API returns an error.
+
+***
+
+<a id="asyncvoicesapi-get_or_none"></a>
+
+### get_or_none()
+
+```python
+get_or_none(voice_id: str) -> Voice | None
+```
+
+Retrieve a voice by ID.
+
+Returns ``None`` if the voice does not exist.
+
+**Parameters**
+
+| Parameter | Type | Description |
+| ------ | ------ | ------ |
+| `voice_id` | `str` | Voice identifier. |
+
+**Returns**
+
+`Voice | None`
+
+**Raises**
+
+- `SonioxAPIError` When the API returns an error.
+
+***
+
+<a id="asyncvoicesapi-create"></a>
+
+### create()
+
+```python
+create(file: BinaryIO | bytes | Path | str, *, name: str, filename: str | None = None) -> Voice
+```
+
+Create a cloned voice from a reference audio clip.
+
+Performs a multipart POST request to ``/voices``.
+
+**Parameters**
+
+| Parameter | Type | Description |
+| ------ | ------ | ------ |
+| `file` | `BinaryIO \| bytes \| Path \| str` | File input to upload or transcribe. |
+| `name` | `str` | Name of the model. |
+| `filename` | `str \| None` | Filename associated with uploaded file data. |
+
+**Returns**
+
+`Voice`
+
+**Raises**
+
+- `SonioxAPIError` When the API returns an error.
+
+***
+
+<a id="asyncvoicesapi-recompute"></a>
+
+### recompute()
+
+```python
+recompute(voice_id: str, *, model: str | None = None) -> Voice
+```
+
+Prepare an existing voice for models it is not ready for yet.
+
+Performs a POST request to ``/voices/{voice_id}/recompute``. When ``model``
+is omitted, the voice is prepared for every available model it is not ready
+for; models it is already prepared for are left unchanged.
+
+**Parameters**
+
+| Parameter | Type | Description |
+| ------ | ------ | ------ |
+| `voice_id` | `str` | Voice identifier. |
+| `model` | `str \| None` | Model to prepare the voice for. If None, prepares it for every not-yet-ready model. |
+
+**Returns**
+
+`Voice`
+
+**Raises**
+
+- `SonioxAPIError` When the API returns an error.
+
+***
+
+<a id="asyncvoicesapi-delete"></a>
+
+### delete()
+
+```python
+delete(voice_id: str) -> None
+```
+
+Delete a voice by ID.
+
+Performs a DELETE request to ``/voices/{voice_id}``.
+
+**Parameters**
+
+| Parameter | Type | Description |
+| ------ | ------ | ------ |
+| `voice_id` | `str` | Voice identifier. |
+
+**Returns**
+
+`None`
+
+**Raises**
+
+- `SonioxAPIError` When the API returns an error.
+
+***
+
+<a id="asyncvoicesapi-delete_if_exists"></a>
+
+### delete_if_exists()
+
+```python
+delete_if_exists(voice_id: str) -> None
+```
+
+Delete a voice by ID if it exists.
+
+Ignores missing voices.
+
+**Parameters**
+
+| Parameter | Type | Description |
+| ------ | ------ | ------ |
+| `voice_id` | `str` | Voice identifier. |
+
+**Returns**
+
+`None`
+
+**Raises**
+
+- `SonioxAPIError` When the API returns an error.
+
+---
+
 ## AsyncModelsAPI
 
 <a id="asyncmodelsapi-constructor"></a>
@@ -1482,6 +1830,55 @@ Iterate through all usage-log entries across all pages.
 
 ---
 
+## AsyncUsageAPI
+
+<a id="asyncusageapi-constructor"></a>
+
+### Constructor
+
+```python
+AsyncUsageAPI(client: AsyncSonioxClient)
+```
+
+**Parameters**
+
+| Parameter | Type | Description |
+| ------ | ------ | ------ |
+| `client` | `AsyncSonioxClient` | Soniox client instance. |
+
+**Returns**
+
+`None`
+
+<a id="asyncusageapi-summary"></a>
+
+### summary()
+
+```python
+summary(start_time: str, end_time: str) -> GetUsageSummaryResponse
+```
+
+Return daily cost and activity for the project, per model and in total.
+
+Performs a GET request to ``/usage/summary``.
+
+**Parameters**
+
+| Parameter | Type | Description |
+| ------ | ------ | ------ |
+| `start_time` | `str` | Start of the window (inclusive), ISO 8601 UTC. |
+| `end_time` | `str` | End of the window (exclusive), ISO 8601 UTC. A UTC day is included when the window covers any part of it, so an ``end_time`` at exactly midnight leaves out its own day. At most 366 days. |
+
+**Returns**
+
+`GetUsageSummaryResponse`
+
+**Raises**
+
+- `SonioxAPIError` When the API returns an error.
+
+---
+
 ## AsyncConcurrencyLimitsAPI
 
 <a id="asyncconcurrencylimitsapi-constructor"></a>
@@ -1590,6 +1987,10 @@ Create a temporary API key.
 
 Performs a POST request to ``/auth/temporary-api-key``.
 
+The API key needs the **Temporary API keys** permission and the permission
+for the service in ``usage_type``. See
+[API key permissions](https://soniox.com/docs/guides/api-key-permissions#temporary-api-keys).
+
 **Parameters**
 
 | Parameter | Type | Description |
@@ -1606,7 +2007,8 @@ Performs a POST request to ``/auth/temporary-api-key``.
 
 **Raises**
 
-- `SonioxAPIError` When the API returns an error.
+- `SonioxPermissionDeniedError` When the API key lacks one of those permissions.
+- `SonioxAPIError` When the API returns another error.
 
 ---
 

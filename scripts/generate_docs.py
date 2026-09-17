@@ -16,6 +16,7 @@ ASYNC_DOC_PATH = OUTPUT_DIR / "async_client.md"
 REALTIME_DOC_PATH = OUTPUT_DIR / "realtime_client.md"
 TYPES_DOC_PATH = OUTPUT_DIR / "types.md"
 UTILS_DOC_PATH = OUTPUT_DIR / "utils.md"
+ERRORS_DOC_PATH = OUTPUT_DIR / "errors.md"
 
 ASYNC_CLASS_SPECS = [
     ("soniox.client", "AsyncSonioxClient"),
@@ -26,6 +27,7 @@ ASYNC_CLASS_SPECS = [
     ("soniox.api.async_voices", "AsyncVoicesAPI"),
     ("soniox.api.async_models", "AsyncModelsAPI"),
     ("soniox.api.async_usage_logs", "AsyncUsageLogsAPI"),
+    ("soniox.api.async_usage", "AsyncUsageAPI"),
     ("soniox.api.async_concurrency_limits", "AsyncConcurrencyLimitsAPI"),
     ("soniox.api.async_auth", "AsyncAuthAPI"),
     ("soniox.api.async_webhooks", "AsyncSonioxWebhooksAPI"),
@@ -60,6 +62,30 @@ REALTIME_CLASS_SPECS = [
 
 TYPES_INIT_PATH = Path("./src/soniox/types/__init__.py")
 UTILS_INIT_PATH = Path("./src/soniox/utils.py")
+
+ERROR_CLASS_SPECS = [
+    ("soniox.errors", name)
+    for name in (
+        "SonioxError",
+        "SonioxAPIError",
+        "SonioxInvalidRequestError",
+        "SonioxAuthenticationError",
+        "SonioxPermissionDeniedError",
+        "SonioxNotFoundError",
+        "SonioxConflictError",
+        "SonioxRateLimitError",
+        "SonioxServerError",
+        "SonioxValidationError",
+        "SonioxRealtimeError",
+        "InvalidWebhookSignatureError",
+    )
+]
+
+ERRORS_PREAMBLE = (
+    "Import errors from `soniox.errors`. Every exception subclasses `SonioxError`, and "
+    "HTTP API failures subclass `SonioxAPIError`, which carries `status_code`, "
+    "`request_id` and the parsed `api_error` (including its `error_type`)."
+)
 
 
 @dataclass
@@ -1108,6 +1134,7 @@ def cleanup_legacy_docs() -> None:
         REALTIME_DOC_PATH.name,
         TYPES_DOC_PATH.name,
         UTILS_DOC_PATH.name,
+        ERRORS_DOC_PATH.name,
     }
     for markdown_file in OUTPUT_DIR.glob("*.md"):
         if markdown_file.name not in keep_names:
@@ -1172,6 +1199,22 @@ def build_utils_doc(loader: GriffeLoader) -> None:
     )
 
 
+def build_errors_doc(loader: GriffeLoader) -> None:
+    classes = resolve_class_specs(loader, ERROR_CLASS_SPECS)
+    sections = [ERRORS_PREAMBLE]
+    for cls in classes:
+        heading, _, body = render_class(cls).partition("\n")
+        bases = ", ".join(f"`{as_text(base)}`" for base in cls.bases)
+        sections.append(f"{heading}\n\nSubclass of {bases}.\n{body}".rstrip())
+    write_document(
+        ERRORS_DOC_PATH,
+        title="Errors",
+        description="Soniox Python SDK - Errors Reference",
+        keywords=[cls.name for cls in classes],
+        sections=sections,
+    )
+
+
 def main() -> None:
     cleanup_legacy_docs()
     loader = GriffeLoader(search_paths=["./src", "../src"])
@@ -1179,6 +1222,7 @@ def main() -> None:
     build_realtime_client_doc(loader)
     build_types_doc(loader)
     build_utils_doc(loader)
+    build_errors_doc(loader)
 
 
 if __name__ == "__main__":

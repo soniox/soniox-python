@@ -190,15 +190,16 @@ def test_error_mapping_with_api_error_body(
 
 
 @respx.mock
-def test_permission_denied_is_an_authentication_error(client: SonioxClient) -> None:
+def test_permission_denied_error(client: SonioxClient) -> None:
     op = next(o for o in OPERATIONS if o.operation_id == "get_files")
     body = api_error_body(403, message="no permission") | {"error_type": "permission_denied"}
     respx.get(op.url).mock(return_value=Response(403, json=body))
 
-    with pytest.raises(SonioxAuthenticationError) as exc_info:
+    with pytest.raises(SonioxPermissionDeniedError) as exc_info:
         SDK_BINDINGS[op.operation_id].sync_call(client)
 
-    assert isinstance(exc_info.value, SonioxPermissionDeniedError)
+    assert not isinstance(exc_info.value, SonioxAuthenticationError)
+    assert exc_info.value.status_code == 403
     assert exc_info.value.api_error is not None
     assert exc_info.value.api_error.error_type == "permission_denied"
 

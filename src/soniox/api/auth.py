@@ -31,8 +31,13 @@ class AuthAPI:
 
         Performs a POST request to ``/auth/temporary-api-key``.
 
+        The API key needs the **Temporary API keys** permission and the permission
+        for the service in ``usage_type``. See
+        [API key permissions](https://soniox.com/docs/guides/api-key-permissions#temporary-api-keys).
+
         Raises:
-            SonioxAPIError: When the API returns an error.
+            SonioxPermissionDeniedError: When the API key lacks one of those permissions.
+            SonioxAPIError: When the API returns another error.
         """
         payload = CreateTemporaryApiKeyPayload(
             usage_type=usage_type,

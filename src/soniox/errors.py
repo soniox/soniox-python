@@ -12,16 +12,28 @@ class SonioxError(Exception):
     """Base exception for the SDK."""
 
     def __init__(self, message: str, *, response: httpx.Response | None = None) -> None:
+        """
+        Args:
+            message: Description of what went wrong.
+            response: HTTP response that caused the error, if any.
+        """
         super().__init__(message)
-        self.response = response
+        self.response: httpx.Response | None = response
+        """HTTP response that caused the error, if any."""
 
 
 class SonioxValidationError(SonioxError):
     """Raised when Pydantic input validation fails on the client side."""
 
     def __init__(self, message: str, *, errors: ValidationError | None = None) -> None:
+        """
+        Args:
+            message: Description of what went wrong.
+            errors: The underlying Pydantic validation error, if any.
+        """
         super().__init__(message)
-        self.errors = errors
+        self.errors: ValidationError | None = errors
+        """The underlying Pydantic validation error, if any."""
 
 
 class SonioxAPIError(SonioxError):
@@ -38,6 +50,12 @@ class SonioxAPIError(SonioxError):
         api_error: ApiError | None = None,
         response: httpx.Response | None = None,
     ) -> None:
+        """
+        Args:
+            message: Description of what went wrong.
+            api_error: Parsed error body; its ``error_type`` identifies the error.
+            response: HTTP response that caused the error.
+        """
         super().__init__(message, response=response)
         self.api_error = api_error
         self.status_code = response.status_code if response is not None else None
@@ -56,7 +74,12 @@ class SonioxAPIError(SonioxError):
 
     @classmethod
     def from_response(cls, response: httpx.Response) -> SonioxAPIError:
-        """Parse an `httpx.Response` into a richer SDK error."""
+        """
+        Parse an `httpx.Response` into the matching SDK error.
+
+        Args:
+            response: Non-2xx HTTP response from the Soniox API.
+        """
         api_error: ApiError | None = None
         payload = None
         try:
@@ -69,16 +92,21 @@ class SonioxAPIError(SonioxError):
             except ValidationError as exc:
                 if isinstance(payload, dict):
                     payload_dict = cast("dict[str, object]", payload)
+                    # WebSocket-style body, also used by TTS REST:
+                    # {error_code, error_type, error_message, request_id, ...}
                     error_code = payload_dict.get("error_code")
+                    error_type = payload_dict.get("error_type")
                     error_message = payload_dict.get("error_message")
+                    request_id = payload_dict.get("request_id")
                     if isinstance(error_message, str):
                         status_code = (
                             int(error_code) if isinstance(error_code, int) else response.status_code
                         )
                         api_error = ApiError(
                             status_code=status_code,
-                            error_type="api_error",
+                            error_type=error_type if isinstance(error_type, str) else "api_error",
                             message=error_message,
+                            request_id=request_id if isinstance(request_id, str) else None,
                         )
                     else:
                         raise SonioxAPIError(
@@ -122,13 +150,14 @@ class SonioxAuthenticationError(SonioxAPIError):
     """Authentication failures (`401`/`403`)."""
 
 
-class SonioxPermissionDeniedError(SonioxAuthenticationError):
+class SonioxPermissionDeniedError(SonioxAPIError):
     """
     The API key is valid but lacks the permission for this call (`403` with
     ``error_type`` ``permission_denied``). Other `403` errors, such as an expired
-    temporary API key session, raise `SonioxAuthenticationError`.
+    temporary API key session, raise `SonioxAuthenticationError`. REST calls only;
+    over WebSocket a permission error arrives as a realtime error event.
 
-    See https://soniox.com/docs/guides/api-key-permissions.
+    See [API key permissions](https://soniox.com/docs/guides/api-key-permissions).
     """
 
 
@@ -137,19 +166,19 @@ class SonioxInvalidRequestError(SonioxAPIError):
 
 
 class SonioxNotFoundError(SonioxAPIError):
-    """Resource not found."""
+    """Resource not found (`404`)."""
 
 
 class SonioxConflictError(SonioxAPIError):
-    """Conflict or invalid state (e.g., delete while processing)."""
+    """Conflict or invalid state, e.g. deleting while processing (`409`)."""
 
 
 class SonioxRateLimitError(SonioxAPIError):
-    """Rate limit (429)."""
+    """Rate limit or usage limit exceeded (`429`)."""
 
 
 class SonioxServerError(SonioxAPIError):
-    """5xx responses."""
+    """Server errors (`5xx`)."""
 
 
 class InvalidWebhookSignatureError(SonioxError):

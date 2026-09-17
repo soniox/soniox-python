@@ -19,6 +19,7 @@ from httpx import Response
 from soniox.client import SonioxClient
 from soniox.errors import (
     SonioxAPIError,
+    SonioxPermissionDeniedError,
     SonioxServerError,
     SonioxValidationError,
 )
@@ -106,6 +107,29 @@ def test_legacy_error_code_message_payload_is_recognised(client: SonioxClient) -
 
     with pytest.raises(SonioxInvalidRequestError, match="legacy error path"):
         client.files.list(limit=5)
+
+
+@respx.mock
+def test_websocket_style_error_body_keeps_error_type(client: SonioxClient) -> None:
+    """TTS REST returns ``{error_code, error_type, error_message, request_id}``;
+    a ``permission_denied`` there must still map to the permission error."""
+    respx.get(f"{BASE_URL}/files").mock(
+        return_value=Response(
+            403,
+            json={
+                "error_code": 403,
+                "error_type": "permission_denied",
+                "error_message": "The API key does not have permission for this product.",
+                "more_info": "https://soniox.com/docs/api-reference/errors#permission-denied",
+                "request_id": "req_tts",
+            },
+        )
+    )
+    with pytest.raises(SonioxPermissionDeniedError, match="does not have permission") as exc_info:
+        client.files.list(limit=5)
+    assert exc_info.value.request_id == "req_tts"
+    assert exc_info.value.api_error is not None
+    assert exc_info.value.api_error.error_type == "permission_denied"
 
 
 @respx.mock

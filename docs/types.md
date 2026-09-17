@@ -1,7 +1,7 @@
 ---
 title: "Types"
 description: "Soniox Python SDK - Types Reference"
-keywords: "Token, ApiError, ApiErrorValidationError, CreateTemporaryApiKeyPayload, CreateTemporaryApiKeyResponse, CreateTtsPayload, ConcurrencyCurrentValues, ConcurrencyLimitValues, ConcurrencyScopeValues, CreateTtsConfig, CreateTranscriptionPayload, CreateTranscriptionConfig, File, GetConcurrencyLimitsResponse, GetFilesCountResponse, GetFilesPayload, GetFilesResponse, GetModelsResponse, GetTTSModelsResponse, GetTtsModelsResponse, GetTranscriptionsCountResponse, GetTranscriptionsPayload, GetTranscriptionsResponse, GetUsageLogsPayload, GetUsageLogsResponse, GetConcurrentStreamsHistoryPayload, GetConcurrentStreamsHistoryResponse, GetUsageSummaryPayload, GetUsageSummaryResponse, GetVoicesCountResponse, GetVoicesPayload, GetVoicesResponse, Language, LanguageCode, SupportedLanguage, Model, RealtimeSTTAudioFormat, RealtimeSTTHeaderFormat, RealtimeSTTRawFormat, RecomputeVoicePayload, StructuredContext, StructuredContextGeneralInput, StructuredContextGeneralItem, StructuredContextInput, StructuredContextTranslationTerm, StructuredContextTranslationTermsInput, Transcription, TranscriptionStatus, TranscriptionTranscript, TranslationConfig, TranslationConfigInput, TranslationTarget, TranslationType, TTSModel, TTSVoice, TtsAudioFormat, TtsBitrate, TtsModel, TtsSampleRate, TtsVoice, TtsVoiceGender, TemporaryApiKeyUsageType, UploadFilePayload, UsageLogEntry, ConcurrentStreamKind, ConcurrentStreamsHistoryEntry, ConcurrentStreamsPeriodSec, UsageLogsSort, UsageSummaryEntry, Voice, VoiceModel, VoiceModelStatus, RealtimeEvent, RealtimeSTTConfig, RealtimeTTSConfig, RealtimeTTSEvent, RealtimeTTSTextMessage, TtsTimestamps, Headers, WebhookAuthConfig, WebhookEvent"
+keywords: "Token, ApiError, ApiErrorValidationError, CreateTemporaryApiKeyPayload, CreateTemporaryApiKeyResponse, CreateTtsPayload, ConcurrencyCurrentValues, ConcurrencyLimitValues, ConcurrencyScopeValues, CreateTtsConfig, CreateTranscriptionPayload, CreateTranscriptionConfig, File, GetConcurrencyLimitsResponse, GetFilesCountResponse, GetFilesPayload, GetFilesResponse, GetModelsResponse, GetSharedVoicesPayload, GetSharedVoicesResponse, GetTTSModelsResponse, GetTtsModelsResponse, GetTranscriptionsCountResponse, GetTranscriptionsPayload, GetTranscriptionsResponse, GetUsageLogsPayload, GetUsageLogsResponse, GetConcurrentStreamsHistoryPayload, GetConcurrentStreamsHistoryResponse, GetUsageSummaryPayload, GetUsageSummaryResponse, GetVoicesCountResponse, GetVoicesPayload, GetVoicesResponse, Language, LanguageCode, SupportedLanguage, Model, RealtimeSTTAudioFormat, RealtimeSTTHeaderFormat, RealtimeSTTRawFormat, RecomputeVoicePayload, StructuredContext, StructuredContextGeneralInput, StructuredContextGeneralItem, StructuredContextInput, StructuredContextTranslationTerm, StructuredContextTranslationTermsInput, Transcription, TranscriptionStatus, TranscriptionTranscript, TranslationConfig, TranslationConfigInput, TranslationTarget, TranslationType, TTSModel, TTSVoice, TTSVoiceAge, TTSVoiceDetails, TtsAudioFormat, TtsBitrate, TtsModel, TtsSampleRate, TtsVoice, TtsVoiceAge, TtsVoiceDetails, TtsVoiceGender, TemporaryApiKeyUsageType, UploadFilePayload, UsageLogEntry, ConcurrentStreamKind, ConcurrentStreamsHistoryEntry, ConcurrentStreamsPeriodSec, UsageLogsSort, UsageSummaryEntry, Voice, VoiceModel, VoiceModelStatus, RealtimeEvent, RealtimeSTTConfig, RealtimeTTSConfig, RealtimeTTSEvent, RealtimeTTSTextMessage, TtsTimestamps, Headers, WebhookAuthConfig, WebhookEvent"
 ---
 
 ---
@@ -326,6 +326,42 @@ Response returned when listing available models.
 | Property | Type | Description |
 | ------ | ------ | ------ |
 | `models` | `list[Model]` | List of all available models. |
+
+---
+
+## GetSharedVoicesPayload
+
+Parameters for listing the shared voices of a Text-to-Speech model.
+
+<a id="getsharedvoicespayload-properties"></a>
+
+### Properties
+
+| Property | Type | Description |
+| ------ | ------ | ------ |
+| `model` | `str` | Id of the TTS model whose voices to return. |
+| `gender` | `TtsVoiceGender \| None` | Only return voices of this gender. |
+| `age` | `TtsVoiceAge \| None` | Only return voices of this age. |
+| `accent` | `str \| None` | Only return voices with this accent. |
+| `use_case` | `list[Annotated[str, Field(max_length=40)]] \| None` | Only return voices tagged with every listed use case. |
+| `style` | `list[Annotated[str, Field(max_length=40)]] \| None` | Only return voices tagged with every listed style. |
+| `limit` | `int` | Maximum number of voices to return. |
+| `cursor` | `str \| None` | Pagination cursor. Pass the same filters alongside it; it points into the filtered list. |
+
+---
+
+## GetSharedVoicesResponse
+
+Response returned when listing the shared voices of a Text-to-Speech model.
+
+<a id="getsharedvoicesresponse-properties"></a>
+
+### Properties
+
+| Property | Type | Description |
+| ------ | ------ | ------ |
+| `voices` | `list[TtsVoiceDetails]` | List of voices matching the filters. |
+| `next_page_cursor` | `str \| None` | Pagination token for the next page of results, or None when no more results. |
 
 ---
 
@@ -919,6 +955,26 @@ TTSVoice = TtsVoice
 
 ---
 
+<a id="ttsvoiceage"></a>
+
+## TTSVoiceAge
+
+```python
+TTSVoiceAge = TtsVoiceAge
+```
+
+---
+
+<a id="ttsvoicedetails"></a>
+
+## TTSVoiceDetails
+
+```python
+TTSVoiceDetails = TtsVoiceDetails
+```
+
+---
+
 <a id="ttsaudioformat"></a>
 
 ## TtsAudioFormat
@@ -969,6 +1025,8 @@ Represents a Text-to-Speech model.
 | `voices` | `list[TtsVoice]` | Voices supported by this model. |
 | `languages` | `list[SupportedLanguage]` | Languages supported by this model. |
 | `supports_timestamps` | `bool` | If model supports character-to-audio timestamps ('return_timestamps'). |
+| `supports_voice_cloning` | `bool` | If model supports cloned voices created with ``client.voices.create()``. |
+| `voice_cloning_max_audio_duration_ms` | `int \| None` | Maximum reference clip duration for voice cloning (None when cloning is unsupported). |
 | `supports_speed_adjustment` | `bool` | If model supports adjusting the speaking rate via the 'speed' parameter. |
 | `speed_min` | `float \| None` | Minimum supported speaking rate (None when speed adjustment is unsupported). |
 | `speed_max` | `float \| None` | Maximum supported speaking rate (None when speed adjustment is unsupported). |
@@ -1001,6 +1059,38 @@ Represents a Text-to-Speech voice.
 | `id` | `str` | Unique identifier of the voice. |
 | `description` | `str` | Description of the voice. |
 | `gender` | `TtsVoiceGender` | Gender of the voice. |
+
+---
+
+<a id="ttsvoiceage"></a>
+
+## TtsVoiceAge
+
+```python
+TtsVoiceAge = Literal["young", "middle_aged", "old"]
+```
+
+Perceived age of a Text-to-Speech voice.
+
+---
+
+## TtsVoiceDetails
+
+A shared Text-to-Speech voice with its descriptive tags.
+
+<a id="ttsvoicedetails-properties"></a>
+
+### Properties
+
+| Property | Type | Description |
+| ------ | ------ | ------ |
+| `id` | `str` | Unique identifier of the voice. |
+| `description` | `str` | Description of the voice. |
+| `gender` | `TtsVoiceGender` | Gender of the voice. |
+| `age` | `TtsVoiceAge` | Perceived age of the speaker. |
+| `accent` | `str` | Accent of the voice, e.g. 'american', 'british'. |
+| `use_case` | `list[str]` | Tags describing what the voice is suited for, e.g. 'narration', 'conversational'. |
+| `style` | `list[str]` | Tags describing how the voice sounds, e.g. 'warm', 'energetic'. |
 
 ---
 
