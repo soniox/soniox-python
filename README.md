@@ -61,7 +61,16 @@ client.close()
 
 Run the full example at [`examples/soniox_client/tts_api_example.py`](https://github.com/soniox/soniox-python/blob/main/examples/soniox_client/tts_api_example.py) or async version at [`examples/async_soniox_client/tts_api_example.py`](https://github.com/soniox/soniox-python/blob/main/examples/async_soniox_client/tts_api_example.py).
 
-The `voice` above is a built-in voice name. You can also **clone a voice** from a reference audio clip and pass the returned voice id as `voice`:
+The `voice` above is a built-in (shared) voice name. To browse a model's shared voices, filtered by gender, age, accent, use case or style:
+
+```python
+for v in client.voices.list_all_shared("tts-rt-v2", gender="female", style=["calm"]):
+    print(v.id, v.accent, v.description)
+```
+
+Use `client.voices.list_shared(...)` for a single page with an explicit `cursor`.
+
+You can also **clone a voice** from a reference audio clip and pass the returned voice id as `voice`:
 
 ```python
 voice = client.voices.create("reference.wav", name="my-cloned-voice")

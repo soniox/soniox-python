@@ -165,7 +165,7 @@ class SonioxClient(_BaseSonioxClient):
 
     @cached_property
     def voices(self) -> VoicesAPI:
-        """Voice cloning and voice management API namespace."""
+        """Voice cloning, shared voice listing and voice management API namespace."""
         from .api.voices import VoicesAPI
 
         return VoicesAPI(self)
@@ -321,7 +321,7 @@ class AsyncSonioxClient(_BaseSonioxClient):
 
     @cached_property
     def voices(self) -> AsyncVoicesAPI:
-        """Voice cloning and voice management API namespace."""
+        """Voice cloning, shared voice listing and voice management API namespace."""
         from .api.async_voices import AsyncVoicesAPI
 
         return AsyncVoicesAPI(self)

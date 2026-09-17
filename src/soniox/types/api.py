@@ -96,6 +96,9 @@ TtsBitrate = Literal[32000, 64000, 96000, 128000, 192000, 256000, 320000]
 TtsVoiceGender = Literal["male", "female", "neutral"]
 """Reported gender of a Text-to-Speech voice."""
 
+TtsVoiceAge = Literal["young", "middle_aged", "old"]
+"""Perceived age of a Text-to-Speech voice."""
+
 
 class ApiErrorValidationError(BaseModel):
     """Details a single validation error reported by the Soniox API."""
@@ -700,6 +703,12 @@ class TtsModel(BaseModel):
     supports_timestamps: bool = False
     """If model supports character-to-audio timestamps ('return_timestamps')."""
 
+    supports_voice_cloning: bool = False
+    """If model supports cloned voices created with ``client.voices.create()``."""
+
+    voice_cloning_max_audio_duration_ms: int | None = None
+    """Maximum reference clip duration for voice cloning (None when cloning is unsupported)."""
+
     supports_speed_adjustment: bool = False
     """If model supports adjusting the speaking rate via the 'speed' parameter."""
 
@@ -718,6 +727,69 @@ class GetTtsModelsResponse(BaseModel):
 
     models: list[TtsModel]
     """List of available Text-to-Speech models."""
+
+
+class GetSharedVoicesPayload(BaseModel):
+    """Parameters for listing the shared voices of a Text-to-Speech model."""
+
+    model: str = Field(max_length=64)
+    """Id of the TTS model whose voices to return."""
+
+    gender: TtsVoiceGender | None = None
+    """Only return voices of this gender."""
+
+    age: TtsVoiceAge | None = None
+    """Only return voices of this age."""
+
+    accent: str | None = Field(default=None, max_length=40)
+    """Only return voices with this accent."""
+
+    use_case: list[Annotated[str, Field(max_length=40)]] | None = Field(default=None, max_length=10)
+    """Only return voices tagged with every listed use case."""
+
+    style: list[Annotated[str, Field(max_length=40)]] | None = Field(default=None, max_length=10)
+    """Only return voices tagged with every listed style."""
+
+    limit: int = Field(default=100, ge=1, le=200)
+    """Maximum number of voices to return."""
+
+    cursor: str | None = None
+    """Pagination cursor. Pass the same filters alongside it; it points into the filtered list."""
+
+
+class TtsVoiceDetails(BaseModel):
+    """A shared Text-to-Speech voice with its descriptive tags."""
+
+    id: str
+    """Unique identifier of the voice."""
+
+    description: str
+    """Description of the voice."""
+
+    gender: TtsVoiceGender
+    """Gender of the voice."""
+
+    age: TtsVoiceAge
+    """Perceived age of the speaker."""
+
+    accent: str
+    """Accent of the voice, e.g. 'american', 'british'."""
+
+    use_case: list[str]
+    """Tags describing what the voice is suited for, e.g. 'narration', 'conversational'."""
+
+    style: list[str]
+    """Tags describing how the voice sounds, e.g. 'warm', 'energetic'."""
+
+
+class GetSharedVoicesResponse(BaseModel):
+    """Response returned when listing the shared voices of a Text-to-Speech model."""
+
+    voices: list[TtsVoiceDetails]
+    """List of voices matching the filters."""
+
+    next_page_cursor: str | None = None
+    """Pagination token for the next page of results, or None when no more results."""
 
 
 class TranscriptionTranscript(BaseModel):

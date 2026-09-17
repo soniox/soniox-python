@@ -110,6 +110,11 @@ SDK_BINDINGS: dict[str, SdkBinding] = {
         sync_call=lambda c: c.tts_models.list(),
         async_call=lambda c: c.tts_models.list(),
     ),
+    "get_shared_voices": SdkBinding(
+        sync_call=lambda c: c.voices.list_shared("tts-rt-v2"),
+        async_call=lambda c: c.voices.list_shared("tts-rt-v2"),
+        expect_params={"model": "tts-rt-v2", "limit": "100"},
+    ),
     "get_voices": SdkBinding(
         sync_call=lambda c: c.voices.list(limit=5),
         async_call=lambda c: c.voices.list(limit=5),
@@ -146,9 +151,27 @@ SDK_BINDINGS: dict[str, SdkBinding] = {
             start_time="2026-01-01T00:00:00Z", end_time="2026-02-01T00:00:00Z"
         ),
     ),
+    "get_usage_summary": SdkBinding(
+        sync_call=lambda c: c.usage.summary(
+            start_time="2026-01-01T00:00:00Z", end_time="2026-02-01T00:00:00Z"
+        ),
+        async_call=lambda c: c.usage.summary(
+            start_time="2026-01-01T00:00:00Z", end_time="2026-02-01T00:00:00Z"
+        ),
+        expect_params={"start_time": "2026-01-01T00:00:00Z", "end_time": "2026-02-01T00:00:00Z"},
+    ),
     "get_concurrency_limits": SdkBinding(
         sync_call=lambda c: c.concurrency_limits.get(),
         async_call=lambda c: c.concurrency_limits.get(),
+    ),
+    "get_concurrent_streams_history": SdkBinding(
+        sync_call=lambda c: c.concurrency_limits.history(
+            "2026-01-01T00:00:00Z", "2026-01-02T00:00:00Z", period_sec=3600, kind="stt"
+        ),
+        async_call=lambda c: c.concurrency_limits.history(
+            "2026-01-01T00:00:00Z", "2026-01-02T00:00:00Z", period_sec=3600, kind="stt"
+        ),
+        expect_params={"period_sec": "3600", "kind": "stt"},
     ),
     "create_temporary_api_key": SdkBinding(
         sync_call=lambda c: c.auth.create_temporary_api_key(usage_type="transcribe_websocket"),
@@ -220,6 +243,38 @@ SDK_BINDINGS_FULL: dict[str, SdkBinding] = {
         sync_call=lambda c: c.voices.list(limit=10, cursor="page-token"),
         async_call=lambda c: c.voices.list(limit=10, cursor="page-token"),
         expect_params={"limit": "10", "cursor": "page-token"},
+    ),
+    "get_shared_voices": SdkBinding(
+        sync_call=lambda c: c.voices.list_shared(
+            "tts-rt-v2",
+            gender="female",
+            age="middle_aged",
+            accent="british",
+            use_case=["narration", "conversational"],
+            style=["calm"],
+            limit=20,
+            cursor="page-token",
+        ),
+        async_call=lambda c: c.voices.list_shared(
+            "tts-rt-v2",
+            gender="female",
+            age="middle_aged",
+            accent="british",
+            use_case=["narration", "conversational"],
+            style=["calm"],
+            limit=20,
+            cursor="page-token",
+        ),
+        expect_params={
+            "model": "tts-rt-v2",
+            "gender": "female",
+            "age": "middle_aged",
+            "accent": "british",
+            "use_case": "narration",
+            "style": "calm",
+            "limit": "20",
+            "cursor": "page-token",
+        },
     ),
     "recompute_voice": SdkBinding(
         sync_call=lambda c: c.voices.recompute(_ID, model="tts-1"),

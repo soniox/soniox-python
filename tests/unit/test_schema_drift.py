@@ -42,6 +42,10 @@ KNOWN_REQUIRED_DRIFT: set[str] = {
     "TTSModel.supports_speed_adjustment",
     "TTSModel.speed_min",
     "TTSModel.speed_max",
+    "TTSModel.supports_timestamps",
+    "TTSModel.supports_voice_cloning",
+    "TTSModel.voice_cloning_max_audio_duration_ms",
+    "TTSModel.supports_silence_reduction",
 }
 
 

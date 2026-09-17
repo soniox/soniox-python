@@ -23,6 +23,8 @@ from .api import (
     GetFilesPayload,
     GetFilesResponse,
     GetModelsResponse,
+    GetSharedVoicesPayload,
+    GetSharedVoicesResponse,
     GetTranscriptionsCountResponse,
     GetTranscriptionsPayload,
     GetTranscriptionsResponse,
@@ -61,6 +63,8 @@ from .api import (
     TtsModel,
     TtsSampleRate,
     TtsVoice,
+    TtsVoiceAge,
+    TtsVoiceDetails,
     TtsVoiceGender,
     UploadFilePayload,
     UsageLogEntry,
@@ -91,6 +95,8 @@ from .webhooks import (
 GetTTSModelsResponse = GetTtsModelsResponse
 TTSModel = TtsModel
 TTSVoice = TtsVoice
+TTSVoiceAge = TtsVoiceAge
+TTSVoiceDetails = TtsVoiceDetails
 
 __all__ = [
     # common.py
@@ -113,6 +119,8 @@ __all__ = [
     "GetFilesPayload",
     "GetFilesResponse",
     "GetModelsResponse",
+    "GetSharedVoicesPayload",
+    "GetSharedVoicesResponse",
     "GetTTSModelsResponse",
     "GetTtsModelsResponse",
     "GetTranscriptionsCountResponse",
@@ -150,11 +158,15 @@ __all__ = [
     "TranslationType",
     "TTSModel",
     "TTSVoice",
+    "TTSVoiceAge",
+    "TTSVoiceDetails",
     "TtsAudioFormat",
     "TtsBitrate",
     "TtsModel",
     "TtsSampleRate",
     "TtsVoice",
+    "TtsVoiceAge",
+    "TtsVoiceDetails",
     "TtsVoiceGender",
     "TemporaryApiKeyUsageType",
     "UploadFilePayload",

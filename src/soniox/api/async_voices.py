@@ -6,10 +6,15 @@ from typing import TYPE_CHECKING, BinaryIO
 
 from ..errors import SonioxNotFoundError
 from ..types import (
+    GetSharedVoicesPayload,
+    GetSharedVoicesResponse,
     GetVoicesCountResponse,
     GetVoicesPayload,
     GetVoicesResponse,
     RecomputeVoicePayload,
+    TtsVoiceAge,
+    TtsVoiceDetails,
+    TtsVoiceGender,
     Voice,
 )
 from ._utils import ensure_success, normalize_file, parse_async_response
@@ -24,7 +29,9 @@ class AsyncVoicesAPI:
 
     async def list(self, limit: int = 100, cursor: str | None = None) -> GetVoicesResponse:
         """
-        List voices in the project.
+        List the voices you cloned in the project.
+
+        For the built-in voices of a model, use ``list_shared()``.
 
         Performs a GET request to ``/voices`` with optional pagination.
 
@@ -50,7 +57,9 @@ class AsyncVoicesAPI:
 
     async def list_all(self, limit: int = 100) -> AsyncGenerator[Voice, None]:
         """
-        Iterate through all voices across all pages.
+        Iterate through all cloned voices across all pages.
+
+        For the built-in voices of a model, use ``list_all_shared()``.
 
         Yields:
             Voice: The next voice object from the API.
@@ -62,6 +71,95 @@ class AsyncVoicesAPI:
 
         while True:
             response = await self.list(limit=limit, cursor=cursor)
+
+            for voice in response.voices:
+                yield voice
+
+            cursor = response.next_page_cursor
+            if not cursor:
+                break
+
+    async def list_shared(
+        self,
+        model: str,
+        *,
+        gender: TtsVoiceGender | None = None,
+        age: TtsVoiceAge | None = None,
+        accent: str | None = None,
+        use_case: list[str] | None = None,
+        style: list[str] | None = None,
+        limit: int = 100,
+        cursor: str | None = None,
+    ) -> GetSharedVoicesResponse:
+        """
+        List the shared voices built into a Text-to-Speech model.
+
+        Performs a GET request to ``/shared-voices``. All given filters must match.
+        For voices you cloned yourself, use ``list()``.
+
+        Args:
+            model: Id of the TTS model whose voices to return.
+            gender: Only return voices of this gender.
+            age: Only return voices of this age.
+            accent: Only return voices with this accent.
+            use_case: Only return voices tagged with every listed use case.
+            style: Only return voices tagged with every listed style.
+            limit: Maximum number of voices to return (1-200).
+            cursor: Pagination cursor. Pass the same filters alongside it; the cursor
+                points into the filtered list, not the whole catalogue.
+
+        Raises:
+            SonioxAPIError: When the API returns an error.
+        """
+        payload = GetSharedVoicesPayload(
+            model=model,
+            gender=gender,
+            age=age,
+            accent=accent,
+            use_case=use_case,
+            style=style,
+            limit=limit,
+            cursor=cursor,
+        )
+        response = await self._client.request(
+            "GET", "/shared-voices", params=payload.model_dump(exclude_none=True)
+        )
+        return await parse_async_response(response, GetSharedVoicesResponse)
+
+    async def list_all_shared(
+        self,
+        model: str,
+        *,
+        gender: TtsVoiceGender | None = None,
+        age: TtsVoiceAge | None = None,
+        accent: str | None = None,
+        use_case: list[str] | None = None,
+        style: list[str] | None = None,
+        limit: int = 100,
+    ) -> AsyncGenerator[TtsVoiceDetails, None]:
+        """
+        Iterate through all shared voices of a Text-to-Speech model across all pages.
+
+        Accepts the same filters as ``list_shared()``; they are sent with every page.
+
+        Yields:
+            TtsVoiceDetails: The next voice matching the filters.
+
+        Raises:
+            SonioxAPIError: When the API returns an error.
+        """
+        cursor: str | None = None
+        while True:
+            response = await self.list_shared(
+                model,
+                gender=gender,
+                age=age,
+                accent=accent,
+                use_case=use_case,
+                style=style,
+                limit=limit,
+                cursor=cursor,
+            )
 
             for voice in response.voices:
                 yield voice

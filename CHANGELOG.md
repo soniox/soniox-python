@@ -63,6 +63,10 @@ Examples:
 
 ### Added
 
+- `client.voices.list_shared()` and `list_all_shared()` (and async variants) listing a TTS model's shared voices, filterable by gender, age, accent, use case and style.
+- `supports_voice_cloning` and `voice_cloning_max_audio_duration_ms` on `TtsModel`.
+- `TtsVoiceDetails`, `TtsVoiceAge`, `GetSharedVoicesPayload` and `GetSharedVoicesResponse` types, plus `TTSVoiceDetails` and `TTSVoiceAge` schema-cased aliases.
+
 ### Changed
 
 ### Deprecated
