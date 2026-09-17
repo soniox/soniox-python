@@ -23,6 +23,7 @@ ASYNC_CLASS_SPECS = [
     ("soniox.api.async_stt", "AsyncSttAPI"),
     ("soniox.api.async_tts", "AsyncTtsAPI"),
     ("soniox.api.async_tts_models", "AsyncTtsModelsAPI"),
+    ("soniox.api.async_voices", "AsyncVoicesAPI"),
     ("soniox.api.async_models", "AsyncModelsAPI"),
     ("soniox.api.async_usage_logs", "AsyncUsageLogsAPI"),
     ("soniox.api.async_concurrency_limits", "AsyncConcurrencyLimitsAPI"),
