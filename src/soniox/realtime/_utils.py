@@ -10,7 +10,7 @@ KEEP_ALIVE_INTERVAL_SEC: float = 5.0
 DEFAULT_CONNECT_TIMEOUT_SEC: float = 10.0
 
 
-def auth_headers(api_key: str | None) -> dict[str, str]:
+def auth_headers(api_key: str) -> dict[str, str]:
     """
     The API key for the WebSocket handshake.
 
@@ -19,7 +19,7 @@ def auth_headers(api_key: str | None) -> dict[str, str]:
     only place the key travels; the config message no longer carries it, and
     sending it in both places at once is rejected.
     """
-    return {"Authorization": f"Bearer {api_key}"} if api_key else {}
+    return {"Authorization": f"Bearer {api_key}"}
 
 
 def validate_connect_timeout_sec(timeout_sec: float) -> float:

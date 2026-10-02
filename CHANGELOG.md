@@ -63,6 +63,20 @@ Examples:
 
 ### Added
 
+### Changed
+
+### Deprecated
+
+### Fixed
+
+### Removed
+
+---
+
+## [2.10.0] - 2 oct 2026
+
+### Added
+
 - `SonioxPermissionDeniedError`, raised when the API key lacks the [permission](https://soniox.com/docs/guides/api-key-permissions) for a call (HTTP `403`, `error_type` `permission_denied`). It subclasses `SonioxAPIError`; other `403` errors, such as `temp_api_key_session_expired`, still raise `SonioxAuthenticationError`.
 - `client.voices.list_shared()` and `list_all_shared()` (and async variants) listing a TTS model's shared voices, filterable by gender, age, accent, use case and style.
 - `supports_voice_cloning` and `voice_cloning_max_audio_duration_ms` on `TtsModel`.
@@ -77,6 +91,10 @@ Examples:
 ### Fixed
 
 ### Removed
+
+- `api_key` on `RealtimeSTTConfig` and `RealtimeTTSConfig`. The key now travels on the handshake, and `connect()` never read this field — it resolved the key from its own `api_key` argument or the client. Passing it to the constructor is still accepted and ignored; reading `config.api_key` now raises `AttributeError`.
+- `build_payload()` on `RealtimeSTTConfig` and `RealtimeTTSConfig`. It existed only to copy the API key into the config message, which no longer carries it.
+- The realtime session and connection classes now take the API key as a required argument after `config` (`RealtimeSTTSession(url, config, api_key, ...)`). This affects you only if you construct them directly instead of through `client.realtime.stt.connect()` / `client.realtime.tts.connect()`.
 
 ---
 
