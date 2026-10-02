@@ -1354,7 +1354,6 @@ Configuration for initiating a realtime transcription session.
 
 | Property | Type | Description |
 | ------ | ------ | ------ |
-| `api_key` | `str \| None` | API key for real-time sessions. |
 | `model` | `str` | Speech-to-text model to use. |
 | `audio_format` | `RealtimeSTTAudioFormat` | Audio format. Use 'auto' for automatic detection of container formats. |
 | `num_channels` | `int \| None` | Number of audio channels (required for raw audio formats). |
@@ -1371,24 +1370,6 @@ Configuration for initiating a realtime transcription session.
 | `translation` | `TranslationConfigInput \| None` | Translation configuration. |
 | `client_reference_id` | `str \| None` | Optional tracking identifier (max 256 chars). |
 
-<a id="realtimesttconfig-build_payload"></a>
-
-### build_payload()
-
-```python
-build_payload(api_key: str) -> RealtimeSTTConfig
-```
-
-**Parameters**
-
-| Parameter | Type | Description |
-| ------ | ------ | ------ |
-| `api_key` | `str` | API key used for authentication. |
-
-**Returns**
-
-`RealtimeSTTConfig`
-
 ---
 
 ## RealtimeTTSConfig
@@ -1401,7 +1382,6 @@ Configuration for initiating a realtime Text-to-Speech stream.
 
 | Property | Type | Description |
 | ------ | ------ | ------ |
-| `api_key` | `str \| None` | API key for real-time sessions. |
 | `stream_id` | `str` | Client stream identifier unique among active streams on a connection. |
 | `model` | `str` | Text-to-Speech model to use. |
 | `language` | `str` | Language code for Text-to-Speech (e.g., "en"). |
@@ -1412,24 +1392,6 @@ Configuration for initiating a realtime Text-to-Speech stream.
 | `speed` | `float \| None` | Speaking rate multiplier from 0.7 to 1.3; 1.0 (default) is normal speed. |
 | `reduce_silence` | `bool \| None` | Shorten the pauses between words. Only for models with 'supports_silence_reduction'. |
 | `return_timestamps` | `bool \| None` | Request character-to-audio timestamps on response events. Defaults to false. |
-
-<a id="realtimettsconfig-build_payload"></a>
-
-### build_payload()
-
-```python
-build_payload(api_key: str) -> RealtimeTTSConfig
-```
-
-**Parameters**
-
-| Parameter | Type | Description |
-| ------ | ------ | ------ |
-| `api_key` | `str` | API key used for authentication. |
-
-**Returns**
-
-`RealtimeTTSConfig`
 
 ---
 

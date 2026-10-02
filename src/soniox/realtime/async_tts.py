@@ -23,7 +23,12 @@ from ._constants import (
     TTS_KEEP_ALIVE_INTERVAL_SEC,
     TTS_STREAM_EVENT_TIMEOUT_SEC,
 )
-from ._utils import DEFAULT_CONNECT_TIMEOUT_SEC, KeepaliveTask, validate_connect_timeout_sec
+from ._utils import (
+    DEFAULT_CONNECT_TIMEOUT_SEC,
+    KeepaliveTask,
+    auth_headers,
+    validate_connect_timeout_sec,
+)
 
 if TYPE_CHECKING:
     from ..client import AsyncSonioxClient
@@ -36,11 +41,13 @@ class AsyncRealtimeTTSConnection:
         self,
         url: str,
         config: RealtimeTTSConfig,
+        api_key: str,
         *,
         connect_timeout_sec: float = DEFAULT_CONNECT_TIMEOUT_SEC,
     ) -> None:
         self._url = url
         self._config = config
+        self._api_key = api_key
         self._connect_timeout_sec = connect_timeout_sec
         self._ws = None
         self._last_message: RealtimeTTSEvent | None = None
@@ -63,6 +70,7 @@ class AsyncRealtimeTTSConnection:
             self._ws = await async_ws_connect(
                 self._url,
                 open_timeout=self._connect_timeout_sec,
+                additional_headers=auth_headers(self._api_key),
             )
         except TimeoutError as exc:
             raise SonioxRealtimeError("Connection timed out") from exc
@@ -264,10 +272,10 @@ class AsyncRealtimeTTSClient:
             raise SonioxValidationError("API key is required to start a realtime session")
 
         timeout_sec = validate_connect_timeout_sec(connect_timeout_sec)
-        payload = config.build_payload(key)
         return AsyncRealtimeTTSConnection(
             self._client.tts_websocket_base_url,
-            payload,
+            config,
+            key,
             connect_timeout_sec=timeout_sec,
         )
 
@@ -330,6 +338,7 @@ class AsyncRealtimeTTSMultiplexedConnection:
             self._ws = await async_ws_connect(
                 self._url,
                 open_timeout=self._connect_timeout_sec,
+                additional_headers=auth_headers(self._api_key),
             )
             return self
         except TimeoutError as exc:
@@ -409,8 +418,7 @@ class AsyncRealtimeTTSMultiplexedConnection:
             raise SonioxRealtimeError(
                 f"Maximum concurrent streams ({MAX_TTS_STREAMS_PER_CONNECTION}) reached"
             )
-        payload = config.build_payload(self._api_key)
-        await self._send_json(payload.model_dump(exclude_none=True))
+        await self._send_json(config.model_dump(exclude_none=True))
         self._active_stream_ids.add(stream_id)
         self._events_by_stream.setdefault(stream_id, deque())
         return AsyncRealtimeTTSStream(self, config)

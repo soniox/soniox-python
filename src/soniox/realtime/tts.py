@@ -24,7 +24,12 @@ from ._constants import (
     TTS_KEEP_ALIVE_INTERVAL_SEC,
     TTS_STREAM_EVENT_TIMEOUT_SEC,
 )
-from ._utils import DEFAULT_CONNECT_TIMEOUT_SEC, KeepaliveThread, validate_connect_timeout_sec
+from ._utils import (
+    DEFAULT_CONNECT_TIMEOUT_SEC,
+    KeepaliveThread,
+    auth_headers,
+    validate_connect_timeout_sec,
+)
 
 if TYPE_CHECKING:
     from ..client import SonioxClient
@@ -37,11 +42,13 @@ class RealtimeTTSConnection:
         self,
         url: str,
         config: RealtimeTTSConfig,
+        api_key: str,
         *,
         connect_timeout_sec: float = DEFAULT_CONNECT_TIMEOUT_SEC,
     ) -> None:
         self._url = url
         self._config = config
+        self._api_key = api_key
         self._connect_timeout_sec = connect_timeout_sec
         self._ws = None
         self._last_message: RealtimeTTSEvent | None = None
@@ -64,6 +71,7 @@ class RealtimeTTSConnection:
             self._ws = sync_ws_connect(
                 self._url,
                 open_timeout=self._connect_timeout_sec,
+                additional_headers=auth_headers(self._api_key),
             )
         except TimeoutError as exc:
             raise SonioxRealtimeError("Connection timed out") from exc
@@ -258,10 +266,10 @@ class RealtimeTTSClient:
                 "API key is required to start a realtime Text-to-Speech connection"
             )
         timeout_sec = validate_connect_timeout_sec(connect_timeout_sec)
-        payload = config.build_payload(key)
         return RealtimeTTSConnection(
             self._client.tts_websocket_base_url,
-            payload,
+            config,
+            key,
             connect_timeout_sec=timeout_sec,
         )
 
@@ -322,6 +330,7 @@ class RealtimeTTSMultiplexedConnection:
             self._ws = sync_ws_connect(
                 self._url,
                 open_timeout=self._connect_timeout_sec,
+                additional_headers=auth_headers(self._api_key),
             )
             return self
         except TimeoutError as exc:
@@ -401,8 +410,7 @@ class RealtimeTTSMultiplexedConnection:
             raise SonioxRealtimeError(
                 f"Maximum concurrent streams ({MAX_TTS_STREAMS_PER_CONNECTION}) reached"
             )
-        payload = config.build_payload(self._api_key)
-        payload_dict = payload.model_dump(exclude_none=True)
+        payload_dict = config.model_dump(exclude_none=True)
         # Opening a stream is done by sending its config first.
         self._send_json(payload_dict)
         self._active_stream_ids.add(stream_id)

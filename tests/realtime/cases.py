@@ -31,7 +31,6 @@ class RealtimeCase:
 
 def _config_dict(config: RealtimeSTTConfig, **extra: Any) -> dict[str, Any]:
     payload = config.model_dump(exclude_none=True)
-    payload.setdefault("api_key", "test_key")
     payload.update(extra)
     return payload
 

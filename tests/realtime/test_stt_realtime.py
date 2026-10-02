@@ -17,6 +17,7 @@ from soniox.client import AsyncSonioxClient, SonioxClient
 from soniox.errors import SonioxRealtimeError, SonioxValidationError
 from soniox.realtime._utils import validate_connect_timeout_sec
 from soniox.types.realtime import RealtimeSTTConfig
+from tests.helpers import API_KEY
 
 from .cases import REALTIME_CASES, RealtimeCase
 from .mock_ws import AsyncMockWebSocket, MockWebSocket
@@ -250,7 +251,6 @@ def test_session_config_and_paused_properties(client: SonioxClient) -> None:
             # Session wraps the config with the API key attached; payload
             # equivalence is what callers care about, not object identity.
             assert session.config.model == config.model
-            assert session.config.api_key == "test_key"
             assert session.paused is False
             session.pause()
             assert session.paused is True
@@ -435,7 +435,13 @@ def test_connect_default_uses_default_open_timeout() -> None:
         with client.realtime.stt.connect(config=RealtimeSTTConfig(model="v1")) as session:
             session.finish()
 
-    mock_connect.assert_called_once_with(client.websocket_base_url, open_timeout=10.0)
+    assert mock_connect.call_count == 1
+    assert mock_connect.call_args.args == (client.websocket_base_url,)
+    assert mock_connect.call_args.kwargs["open_timeout"] == 10.0
+    # The API key travels on the handshake as well as in the config.
+    assert mock_connect.call_args.kwargs["additional_headers"] == {
+        "Authorization": f"Bearer {API_KEY}"
+    }
 
 
 def test_connect_passes_connect_timeout() -> None:
@@ -450,7 +456,13 @@ def test_connect_passes_connect_timeout() -> None:
         ) as session:
             session.finish()
 
-    mock_connect.assert_called_once_with(client.websocket_base_url, open_timeout=2.0)
+    assert mock_connect.call_count == 1
+    assert mock_connect.call_args.args == (client.websocket_base_url,)
+    assert mock_connect.call_args.kwargs["open_timeout"] == 2.0
+    # The API key travels on the handshake as well as in the config.
+    assert mock_connect.call_args.kwargs["additional_headers"] == {
+        "Authorization": f"Bearer {API_KEY}"
+    }
 
 
 async def test_async_connect_passes_connect_timeout() -> None:
@@ -465,7 +477,13 @@ async def test_async_connect_passes_connect_timeout() -> None:
         ) as session:
             await session.finish()
 
-    mock_connect.assert_called_once_with(client.websocket_base_url, open_timeout=3.0)
+    assert mock_connect.call_count == 1
+    assert mock_connect.call_args.args == (client.websocket_base_url,)
+    assert mock_connect.call_args.kwargs["open_timeout"] == 3.0
+    # The API key travels on the handshake as well as in the config.
+    assert mock_connect.call_args.kwargs["additional_headers"] == {
+        "Authorization": f"Bearer {API_KEY}"
+    }
 
 
 def test_connect_timeout_maps_to_realtime_error() -> None:

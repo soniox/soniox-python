@@ -70,6 +70,8 @@ Examples:
 
 ### Changed
 
+- Realtime STT and TTS now send the API key as an `Authorization: Bearer` header on the WebSocket handshake instead of in the config message. You pass the key the same way as before, to `SonioxClient()` or to `connect()`.
+
 ### Deprecated
 
 ### Fixed

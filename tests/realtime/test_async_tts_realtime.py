@@ -13,6 +13,7 @@ from soniox.client import AsyncSonioxClient
 from soniox.errors import SonioxRealtimeError, SonioxValidationError
 from soniox.realtime._constants import MAX_TTS_STREAMS_PER_CONNECTION
 from soniox.types.realtime import RealtimeTTSConfig
+from tests.helpers import API_KEY
 
 from .mock_ws import AsyncMockWebSocket
 
@@ -59,13 +60,12 @@ async def test_async_connect_sends_config_on_enter(async_client: AsyncSonioxClie
     config_msg = ws.sent_messages[0]
     assert config_msg["stream_id"] == "s1"
     assert config_msg["model"] == "m"
-    assert config_msg["api_key"] == "test_key"
+    # The key travels on the handshake, not in the config message.
+    assert "api_key" not in config_msg
 
 
 async def test_async_connect_raises_on_ws_failure(async_client: AsyncSonioxClient) -> None:
-    with patch(
-        "soniox.realtime.async_tts.async_ws_connect", side_effect=ConnectionError("boom")
-    ):
+    with patch("soniox.realtime.async_tts.async_ws_connect", side_effect=ConnectionError("boom")):
         with pytest.raises(SonioxRealtimeError, match="Failed to start"):
             async with async_client.realtime.tts.connect(config=_config()):
                 pass
@@ -80,7 +80,13 @@ async def test_async_connect_passes_connect_timeout() -> None:
         async with client.realtime.tts.connect(config=_config(), connect_timeout_sec=6.0):
             pass
 
-    mock_connect.assert_called_once_with(client.tts_websocket_base_url, open_timeout=6.0)
+    assert mock_connect.call_count == 1
+    assert mock_connect.call_args.args == (client.tts_websocket_base_url,)
+    assert mock_connect.call_args.kwargs["open_timeout"] == 6.0
+    # The API key travels on the handshake as well as in the config.
+    assert mock_connect.call_args.kwargs["additional_headers"] == {
+        "Authorization": f"Bearer {API_KEY}"
+    }
 
 
 async def test_async_multiplexed_connect_passes_connect_timeout() -> None:
@@ -92,7 +98,13 @@ async def test_async_multiplexed_connect_passes_connect_timeout() -> None:
         async with client.realtime.tts.connect_multi_stream(connect_timeout_sec=3.5):
             pass
 
-    mock_connect.assert_called_once_with(client.tts_websocket_base_url, open_timeout=3.5)
+    assert mock_connect.call_count == 1
+    assert mock_connect.call_args.args == (client.tts_websocket_base_url,)
+    assert mock_connect.call_args.kwargs["open_timeout"] == 3.5
+    # The API key travels on the handshake as well as in the config.
+    assert mock_connect.call_args.kwargs["additional_headers"] == {
+        "Authorization": f"Bearer {API_KEY}"
+    }
 
 
 async def test_async_connect_timeout_maps_to_realtime_error() -> None:
@@ -196,7 +208,8 @@ async def test_async_finish_sends_text_end(async_client: AsyncSonioxClient) -> N
             await conn.finish()
 
     finish_msgs = [
-        m for m in ws.sent_messages
+        m
+        for m in ws.sent_messages
         if isinstance(m, dict) and m.get("text_end") is True and m.get("text") == ""
     ]
     assert len(finish_msgs) == 1
@@ -295,10 +308,7 @@ async def test_async_pause_suspends_sending(async_client: AsyncSonioxClient) -> 
             assert conn.paused is False
             await conn.send_text_chunk("after", text_end=False)
 
-    sent_texts = [
-        m["text"] for m in ws.sent_messages
-        if isinstance(m, dict) and "text" in m
-    ]
+    sent_texts = [m["text"] for m in ws.sent_messages if isinstance(m, dict) and "text" in m]
     assert sent_texts == ["before", "after"]
 
 
@@ -510,9 +520,7 @@ async def test_async_multiplexed_no_send_until_open_stream(
 async def test_async_multiplexed_connect_wraps_ws_failure(
     async_client: AsyncSonioxClient,
 ) -> None:
-    with patch(
-        "soniox.realtime.async_tts.async_ws_connect", side_effect=ConnectionError("nope")
-    ):
+    with patch("soniox.realtime.async_tts.async_ws_connect", side_effect=ConnectionError("nope")):
         with pytest.raises(SonioxRealtimeError, match="Failed to start"):
             async with async_client.realtime.tts.connect_multi_stream():
                 pass
@@ -529,7 +537,8 @@ async def test_async_open_stream_sends_config(
             await conn.open_stream(config=_config("alpha"))
 
     config_msgs = [
-        m for m in ws.sent_messages
+        m
+        for m in ws.sent_messages
         if isinstance(m, dict) and m.get("stream_id") == "alpha" and "model" in m
     ]
     assert len(config_msgs) == 1
@@ -628,10 +637,7 @@ async def test_async_stream_pause_drops_chunks(
             await stream.resume()
             await stream.send_text_chunk("after")
 
-    sent_texts = [
-        m["text"] for m in ws.sent_messages
-        if isinstance(m, dict) and "text" in m
-    ]
+    sent_texts = [m["text"] for m in ws.sent_messages if isinstance(m, dict) and "text" in m]
     assert sent_texts == ["before", "after"]
 
 

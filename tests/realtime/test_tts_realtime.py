@@ -18,6 +18,7 @@ from soniox.client import SonioxClient
 from soniox.errors import SonioxRealtimeError, SonioxValidationError
 from soniox.realtime._constants import MAX_TTS_STREAMS_PER_CONNECTION
 from soniox.types.realtime import RealtimeTTSConfig
+from tests.helpers import API_KEY
 
 from .mock_ws import MockWebSocket
 
@@ -61,14 +62,13 @@ def test_connect_sends_config_on_enter(client: SonioxClient) -> None:
     assert config_msg["stream_id"] == "s1"
     assert config_msg["model"] == "m"
     assert config_msg["voice"] == "Adrian"
-    assert config_msg["api_key"] == "test_key"
+    # The key travels on the handshake, not in the config message.
+    assert "api_key" not in config_msg
 
 
 def test_connect_raises_realtime_error_on_ws_failure(client: SonioxClient) -> None:
     """Failures in the underlying ws connect surface as SonioxRealtimeError."""
-    with patch(
-        "soniox.realtime.tts.sync_ws_connect", side_effect=ConnectionError("boom")
-    ):
+    with patch("soniox.realtime.tts.sync_ws_connect", side_effect=ConnectionError("boom")):
         with pytest.raises(SonioxRealtimeError, match="Failed to start"):
             with client.realtime.tts.connect(config=_config()):
                 pass
@@ -82,7 +82,13 @@ def test_connect_default_uses_default_open_timeout(client: SonioxClient) -> None
         with client.realtime.tts.connect(config=_config()):
             pass
 
-    mock_connect.assert_called_once_with(client.tts_websocket_base_url, open_timeout=10.0)
+    assert mock_connect.call_count == 1
+    assert mock_connect.call_args.args == (client.tts_websocket_base_url,)
+    assert mock_connect.call_args.kwargs["open_timeout"] == 10.0
+    # The API key travels on the handshake as well as in the config.
+    assert mock_connect.call_args.kwargs["additional_headers"] == {
+        "Authorization": f"Bearer {API_KEY}"
+    }
 
 
 def test_connect_passes_connect_timeout(client: SonioxClient) -> None:
@@ -93,7 +99,13 @@ def test_connect_passes_connect_timeout(client: SonioxClient) -> None:
         with client.realtime.tts.connect(config=_config(), connect_timeout_sec=5.0):
             pass
 
-    mock_connect.assert_called_once_with(client.tts_websocket_base_url, open_timeout=5.0)
+    assert mock_connect.call_count == 1
+    assert mock_connect.call_args.args == (client.tts_websocket_base_url,)
+    assert mock_connect.call_args.kwargs["open_timeout"] == 5.0
+    # The API key travels on the handshake as well as in the config.
+    assert mock_connect.call_args.kwargs["additional_headers"] == {
+        "Authorization": f"Bearer {API_KEY}"
+    }
 
 
 def test_multiplexed_connect_passes_connect_timeout(client: SonioxClient) -> None:
@@ -104,7 +116,13 @@ def test_multiplexed_connect_passes_connect_timeout(client: SonioxClient) -> Non
         with client.realtime.tts.connect_multi_stream(connect_timeout_sec=4.0):
             pass
 
-    mock_connect.assert_called_once_with(client.tts_websocket_base_url, open_timeout=4.0)
+    assert mock_connect.call_count == 1
+    assert mock_connect.call_args.args == (client.tts_websocket_base_url,)
+    assert mock_connect.call_args.kwargs["open_timeout"] == 4.0
+    # The API key travels on the handshake as well as in the config.
+    assert mock_connect.call_args.kwargs["additional_headers"] == {
+        "Authorization": f"Bearer {API_KEY}"
+    }
 
 
 def test_connect_timeout_maps_to_realtime_error() -> None:
@@ -208,7 +226,8 @@ def test_finish_sends_empty_text_with_text_end(client: SonioxClient) -> None:
             conn.finish()
 
     finish_msgs = [
-        m for m in ws.sent_messages
+        m
+        for m in ws.sent_messages
         if isinstance(m, dict) and m.get("text_end") is True and m.get("text") == ""
     ]
     assert len(finish_msgs) == 1
@@ -249,9 +268,7 @@ def test_keep_alive_sends_keepalive_payload(client: SonioxClient) -> None:
         ("receive_event", ()),
     ],
 )
-def test_method_raises_when_not_connected(
-    client: SonioxClient, method: str, args: tuple
-) -> None:
+def test_method_raises_when_not_connected(client: SonioxClient, method: str, args: tuple) -> None:
     conn = client.realtime.tts.connect(config=_config())
     with pytest.raises(SonioxRealtimeError, match="not connected"):
         getattr(conn, method)(*args)
@@ -309,10 +326,7 @@ def test_pause_suspends_sending_and_starts_keepalive(client: SonioxClient) -> No
             assert conn.paused is False
             conn.send_text_chunk("after", text_end=False)
 
-    sent_texts = [
-        m["text"] for m in ws.sent_messages
-        if isinstance(m, dict) and "text" in m
-    ]
+    sent_texts = [m["text"] for m in ws.sent_messages if isinstance(m, dict) and "text" in m]
     assert sent_texts == ["before", "after"]
 
 
@@ -487,9 +501,7 @@ def test_multiplexed_connect_does_not_send_until_open_stream(client: SonioxClien
 
 
 def test_multiplexed_connect_wraps_ws_failure(client: SonioxClient) -> None:
-    with patch(
-        "soniox.realtime.tts.sync_ws_connect", side_effect=ConnectionError("nope")
-    ):
+    with patch("soniox.realtime.tts.sync_ws_connect", side_effect=ConnectionError("nope")):
         with pytest.raises(SonioxRealtimeError, match="Failed to start"):
             with client.realtime.tts.connect_multi_stream():
                 pass
@@ -504,7 +516,8 @@ def test_open_stream_sends_config(client: SonioxClient) -> None:
             conn.open_stream(config=_config("alpha"))
 
     config_msgs = [
-        m for m in ws.sent_messages
+        m
+        for m in ws.sent_messages
         if isinstance(m, dict) and m.get("stream_id") == "alpha" and "model" in m
     ]
     assert len(config_msgs) == 1
@@ -595,10 +608,7 @@ def test_multiplexed_stream_pause_drops_text_chunks(client: SonioxClient) -> Non
             stream.resume()
             stream.send_text_chunk("after")
 
-    sent_texts = [
-        m["text"] for m in ws.sent_messages
-        if isinstance(m, dict) and "text" in m
-    ]
+    sent_texts = [m["text"] for m in ws.sent_messages if isinstance(m, dict) and "text" in m]
     assert sent_texts == ["before", "after"]
 
 
@@ -615,9 +625,7 @@ def test_multiplexed_pause_idempotent_resume_noop(client: SonioxClient) -> None:
 
 
 @pytest.mark.parametrize("method", ["pause", "resume"])
-def test_multiplexed_method_raises_when_not_connected(
-    client: SonioxClient, method: str
-) -> None:
+def test_multiplexed_method_raises_when_not_connected(client: SonioxClient, method: str) -> None:
     conn = client.realtime.tts.connect_multi_stream()
     with pytest.raises(SonioxRealtimeError, match="not connected"):
         getattr(conn, method)()

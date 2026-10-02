@@ -222,7 +222,7 @@ def test_sync_config_round_trip(sync_ws_url_and_log: tuple[str, ServerLog]) -> N
     assert log.config["sample_rate"] == 16000
     assert log.config["num_channels"] == 1
     assert log.config["language_hints"] == ["en"]
-    assert log.config["api_key"] == "test_key"
+    assert "api_key" not in log.config
 
 
 # ---------------------------------------------------------------------------

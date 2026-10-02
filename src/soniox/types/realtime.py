@@ -55,9 +55,6 @@ class RealtimeEvent(BaseModel):
 class RealtimeSTTConfig(BaseModel):
     """Configuration for initiating a realtime transcription session."""
 
-    api_key: str | None = None
-    """API key for real-time sessions."""
-
     model: str
     """Speech-to-text model to use."""
 
@@ -130,15 +127,9 @@ class RealtimeSTTConfig(BaseModel):
             )
         return self
 
-    def build_payload(self, api_key: str) -> RealtimeSTTConfig:
-        return self.model_copy(update={"api_key": api_key})
-
 
 class RealtimeTTSConfig(BaseModel):
     """Configuration for initiating a realtime Text-to-Speech stream."""
-
-    api_key: str | None = None
-    """API key for real-time sessions."""
 
     stream_id: str = Field(min_length=1, max_length=256)
     """Client stream identifier unique among active streams on a connection."""
@@ -169,9 +160,6 @@ class RealtimeTTSConfig(BaseModel):
 
     return_timestamps: bool | None = None
     """Request character-to-audio timestamps on response events. Defaults to false."""
-
-    def build_payload(self, api_key: str) -> RealtimeTTSConfig:
-        return self.model_copy(update={"api_key": api_key})
 
 
 class RealtimeTTSTextMessage(BaseModel):

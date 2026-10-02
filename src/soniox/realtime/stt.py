@@ -14,6 +14,7 @@ from ._utils import (
     DEFAULT_CONNECT_TIMEOUT_SEC,
     KEEP_ALIVE_INTERVAL_SEC,
     KeepaliveThread,
+    auth_headers,
     validate_connect_timeout_sec,
 )
 
@@ -37,6 +38,7 @@ class RealtimeSTTSession:
         self,
         url: str,
         config: RealtimeSTTConfig,
+        api_key: str,
         *,
         connect_timeout_sec: float = DEFAULT_CONNECT_TIMEOUT_SEC,
     ) -> None:
@@ -52,12 +54,15 @@ class RealtimeSTTSession:
             config:
                 Configuration describing the audio format and transcription
                 behavior for this session.
+            api_key:
+                API key sent on the WebSocket handshake.
             connect_timeout_sec:
                 Maximum seconds to wait for the WebSocket handshake to
                 complete. Defaults to 10 seconds.
         """
         self._url = url
         self._config = config
+        self._api_key = api_key
         self._connect_timeout_sec = connect_timeout_sec
         self._ws = None
         self._last_message: RealtimeEvent | None = None
@@ -95,6 +100,7 @@ class RealtimeSTTSession:
             self._ws = sync_ws_connect(
                 self._url,
                 open_timeout=self._connect_timeout_sec,
+                additional_headers=auth_headers(self._api_key),
             )
         except TimeoutError as exc:
             raise SonioxRealtimeError("Connection timed out") from exc
@@ -436,9 +442,9 @@ class RealtimeSTTClient:
 
         timeout_sec = validate_connect_timeout_sec(connect_timeout_sec)
 
-        payload = config.build_payload(key)
         return RealtimeSTTSession(
             self._client.websocket_base_url,
-            payload,
+            config,
+            key,
             connect_timeout_sec=timeout_sec,
         )
