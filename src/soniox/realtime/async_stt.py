@@ -259,6 +259,40 @@ class AsyncRealtimeSTTSession:
         """
         await self.send_control_message(RealtimeControlType.FINALIZE)
 
+    async def send_agent_text(self, text: str, *, end_of_segment: bool = True) -> None:
+        """
+        Send text your agent is speaking, so Soniox recognizes those words when
+        the user says them back.
+
+        Soniox places the text by its position among the audio frames, so send
+        it while the matching speech is playing, not when it was generated. A
+        segment is one stretch of agent speech: send its parts with
+        `end_of_segment=False` and close it with `end_of_segment=True`, for
+        which an empty `text` is enough.
+
+        Args:
+            text: What the agent is saying. Empty text only closes a segment.
+            end_of_segment: Whether this is the last text of this segment.
+
+        Raises:
+            SonioxValidationError:
+                If the session config left `enable_agent_text_input` unset.
+            SonioxRealtimeError:
+                If the session is not connected or the message cannot be sent.
+        """
+        if not self._config.enable_agent_text_input:
+            raise SonioxValidationError(
+                "Set enable_agent_text_input on the session config to send agent text"
+            )
+        if not self._ws:
+            raise SonioxRealtimeError("Realtime session is not connected")
+        try:
+            await self._ws.send(
+                json.dumps({"type": "agent_text", "text": text, "end_of_segment": end_of_segment})
+            )
+        except Exception as exc:
+            raise SonioxRealtimeError("Failed to send agent text") from exc
+
     async def recv_bytes(self) -> bytes:
         """
         Receive a raw message from the WebSocket connection.

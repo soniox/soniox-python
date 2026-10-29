@@ -6,6 +6,7 @@ The SDK exposes two clients: `SonioxClient` (sync) and `AsyncSonioxClient` (asyn
 - TTS over REST (`client.tts`) and realtime WebSocket (`client.realtime.tts`)
 - voice cloning (`client.voices`) - clone a voice from a reference clip and use it in TTS
 - usage and cost (`client.usage`, `client.usage_logs`) - daily spend per model, and per-request logs
+- organization administration (`client.organization`) - balance, limits, usage across projects, and project API keys
 - auth, file uploads, model listing, webhooks, and typed request/response models
 
 
@@ -129,6 +130,63 @@ client.close()
 
 See [`examples/soniox_client/realtime_example.py`](https://github.com/soniox/soniox-python/blob/main/examples/soniox_client/realtime_example.py) for the full flow.
 
+In a **voice agent**, tell Soniox what your agent is saying so those same words are recognized
+when the user says them back, and so the agent's own voice bleeding into the microphone is not
+transcribed as the user. Set `enable_agent_text_input` on the config - the model must report
+`supports_agent_text_input` in `client.models.list()` - and send the text with
+`session.send_agent_text()`:
+
+```python
+config = RealtimeSTTConfig(
+    model="stt-rt-v6",
+    audio_format="pcm_s16le",
+    sample_rate=24000,
+    num_channels=1,
+    enable_agent_text_input=True,
+)
+
+tts_config = RealtimeTTSConfig(
+    model="tts-rt-v2",
+    voice="Adrian",
+    language="en",
+    audio_format="pcm_s16le",
+    sample_rate=24000,
+    return_timestamps=True,
+)
+
+with (
+    client.realtime.stt.connect(config=config) as session,
+    client.realtime.tts.connect(config=tts_config) as tts,
+    sd.RawOutputStream(samplerate=24000, channels=1, dtype="int16") as speaker,
+):
+    # Microphone audio goes in with session.send_byte_chunk(chunk) on its own thread.
+    tts.send_text_chunks("We have a flat white and a cortado today.")
+    for event in tts.receive_events():
+        chunk = event.audio_bytes()
+        if chunk is None:
+            continue
+        speaker.write(chunk)                       # blocks until the audio is taken
+        spoken = "".join(event.timestamps.characters) if event.timestamps else ""
+        session.send_agent_text(spoken, end_of_segment=False)
+
+    session.send_agent_text("")                    # closes the segment
+```
+
+Soniox places the text by **where it sits among the audio frames**, so send each piece as it
+plays, not when it was generated - sending the whole reply up front puts it in the wrong place.
+Realtime TTS gives you the alignment for free with `return_timestamps`: each event's
+`timestamps.characters` are the characters of that audio chunk, so the chunk you just handed to
+the speaker and its text belong together. An empty text closes the segment, which is also how
+you handle a barge-in - stop writing audio, close the segment, and only the words the user
+actually heard were sent.
+
+Echo cancellation is the other half and it is not the SDK's: it belongs to the platform. Use a
+headset with hardware AEC, or on Linux `pactl load-module module-echo-cancel` and record from
+the source it creates. Agent text covers what cancellation cannot - it is never perfect, and the
+user will often repeat the agent's words back.
+
+Run the full example at [`examples/soniox_client/agent_text_example.py`](https://github.com/soniox/soniox-python/blob/main/examples/soniox_client/agent_text_example.py) or async version at [`examples/async_soniox_client/agent_text_example.py`](https://github.com/soniox/soniox-python/blob/main/examples/async_soniox_client/agent_text_example.py). For the real loop - a live microphone, realtime TTS on the speakers and the agent's text timed to playback - see [`examples/soniox_client/agent_text_mic_example.py`](https://github.com/soniox/soniox-python/blob/main/examples/soniox_client/agent_text_mic_example.py) (needs `pip install sounddevice`).
+
 4. **Realtime TTS streaming**: send text chunks and write audio to a file as it arrives.
 
 ```python
@@ -194,6 +252,43 @@ history = client.concurrency_limits.history(
 )
 peak = max(entry.sample_max for entry in history.entries)
 ```
+
+## Organization administration
+
+`client.organization` covers the whole organization rather than one project, so every call
+needs an **organization API key**. It goes in the same `Authorization` header, so pass it as
+`api_key`; a project key gets a `SonioxPermissionDeniedError`.
+
+```python
+client = SonioxClient(api_key=organization_api_key)
+
+balance = client.organization.balance()
+print(balance.available_balance_usd, balance.balance_exhausted)
+
+monthly = client.organization.monthly_usage("2026-04")      # defaults to this month
+for project in monthly.projects:
+    print(project.name, project.usage_usd)
+```
+
+`usage_summary(start_time, end_time)` returns the same per-day entries as
+`client.usage.summary()`, split per project instead of per model. `get()`, `limits()` and
+`projects()` cover identity, per-region quotas and the project list. Amounts are decimal
+strings everywhere, never floats.
+
+API keys of a project are managed with `list_project_api_keys()`,
+`create_project_api_key()` and `delete_project_api_key()`. The create call is the only place
+the secret appears - it is in `key` on the response and is not retrievable afterwards.
+
+```python
+created = client.organization.create_project_api_key(
+    project_id,
+    name="ci",
+    permissions=["stt_async:write", "files:write"],
+)
+print(created.key)  # store it now; you cannot read it back
+```
+
+Run the full example at [`examples/soniox_client/organization_example.py`](https://github.com/soniox/soniox-python/blob/main/examples/soniox_client/organization_example.py) or async version at [`examples/async_soniox_client/organization_example.py`](https://github.com/soniox/soniox-python/blob/main/examples/async_soniox_client/organization_example.py).
 
 ## Repository layout
 

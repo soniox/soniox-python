@@ -401,6 +401,41 @@ Subsequent tokens will be delivered with `is_final=True`.
 
 ***
 
+<a id="realtimesttsession-send_agent_text"></a>
+
+### send_agent_text()
+
+```python
+send_agent_text(text: str, *, end_of_segment: bool = True) -> None
+```
+
+Send text your agent is speaking, so Soniox recognizes those words when
+the user says them back.
+
+Soniox places the text by its position among the audio frames, so send
+it while the matching speech is playing, not when it was generated. A
+segment is one stretch of agent speech: send its parts with
+`end_of_segment=False` and close it with `end_of_segment=True`, for
+which an empty `text` is enough.
+
+**Parameters**
+
+| Parameter | Type | Description |
+| ------ | ------ | ------ |
+| `text` | `str` | What the agent is saying. Empty text only closes a segment. |
+| `end_of_segment` | `bool` | Whether this is the last text of this segment. |
+
+**Returns**
+
+`None`
+
+**Raises**
+
+- `SonioxValidationError` If the session config left `enable_agent_text_input` unset.
+- `SonioxRealtimeError` If the session is not connected or the message cannot be sent.
+
+***
+
 <a id="realtimesttsession-recv_bytes"></a>
 
 ### recv_bytes()
@@ -769,6 +804,41 @@ Subsequent tokens will be delivered with `is_final=True`.
 **Returns**
 
 `None`
+
+***
+
+<a id="asyncrealtimesttsession-send_agent_text"></a>
+
+### send_agent_text()
+
+```python
+send_agent_text(text: str, *, end_of_segment: bool = True) -> None
+```
+
+Send text your agent is speaking, so Soniox recognizes those words when
+the user says them back.
+
+Soniox places the text by its position among the audio frames, so send
+it while the matching speech is playing, not when it was generated. A
+segment is one stretch of agent speech: send its parts with
+`end_of_segment=False` and close it with `end_of_segment=True`, for
+which an empty `text` is enough.
+
+**Parameters**
+
+| Parameter | Type | Description |
+| ------ | ------ | ------ |
+| `text` | `str` | What the agent is saying. Empty text only closes a segment. |
+| `end_of_segment` | `bool` | Whether this is the last text of this segment. |
+
+**Returns**
+
+`None`
+
+**Raises**
+
+- `SonioxValidationError` If the session config left `enable_agent_text_input` unset.
+- `SonioxRealtimeError` If the session is not connected or the message cannot be sent.
 
 ***
 

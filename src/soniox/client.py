@@ -15,6 +15,7 @@ if TYPE_CHECKING:
     from .api.async_concurrency_limits import AsyncConcurrencyLimitsAPI
     from .api.async_files import AsyncFilesAPI
     from .api.async_models import AsyncModelsAPI
+    from .api.async_organization import AsyncOrganizationAPI
     from .api.async_stt import AsyncSttAPI
     from .api.async_tts import AsyncTtsAPI
     from .api.async_tts_models import AsyncTtsModelsAPI
@@ -26,6 +27,7 @@ if TYPE_CHECKING:
     from .api.concurrency_limits import ConcurrencyLimitsAPI
     from .api.files import FilesAPI
     from .api.models import ModelsAPI
+    from .api.organization import OrganizationAPI
     from .api.stt import SttAPI
     from .api.tts import TtsAPI
     from .api.tts_models import TtsModelsAPI
@@ -176,6 +178,13 @@ class SonioxClient(_BaseSonioxClient):
         from .api.usage_logs import UsageLogsAPI
 
         return UsageLogsAPI(self)
+
+    @cached_property
+    def organization(self) -> OrganizationAPI:
+        """Organization administration API namespace. Needs an organization API key."""
+        from .api.organization import OrganizationAPI
+
+        return OrganizationAPI(self)
 
     @cached_property
     def usage(self) -> UsageAPI:
@@ -332,6 +341,13 @@ class AsyncSonioxClient(_BaseSonioxClient):
         from .api.async_usage_logs import AsyncUsageLogsAPI
 
         return AsyncUsageLogsAPI(self)
+
+    @cached_property
+    def organization(self) -> AsyncOrganizationAPI:
+        """Organization administration API namespace. Needs an organization API key."""
+        from .api.async_organization import AsyncOrganizationAPI
+
+        return AsyncOrganizationAPI(self)
 
     @cached_property
     def usage(self) -> AsyncUsageAPI:

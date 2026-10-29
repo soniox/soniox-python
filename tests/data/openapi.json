@@ -2965,6 +2965,8 @@
                     "total_input_cost_usd": "0.0415500000",
                     "total_output_cost_usd": "0.2151750000",
                     "total_duration_cost_usd": "0.0000000000",
+                    "total_api_cost_usd": "0.2567250000",
+                    "total_playground_cost_usd": "0.0000000000",
                     "cost_usd": [
                       "0.1711500000",
                       "0.0855750000"
@@ -2978,6 +2980,14 @@
                       "0.0717250000"
                     ],
                     "duration_cost_usd": [
+                      "0.0000000000",
+                      "0.0000000000"
+                    ],
+                    "api_cost_usd": [
+                      "0.1711500000",
+                      "0.0855750000"
+                    ],
+                    "playground_cost_usd": [
                       "0.0000000000",
                       "0.0000000000"
                     ],
@@ -3033,6 +3043,8 @@
                       "total_input_cost_usd": "0.0235500000",
                       "total_output_cost_usd": "0.0378000000",
                       "total_duration_cost_usd": "0.0000000000",
+                      "total_api_cost_usd": "0.0613500000",
+                      "total_playground_cost_usd": "0.0000000000",
                       "cost_usd": [
                         "0.0409000000",
                         "0.0204500000"
@@ -3046,6 +3058,14 @@
                         "0.0126000000"
                       ],
                       "duration_cost_usd": [
+                        "0.0000000000",
+                        "0.0000000000"
+                      ],
+                      "api_cost_usd": [
+                        "0.0409000000",
+                        "0.0204500000"
+                      ],
+                      "playground_cost_usd": [
                         "0.0000000000",
                         "0.0000000000"
                       ],
@@ -3100,6 +3120,8 @@
                       "total_input_cost_usd": "0.0180000000",
                       "total_output_cost_usd": "0.1773750000",
                       "total_duration_cost_usd": "0.0000000000",
+                      "total_api_cost_usd": "0.1953750000",
+                      "total_playground_cost_usd": "0.0000000000",
                       "cost_usd": [
                         "0.1302500000",
                         "0.0651250000"
@@ -3113,6 +3135,14 @@
                         "0.0591250000"
                       ],
                       "duration_cost_usd": [
+                        "0.0000000000",
+                        "0.0000000000"
+                      ],
+                      "api_cost_usd": [
+                        "0.1302500000",
+                        "0.0651250000"
+                      ],
+                      "playground_cost_usd": [
                         "0.0000000000",
                         "0.0000000000"
                       ],
@@ -3556,6 +3586,834 @@
         "security": [
           {
             "PublicApiAuth": []
+          }
+        ]
+      }
+    },
+    "/v1/organization": {
+      "get": {
+        "operationId": "get_organization",
+        "summary": "Get the organization",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/GetOrganizationResponse"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Forbidden",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Not Found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "Too Many Requests",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal Server Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                }
+              }
+            }
+          }
+        },
+        "description": "The organization the API key belongs to.",
+        "tags": [
+          "Organization"
+        ],
+        "security": [
+          {
+            "OrganizationApiKeyAuth": []
+          }
+        ]
+      }
+    },
+    "/v1/organization/balance": {
+      "get": {
+        "operationId": "get_organization_balance",
+        "summary": "Get the organization balance",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/GetOrganizationBalanceResponse"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Forbidden",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Not Found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "Too Many Requests",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal Server Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                }
+              }
+            }
+          }
+        },
+        "description": "Prepaid balance and billing setup of the organization. Poll it to alert on a balance below a threshold of your own.",
+        "tags": [
+          "Organization"
+        ],
+        "security": [
+          {
+            "OrganizationApiKeyAuth": []
+          }
+        ]
+      }
+    },
+    "/v1/organization/usage/monthly": {
+      "get": {
+        "operationId": "get_organization_monthly_usage",
+        "summary": "Get the organization's usage for a month",
+        "parameters": [
+          {
+            "in": "query",
+            "name": "month",
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "description": "Calendar month as YYYY-MM, UTC. Defaults to the current month.",
+              "title": "Month"
+            },
+            "required": false,
+            "description": "Calendar month as YYYY-MM, UTC. Defaults to the current month."
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/GetOrganizationMonthlyUsageResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad Request",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Forbidden",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Not Found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "Too Many Requests",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal Server Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                }
+              }
+            }
+          }
+        },
+        "description": "Cost of one calendar month for the organization and each of its projects, with the budget it is measured against.",
+        "tags": [
+          "Organization"
+        ],
+        "security": [
+          {
+            "OrganizationApiKeyAuth": []
+          }
+        ]
+      }
+    },
+    "/v1/organization/usage/summary": {
+      "get": {
+        "operationId": "get_organization_usage_summary",
+        "summary": "Get the organization's usage summary",
+        "parameters": [
+          {
+            "in": "query",
+            "name": "start_time",
+            "schema": {
+              "description": "Start of the window (inclusive). Must be an ISO 8601 timestamp in UTC (e.g. `2026-04-01T00:00:00Z`). Its UTC day is included.",
+              "title": "Start Time",
+              "type": "string"
+            },
+            "required": true,
+            "description": "Start of the window (inclusive). Must be an ISO 8601 timestamp in UTC (e.g. `2026-04-01T00:00:00Z`). Its UTC day is included."
+          },
+          {
+            "in": "query",
+            "name": "end_time",
+            "schema": {
+              "description": "End of the window (exclusive). Must be an ISO 8601 timestamp in UTC (e.g. `2026-04-03T00:00:00Z`) and strictly after `start_time`. Its UTC day is included unless it falls exactly on midnight.",
+              "title": "End Time",
+              "type": "string"
+            },
+            "required": true,
+            "description": "End of the window (exclusive). Must be an ISO 8601 timestamp in UTC (e.g. `2026-04-03T00:00:00Z`) and strictly after `start_time`. Its UTC day is included unless it falls exactly on midnight."
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/GetOrganizationUsageSummaryResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad Request",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Forbidden",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Not Found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "Too Many Requests",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal Server Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                }
+              }
+            }
+          }
+        },
+        "description": "Cost and activity per day, for each project of the organization and each model it used. Projects since deleted are included, so the per-project costs add up to the total. The window is half-open, [start_time, end_time), aggregated by whole UTC day, and must not cover more than 366 days.",
+        "tags": [
+          "Organization"
+        ],
+        "security": [
+          {
+            "OrganizationApiKeyAuth": []
+          }
+        ]
+      }
+    },
+    "/v1/organization/limits": {
+      "get": {
+        "operationId": "get_organization_limits",
+        "summary": "Get the organization limits",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/GetOrganizationLimitsResponse"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Forbidden",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Not Found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "Too Many Requests",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal Server Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                }
+              }
+            }
+          }
+        },
+        "description": "Monthly budget and, per region the organization can use, the rate and quota limits in effect. Concurrency limits are per session type.",
+        "tags": [
+          "Organization"
+        ],
+        "security": [
+          {
+            "OrganizationApiKeyAuth": []
+          }
+        ]
+      }
+    },
+    "/v1/organization/projects": {
+      "get": {
+        "operationId": "get_organization_projects",
+        "summary": "List the organization's projects",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/GetOrganizationProjectsResponse"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Forbidden",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Not Found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "Too Many Requests",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal Server Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                }
+              }
+            }
+          }
+        },
+        "description": "Every project of the organization, oldest first.",
+        "tags": [
+          "Organization"
+        ],
+        "security": [
+          {
+            "OrganizationApiKeyAuth": []
+          }
+        ]
+      }
+    },
+    "/v1/organization/projects/{project_id}/api-keys": {
+      "get": {
+        "operationId": "get_organization_project_api_keys",
+        "summary": "List a project's API keys",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "project_id",
+            "schema": {
+              "format": "uuid",
+              "title": "Project Id",
+              "type": "string"
+            },
+            "required": true
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/GetProjectApiKeysResponse"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Forbidden",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Not Found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "Too Many Requests",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal Server Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                }
+              }
+            }
+          }
+        },
+        "description": "Every API key of the project, newest first. The keys themselves are not returned.",
+        "tags": [
+          "Organization"
+        ],
+        "security": [
+          {
+            "OrganizationApiKeyAuth": []
+          }
+        ]
+      },
+      "post": {
+        "operationId": "create_organization_project_api_key",
+        "summary": "Create a project API key",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "project_id",
+            "schema": {
+              "format": "uuid",
+              "title": "Project Id",
+              "type": "string"
+            },
+            "required": true
+          }
+        ],
+        "responses": {
+          "201": {
+            "description": "Created",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CreateProjectApiKeyResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad Request",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Forbidden",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Not Found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "Too Many Requests",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal Server Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                }
+              }
+            }
+          },
+          "503": {
+            "description": "Service Unavailable",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                }
+              }
+            }
+          }
+        },
+        "description": "Creates an API key for the project. The key is returned once, in this response, and cannot be retrieved again.",
+        "tags": [
+          "Organization"
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CreateProjectApiKeyPayload"
+              }
+            }
+          },
+          "required": true
+        },
+        "security": [
+          {
+            "OrganizationApiKeyAuth": []
+          }
+        ]
+      }
+    },
+    "/v1/organization/projects/{project_id}/api-keys/{key_id}": {
+      "delete": {
+        "operationId": "delete_organization_project_api_key",
+        "summary": "Delete a project API key",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "project_id",
+            "schema": {
+              "format": "uuid",
+              "title": "Project Id",
+              "type": "string"
+            },
+            "required": true
+          },
+          {
+            "in": "path",
+            "name": "key_id",
+            "schema": {
+              "format": "uuid",
+              "title": "Key Id",
+              "type": "string"
+            },
+            "required": true
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": "No Content"
+          },
+          "401": {
+            "description": "Unauthorized",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Forbidden",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Not Found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "Too Many Requests",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal Server Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                }
+              }
+            }
+          }
+        },
+        "description": "Deletes one API key of the project. Requests made with it are refused from then on.",
+        "tags": [
+          "Organization"
+        ],
+        "security": [
+          {
+            "OrganizationApiKeyAuth": []
           }
         ]
       }
@@ -7150,6 +8008,16 @@
             "title": "Total Duration Cost Usd",
             "type": "string"
           },
+          "total_api_cost_usd": {
+            "description": "Part of `total_cost_usd` from requests made with an API key, in USD.",
+            "title": "Total Api Cost Usd",
+            "type": "string"
+          },
+          "total_playground_cost_usd": {
+            "description": "Part of `total_cost_usd` from requests made in the Soniox Console playground, in USD.",
+            "title": "Total Playground Cost Usd",
+            "type": "string"
+          },
           "cost_usd": {
             "description": "Cost per day, in USD, aligned to `days`.",
             "items": {
@@ -7182,32 +8050,54 @@
             "title": "Duration Cost Usd",
             "type": "array"
           },
+          "api_cost_usd": {
+            "description": "Cost of requests made with an API key per day, in USD, aligned to `days`.",
+            "items": {
+              "type": "string"
+            },
+            "title": "Api Cost Usd",
+            "type": "array"
+          },
+          "playground_cost_usd": {
+            "description": "Cost of requests made in the Soniox Console playground per day, in USD, aligned to `days`.",
+            "items": {
+              "type": "string"
+            },
+            "title": "Playground Cost Usd",
+            "type": "array"
+          },
           "total_num_requests": {
             "description": "Number of requests over the window.",
             "title": "Total Num Requests",
             "type": "integer"
           },
           "total_input_text_tokens": {
+            "description": "Input text tokens over the window.",
             "title": "Total Input Text Tokens",
             "type": "integer"
           },
           "total_input_audio_tokens": {
+            "description": "Input audio tokens over the window.",
             "title": "Total Input Audio Tokens",
             "type": "integer"
           },
           "total_input_audio_duration_ms": {
+            "description": "Input audio over the window, in milliseconds.",
             "title": "Total Input Audio Duration Ms",
             "type": "integer"
           },
           "total_output_text_tokens": {
+            "description": "Output text tokens over the window.",
             "title": "Total Output Text Tokens",
             "type": "integer"
           },
           "total_output_audio_tokens": {
+            "description": "Output audio tokens over the window.",
             "title": "Total Output Audio Tokens",
             "type": "integer"
           },
           "total_output_audio_duration_ms": {
+            "description": "Output audio over the window, in milliseconds.",
             "title": "Total Output Audio Duration Ms",
             "type": "integer"
           },
@@ -7225,6 +8115,7 @@
             "type": "array"
           },
           "input_text_tokens": {
+            "description": "Input text tokens per day, aligned to `days`.",
             "items": {
               "type": "integer"
             },
@@ -7232,6 +8123,7 @@
             "type": "array"
           },
           "input_audio_tokens": {
+            "description": "Input audio tokens per day, aligned to `days`.",
             "items": {
               "type": "integer"
             },
@@ -7239,6 +8131,7 @@
             "type": "array"
           },
           "input_audio_duration_ms": {
+            "description": "Input audio per day, in milliseconds, aligned to `days`.",
             "items": {
               "type": "integer"
             },
@@ -7246,6 +8139,7 @@
             "type": "array"
           },
           "output_text_tokens": {
+            "description": "Output text tokens per day, aligned to `days`.",
             "items": {
               "type": "integer"
             },
@@ -7253,6 +8147,7 @@
             "type": "array"
           },
           "output_audio_tokens": {
+            "description": "Output audio tokens per day, aligned to `days`.",
             "items": {
               "type": "integer"
             },
@@ -7260,6 +8155,7 @@
             "type": "array"
           },
           "output_audio_duration_ms": {
+            "description": "Output audio per day, in milliseconds, aligned to `days`.",
             "items": {
               "type": "integer"
             },
@@ -7281,10 +8177,14 @@
           "total_input_cost_usd",
           "total_output_cost_usd",
           "total_duration_cost_usd",
+          "total_api_cost_usd",
+          "total_playground_cost_usd",
           "cost_usd",
           "input_cost_usd",
           "output_cost_usd",
           "duration_cost_usd",
+          "api_cost_usd",
+          "playground_cost_usd",
           "total_num_requests",
           "total_input_text_tokens",
           "total_input_audio_tokens",
@@ -7473,10 +8373,747 @@
         ],
         "title": "ConcurrentStreamKind",
         "type": "string"
+      },
+      "GetOrganizationResponse": {
+        "properties": {
+          "id": {
+            "description": "Unique identifier of the organization.",
+            "format": "uuid",
+            "title": "Id",
+            "type": "string"
+          },
+          "name": {
+            "description": "Name of the organization.",
+            "title": "Name",
+            "type": "string"
+          },
+          "created_at": {
+            "description": "When the organization was created.",
+            "format": "date-time",
+            "title": "Created At",
+            "type": "string"
+          }
+        },
+        "required": [
+          "id",
+          "name",
+          "created_at"
+        ],
+        "title": "GetOrganizationResponse",
+        "type": "object"
+      },
+      "GetOrganizationBalanceResponse": {
+        "properties": {
+          "available_balance_usd": {
+            "description": "Prepaid balance left to spend.",
+            "title": "Available Balance Usd",
+            "type": "string"
+          },
+          "free_balance_usd": {
+            "description": "Part of the available balance that was granted, not paid for.",
+            "title": "Free Balance Usd",
+            "type": "string"
+          },
+          "used_balance_usd": {
+            "description": "Prepaid balance spent so far.",
+            "title": "Used Balance Usd",
+            "type": "string"
+          },
+          "invoice_billing_enabled": {
+            "description": "Usage is invoiced instead of drawn from the prepaid balance.",
+            "title": "Invoice Billing Enabled",
+            "type": "boolean"
+          },
+          "balance_exhausted": {
+            "description": "The prepaid balance is spent and requests are refused. Always false with invoice billing.",
+            "title": "Balance Exhausted",
+            "type": "boolean"
+          },
+          "autopay_enabled": {
+            "description": "The balance is topped up automatically below the threshold.",
+            "title": "Autopay Enabled",
+            "type": "boolean"
+          },
+          "autopay_threshold_usd": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "description": "Balance below which a top-up is charged. Null without a billing setup.",
+            "title": "Autopay Threshold Usd"
+          },
+          "autopay_amount_usd": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "description": "Amount of one top-up. Null without a billing setup.",
+            "title": "Autopay Amount Usd"
+          },
+          "has_payment_method": {
+            "description": "A payment method is on file.",
+            "title": "Has Payment Method",
+            "type": "boolean"
+          },
+          "has_payment_error": {
+            "description": "The last payment attempt failed.",
+            "title": "Has Payment Error",
+            "type": "boolean"
+          }
+        },
+        "required": [
+          "available_balance_usd",
+          "free_balance_usd",
+          "used_balance_usd",
+          "invoice_billing_enabled",
+          "balance_exhausted",
+          "autopay_enabled",
+          "autopay_threshold_usd",
+          "autopay_amount_usd",
+          "has_payment_method",
+          "has_payment_error"
+        ],
+        "title": "GetOrganizationBalanceResponse",
+        "type": "object"
+      },
+      "GetOrganizationMonthlyUsageResponse": {
+        "properties": {
+          "month": {
+            "description": "The month, as YYYY-MM.",
+            "title": "Month",
+            "type": "string"
+          },
+          "usage_usd": {
+            "description": "Cost of the month across every project.",
+            "title": "Usage Usd",
+            "type": "string"
+          },
+          "free_usage_usd": {
+            "description": "Part of the usage covered by granted balance.",
+            "title": "Free Usage Usd",
+            "type": "string"
+          },
+          "invoiced_usage_usd": {
+            "description": "Part of the usage that is invoiced.",
+            "title": "Invoiced Usage Usd",
+            "type": "string"
+          },
+          "api_usage_usd": {
+            "description": "Part of the usage made through the API.",
+            "title": "Api Usage Usd",
+            "type": "string"
+          },
+          "playground_usage_usd": {
+            "description": "Part of the usage made in the Soniox Console playground.",
+            "title": "Playground Usage Usd",
+            "type": "string"
+          },
+          "monthly_budget_usd": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "description": "Organization budget in effect. Null for a month other than the current one: only today's budget is stored, so it says nothing about a month that has closed.",
+            "title": "Monthly Budget Usd"
+          },
+          "monthly_budget_notification_usd": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "description": "Usage at which the organization is emailed. Null when unset, and for a month other than the current one.",
+            "title": "Monthly Budget Notification Usd"
+          },
+          "remaining_budget_usd": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "description": "Budget minus usage, never below zero. Null for a month other than the current one.",
+            "title": "Remaining Budget Usd"
+          },
+          "budget_exhausted": {
+            "anyOf": [
+              {
+                "type": "boolean"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "description": "Usage reached the budget and requests are refused. Null for a month other than the current one.",
+            "title": "Budget Exhausted"
+          },
+          "projects": {
+            "description": "Projects with usage this month, highest cost first. Projects deleted since are included, so the per-project costs add up to `usage_usd`.",
+            "items": {
+              "$ref": "#/components/schemas/ProjectMonthlyUsageEntry"
+            },
+            "title": "Projects",
+            "type": "array"
+          }
+        },
+        "required": [
+          "month",
+          "usage_usd",
+          "free_usage_usd",
+          "invoiced_usage_usd",
+          "api_usage_usd",
+          "playground_usage_usd",
+          "monthly_budget_usd",
+          "monthly_budget_notification_usd",
+          "remaining_budget_usd",
+          "budget_exhausted",
+          "projects"
+        ],
+        "title": "GetOrganizationMonthlyUsageResponse",
+        "type": "object"
+      },
+      "GetOrganizationUsageSummaryResponse": {
+        "properties": {
+          "total": {
+            "$ref": "#/components/schemas/UsageSummaryEntry",
+            "description": "Cost and activity across every project of the organization. Equals the sum of the `projects` entries."
+          },
+          "projects": {
+            "description": "Projects with usage in the window, highest cost first. Projects deleted since are included, so the per-project costs add up to `total`.",
+            "items": {
+              "$ref": "#/components/schemas/OrganizationUsageSummaryProject"
+            },
+            "title": "Projects",
+            "type": "array"
+          }
+        },
+        "required": [
+          "total",
+          "projects"
+        ],
+        "title": "GetOrganizationUsageSummaryResponse",
+        "type": "object"
+      },
+      "GetOrganizationLimitsResponse": {
+        "properties": {
+          "monthly_budget_usd": {
+            "description": "Organization budget in effect.",
+            "title": "Monthly Budget Usd",
+            "type": "string"
+          },
+          "monthly_budget_max_usd": {
+            "description": "Highest budget the organization may set for itself.",
+            "title": "Monthly Budget Max Usd",
+            "type": "string"
+          },
+          "monthly_budget_notification_usd": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "description": "Usage at which the organization is emailed. Null when unset.",
+            "title": "Monthly Budget Notification Usd"
+          },
+          "regions": {
+            "description": "Limits per region the organization has access to, defaults filled in.",
+            "items": {
+              "$ref": "#/components/schemas/RegionLimitsEntry"
+            },
+            "title": "Regions",
+            "type": "array"
+          }
+        },
+        "required": [
+          "monthly_budget_usd",
+          "monthly_budget_max_usd",
+          "monthly_budget_notification_usd",
+          "regions"
+        ],
+        "title": "GetOrganizationLimitsResponse",
+        "type": "object"
+      },
+      "GetOrganizationProjectsResponse": {
+        "properties": {
+          "projects": {
+            "description": "Projects of the organization, oldest first. Deleted projects are not included.",
+            "items": {
+              "$ref": "#/components/schemas/OrganizationProjectEntry"
+            },
+            "title": "Projects",
+            "type": "array"
+          }
+        },
+        "required": [
+          "projects"
+        ],
+        "title": "GetOrganizationProjectsResponse",
+        "type": "object"
+      },
+      "GetProjectApiKeysResponse": {
+        "properties": {
+          "api_keys": {
+            "description": "API keys of the project, newest first. Never the key itself.",
+            "items": {
+              "$ref": "#/components/schemas/ProjectApiKeyEntry"
+            },
+            "title": "Api Keys",
+            "type": "array"
+          }
+        },
+        "required": [
+          "api_keys"
+        ],
+        "title": "GetProjectApiKeysResponse",
+        "type": "object"
+      },
+      "CreateProjectApiKeyResponse": {
+        "properties": {
+          "id": {
+            "description": "Unique identifier of the API key.",
+            "format": "uuid",
+            "title": "Id",
+            "type": "string"
+          },
+          "key": {
+            "description": "The API key. Returned only here; it cannot be retrieved again.",
+            "title": "Key",
+            "type": "string"
+          },
+          "key_prefix": {
+            "description": "Leading characters of the key, so keys can be told apart.",
+            "title": "Key Prefix",
+            "type": "string"
+          },
+          "name": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "description": "Label of the API key.",
+            "title": "Name"
+          },
+          "permissions": {
+            "description": "What the key may call, as `resource:level`; write includes read.",
+            "items": {
+              "$ref": "#/components/schemas/ApiKeyPermission"
+            },
+            "title": "Permissions",
+            "type": "array"
+          },
+          "created_at": {
+            "description": "When the key was created.",
+            "format": "date-time",
+            "title": "Created At",
+            "type": "string"
+          },
+          "created_by": {
+            "description": "The organization API key that created it.",
+            "title": "Created By",
+            "type": "string"
+          },
+          "created_by_key_id": {
+            "description": "Id of the organization API key that created this key.",
+            "format": "uuid",
+            "title": "Created By Key Id",
+            "type": "string"
+          }
+        },
+        "required": [
+          "id",
+          "key",
+          "key_prefix",
+          "name",
+          "permissions",
+          "created_at",
+          "created_by",
+          "created_by_key_id"
+        ],
+        "title": "CreateProjectApiKeyResponse",
+        "type": "object"
+      },
+      "CreateProjectApiKeyPayload": {
+        "properties": {
+          "name": {
+            "description": "Label of the API key.",
+            "title": "Name",
+            "type": "string"
+          },
+          "permissions": {
+            "description": "What the key may call, as `resource:level`. At least one; one level per resource.",
+            "items": {
+              "$ref": "#/components/schemas/ApiKeyPermission"
+            },
+            "title": "Permissions",
+            "type": "array"
+          }
+        },
+        "required": [
+          "name",
+          "permissions"
+        ],
+        "title": "CreateProjectApiKeyPayload",
+        "type": "object"
+      },
+      "ApiKeyPermission": {
+        "description": "`resource:level`; write includes read.",
+        "enum": [
+          "stt_rt:write",
+          "stt_async:read",
+          "stt_async:write",
+          "files:read",
+          "files:write",
+          "tts_rt:write",
+          "voices:read",
+          "voices:write",
+          "voice_agent:read",
+          "voice_agent:write",
+          "usage:read",
+          "models:read",
+          "temporary_keys:write",
+          "legacy:write"
+        ],
+        "title": "ApiKeyPermission",
+        "type": "string"
+      },
+      "ProjectApiKeyEntry": {
+        "properties": {
+          "id": {
+            "description": "Unique identifier of the API key.",
+            "format": "uuid",
+            "title": "Id",
+            "type": "string"
+          },
+          "key_prefix": {
+            "description": "Leading characters of the key, so keys can be told apart.",
+            "title": "Key Prefix",
+            "type": "string"
+          },
+          "name": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "description": "Label of the API key. `null` for keys created without one.",
+            "title": "Name"
+          },
+          "permissions": {
+            "description": "What the key may call, as `resource:level`; write includes read.",
+            "items": {
+              "$ref": "#/components/schemas/ApiKeyPermission"
+            },
+            "title": "Permissions",
+            "type": "array"
+          },
+          "created_at": {
+            "description": "When the key was created.",
+            "format": "date-time",
+            "title": "Created At",
+            "type": "string"
+          },
+          "created_by": {
+            "description": "Who created the key: the email address of a console user, or the organization API key that created it.",
+            "title": "Created By",
+            "type": "string"
+          },
+          "created_by_key_id": {
+            "anyOf": [
+              {
+                "format": "uuid",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "description": "The organization API key that created it. Null for a console-made key.",
+            "title": "Created By Key Id"
+          }
+        },
+        "required": [
+          "id",
+          "key_prefix",
+          "name",
+          "permissions",
+          "created_at",
+          "created_by",
+          "created_by_key_id"
+        ],
+        "title": "ProjectApiKeyEntry",
+        "type": "object"
+      },
+      "OrganizationProjectEntry": {
+        "properties": {
+          "id": {
+            "description": "Unique identifier of the project.",
+            "format": "uuid",
+            "title": "Id",
+            "type": "string"
+          },
+          "name": {
+            "description": "Name of the project.",
+            "title": "Name",
+            "type": "string"
+          },
+          "description": {
+            "description": "Description of the project. Empty when none was set.",
+            "title": "Description",
+            "type": "string"
+          },
+          "region": {
+            "description": "Region the project's data is stored and processed in.",
+            "title": "Region",
+            "type": "string"
+          },
+          "created_at": {
+            "description": "When the project was created.",
+            "format": "date-time",
+            "title": "Created At",
+            "type": "string"
+          }
+        },
+        "required": [
+          "id",
+          "name",
+          "description",
+          "region",
+          "created_at"
+        ],
+        "title": "OrganizationProjectEntry",
+        "type": "object"
+      },
+      "RegionLimitsEntry": {
+        "properties": {
+          "region": {
+            "description": "Region the limits apply to.",
+            "title": "Region",
+            "type": "string"
+          },
+          "transcribe_rpm": {
+            "description": "Real-time STT sessions per minute.",
+            "title": "Transcribe Rpm",
+            "type": "string"
+          },
+          "transcribe_concurrent": {
+            "description": "Concurrent real-time STT sessions.",
+            "title": "Transcribe Concurrent",
+            "type": "integer"
+          },
+          "tts_rpm": {
+            "description": "TTS requests per minute.",
+            "title": "Tts Rpm",
+            "type": "string"
+          },
+          "tts_concurrent": {
+            "description": "Concurrent TTS sessions.",
+            "title": "Tts Concurrent",
+            "type": "integer"
+          },
+          "transcribe_async_rpm": {
+            "description": "Async transcription requests per minute.",
+            "title": "Transcribe Async Rpm",
+            "type": "string"
+          },
+          "transcribe_async_concurrent": {
+            "description": "Async transcriptions processed at once.",
+            "title": "Transcribe Async Concurrent",
+            "type": "integer"
+          },
+          "transcribe_async_total_num_files": {
+            "description": "Async transcriptions kept in total.",
+            "title": "Transcribe Async Total Num Files",
+            "type": "integer"
+          },
+          "transcribe_async_pending_num_files": {
+            "description": "Async transcriptions waiting or in progress.",
+            "title": "Transcribe Async Pending Num Files",
+            "type": "integer"
+          },
+          "files_rpm": {
+            "description": "File requests per minute.",
+            "title": "Files Rpm",
+            "type": "string"
+          },
+          "files_total_size_gb": {
+            "description": "Total size of stored files, in GB.",
+            "title": "Files Total Size Gb",
+            "type": "string"
+          },
+          "files_total_count": {
+            "description": "Stored files in total.",
+            "title": "Files Total Count",
+            "type": "integer"
+          },
+          "voices_rpm": {
+            "description": "Voice requests per minute.",
+            "title": "Voices Rpm",
+            "type": "string"
+          },
+          "voices_total_count": {
+            "description": "Cloned voices in total.",
+            "title": "Voices Total Count",
+            "type": "integer"
+          },
+          "webhooks_concurrent": {
+            "description": "Webhook deliveries in flight at once.",
+            "title": "Webhooks Concurrent",
+            "type": "integer"
+          }
+        },
+        "required": [
+          "region",
+          "transcribe_rpm",
+          "transcribe_concurrent",
+          "tts_rpm",
+          "tts_concurrent",
+          "transcribe_async_rpm",
+          "transcribe_async_concurrent",
+          "transcribe_async_total_num_files",
+          "transcribe_async_pending_num_files",
+          "files_rpm",
+          "files_total_size_gb",
+          "files_total_count",
+          "voices_rpm",
+          "voices_total_count",
+          "webhooks_concurrent"
+        ],
+        "title": "RegionLimitsEntry",
+        "type": "object"
+      },
+      "OrganizationUsageSummaryProject": {
+        "properties": {
+          "id": {
+            "description": "Unique identifier of the project.",
+            "format": "uuid",
+            "title": "Id",
+            "type": "string"
+          },
+          "name": {
+            "description": "Name of the project.",
+            "title": "Name",
+            "type": "string"
+          },
+          "total": {
+            "$ref": "#/components/schemas/UsageSummaryEntry",
+            "description": "Cost and activity across all models of the project."
+          },
+          "models": {
+            "description": "Per-model cost and activity, highest cost first.",
+            "items": {
+              "$ref": "#/components/schemas/UsageSummaryEntry"
+            },
+            "title": "Models",
+            "type": "array"
+          }
+        },
+        "required": [
+          "id",
+          "name",
+          "total",
+          "models"
+        ],
+        "title": "OrganizationUsageSummaryProject",
+        "type": "object"
+      },
+      "ProjectMonthlyUsageEntry": {
+        "properties": {
+          "id": {
+            "description": "Unique identifier of the project.",
+            "format": "uuid",
+            "title": "Id",
+            "type": "string"
+          },
+          "name": {
+            "description": "Name of the project.",
+            "title": "Name",
+            "type": "string"
+          },
+          "usage_usd": {
+            "description": "Cost of the month for this project.",
+            "title": "Usage Usd",
+            "type": "string"
+          },
+          "free_usage_usd": {
+            "description": "Part of the usage covered by granted balance.",
+            "title": "Free Usage Usd",
+            "type": "string"
+          },
+          "invoiced_usage_usd": {
+            "description": "Part of the usage that is invoiced.",
+            "title": "Invoiced Usage Usd",
+            "type": "string"
+          },
+          "api_usage_usd": {
+            "description": "Part of the usage made through the API.",
+            "title": "Api Usage Usd",
+            "type": "string"
+          },
+          "playground_usage_usd": {
+            "description": "Part of the usage made in the Soniox Console playground.",
+            "title": "Playground Usage Usd",
+            "type": "string"
+          },
+          "monthly_budget_usd": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "description": "Project budget. Null means only the organization budget applies.",
+            "title": "Monthly Budget Usd"
+          }
+        },
+        "required": [
+          "id",
+          "name",
+          "usage_usd",
+          "free_usage_usd",
+          "invoiced_usage_usd",
+          "api_usage_usd",
+          "playground_usage_usd",
+          "monthly_budget_usd"
+        ],
+        "title": "ProjectMonthlyUsageEntry",
+        "type": "object"
       }
     },
     "securitySchemes": {
       "PublicApiAuth": {
+        "type": "http",
+        "scheme": "bearer"
+      },
+      "OrganizationApiKeyAuth": {
         "type": "http",
         "scheme": "bearer"
       }

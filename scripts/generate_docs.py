@@ -29,6 +29,7 @@ ASYNC_CLASS_SPECS = [
     ("soniox.api.async_usage_logs", "AsyncUsageLogsAPI"),
     ("soniox.api.async_usage", "AsyncUsageAPI"),
     ("soniox.api.async_concurrency_limits", "AsyncConcurrencyLimitsAPI"),
+    ("soniox.api.async_organization", "AsyncOrganizationAPI"),
     ("soniox.api.async_auth", "AsyncAuthAPI"),
     ("soniox.api.async_webhooks", "AsyncSonioxWebhooksAPI"),
 ]

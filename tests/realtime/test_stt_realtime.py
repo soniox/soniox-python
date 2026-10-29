@@ -158,6 +158,44 @@ def test_keepalive_emits_control_message(client: SonioxClient) -> None:
     assert {"type": "keepalive"} in ws.sent_messages
 
 
+def test_agent_text_rides_between_the_audio_chunks(client: SonioxClient) -> None:
+    """Soniox places agent text by its position among the audio, so order is the contract."""
+    ws = MockWebSocket()
+    ws.close_after_recv()
+    config = RealtimeSTTConfig(model="v1", enable_agent_text_input=True)
+    with patch("soniox.realtime.stt.sync_ws_connect", return_value=ws):
+        with client.realtime.stt.connect(config=config) as session:
+            session.send_byte_chunk(b"before")
+            session.send_agent_text("the bakery opens at seven", end_of_segment=False)
+            session.send_byte_chunk(b"after")
+            session.send_agent_text("")
+            session.finish()
+
+    assert ws.sent_messages[1:5] == [
+        b"before",
+        {"type": "agent_text", "text": "the bakery opens at seven", "end_of_segment": False},
+        b"after",
+        {"type": "agent_text", "text": "", "end_of_segment": True},
+    ]
+
+
+def test_agent_text_refused_when_the_config_did_not_enable_it(client: SonioxClient) -> None:
+    """The server only checks at start, so an unset flag would silently do nothing."""
+    ws = MockWebSocket()
+    ws.close_after_recv()
+    config = RealtimeSTTConfig(model="v1")
+    with patch("soniox.realtime.stt.sync_ws_connect", return_value=ws):
+        with client.realtime.stt.connect(config=config) as session:
+            with pytest.raises(SonioxValidationError, match="enable_agent_text_input"):
+                session.send_agent_text("never spoken")
+            session.finish()
+
+    assert not [
+        m for m in ws.sent_messages if isinstance(m, dict) and m.get("type") == "agent_text"
+    ]
+
+
+
 def test_receive_event_raises_when_not_connected(client: SonioxClient) -> None:
     """Calling session methods outside the context manager is an error."""
     from soniox.errors import SonioxRealtimeError
@@ -424,6 +462,30 @@ async def test_async_send_control_message_wraps_send_errors(
             ws.closed = True
             with pytest.raises(SonioxRealtimeError):
                 await session.keep_alive()
+
+
+async def test_async_agent_text_rides_between_the_audio_chunks(
+    async_client: AsyncSonioxClient,
+) -> None:
+    ws = AsyncMockWebSocket()
+    ws.close_after_recv()
+
+    with patch("soniox.realtime.async_stt.async_ws_connect", return_value=ws):
+        async with async_client.realtime.stt.connect(
+            config=RealtimeSTTConfig(model="v1", enable_agent_text_input=True)
+        ) as session:
+            await session.send_byte_chunk(b"before")
+            await session.send_agent_text("let me check", end_of_segment=False)
+            await session.send_byte_chunk(b"after")
+            await session.send_agent_text("")
+            await session.finish()
+
+    assert ws.sent_messages[1:5] == [
+        b"before",
+        {"type": "agent_text", "text": "let me check", "end_of_segment": False},
+        b"after",
+        {"type": "agent_text", "text": "", "end_of_segment": True},
+    ]
 
 
 def test_connect_default_uses_default_open_timeout() -> None:

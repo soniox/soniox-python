@@ -1,7 +1,7 @@
 ---
 title: "Types"
 description: "Soniox Python SDK - Types Reference"
-keywords: "Token, ApiError, ApiErrorValidationError, CreateTemporaryApiKeyPayload, CreateTemporaryApiKeyResponse, CreateTtsPayload, ConcurrencyCurrentValues, ConcurrencyLimitValues, ConcurrencyScopeValues, CreateTtsConfig, CreateTranscriptionPayload, CreateTranscriptionConfig, File, GetConcurrencyLimitsResponse, GetFilesCountResponse, GetFilesPayload, GetFilesResponse, GetModelsResponse, GetSharedVoicesPayload, GetSharedVoicesResponse, GetTTSModelsResponse, GetTtsModelsResponse, GetTranscriptionsCountResponse, GetTranscriptionsPayload, GetTranscriptionsResponse, GetUsageLogsPayload, GetUsageLogsResponse, GetConcurrentStreamsHistoryPayload, GetConcurrentStreamsHistoryResponse, GetUsageSummaryPayload, GetUsageSummaryResponse, GetVoicesCountResponse, GetVoicesPayload, GetVoicesResponse, Language, LanguageCode, SupportedLanguage, Model, RealtimeSTTAudioFormat, RealtimeSTTHeaderFormat, RealtimeSTTRawFormat, RecomputeVoicePayload, StructuredContext, StructuredContextGeneralInput, StructuredContextGeneralItem, StructuredContextInput, StructuredContextTranslationTerm, StructuredContextTranslationTermsInput, Transcription, TranscriptionStatus, TranscriptionTranscript, TranslationConfig, TranslationConfigInput, TranslationTarget, TranslationType, TTSModel, TTSVoice, TTSVoiceAge, TTSVoiceDetails, TtsAudioFormat, TtsBitrate, TtsModel, TtsSampleRate, TtsVoice, TtsVoiceAge, TtsVoiceDetails, TtsVoiceGender, TemporaryApiKeyUsageType, UploadFilePayload, UsageLogEntry, ConcurrentStreamKind, ConcurrentStreamsHistoryEntry, ConcurrentStreamsPeriodSec, UsageLogsSort, UsageSummaryEntry, Voice, VoiceModel, VoiceModelStatus, RealtimeEvent, RealtimeSTTConfig, RealtimeTTSConfig, RealtimeTTSEvent, RealtimeTTSTextMessage, TtsTimestamps, Headers, WebhookAuthConfig, WebhookEvent"
+keywords: "Token, ApiError, ApiErrorValidationError, CreateTemporaryApiKeyPayload, CreateTemporaryApiKeyResponse, CreateTtsPayload, ConcurrencyCurrentValues, ConcurrencyLimitValues, ConcurrencyScopeValues, CreateTtsConfig, CreateTranscriptionPayload, CreateTranscriptionConfig, File, GetConcurrencyLimitsResponse, GetFilesCountResponse, GetFilesPayload, GetFilesResponse, GetModelsResponse, GetSharedVoicesPayload, GetSharedVoicesResponse, GetTTSModelsResponse, GetTtsModelsResponse, GetTranscriptionsCountResponse, GetTranscriptionsPayload, GetTranscriptionsResponse, GetUsageLogsPayload, GetUsageLogsResponse, GetConcurrentStreamsHistoryPayload, GetConcurrentStreamsHistoryResponse, GetUsageSummaryPayload, GetUsageSummaryResponse, GetVoicesCountResponse, GetVoicesPayload, GetVoicesResponse, Language, LanguageCode, SupportedLanguage, Model, RealtimeSTTAudioFormat, RealtimeSTTHeaderFormat, RealtimeSTTRawFormat, RecomputeVoicePayload, StructuredContext, StructuredContextGeneralInput, StructuredContextGeneralItem, StructuredContextInput, StructuredContextTranslationTerm, StructuredContextTranslationTermsInput, Transcription, TranscriptionStatus, TranscriptionTranscript, TranslationConfig, TranslationConfigInput, TranslationTarget, TranslationType, TTSModel, TTSVoice, TTSVoiceAge, TTSVoiceDetails, TtsAudioFormat, TtsBitrate, TtsModel, TtsSampleRate, TtsVoice, TtsVoiceAge, TtsVoiceDetails, TtsVoiceGender, TemporaryApiKeyUsageType, UploadFilePayload, UsageLogEntry, ConcurrentStreamKind, ConcurrentStreamsHistoryEntry, ConcurrentStreamsPeriodSec, UsageLogsSort, UsageSummaryEntry, Voice, VoiceModel, VoiceModelStatus, ApiKeyPermission, CreateProjectApiKeyPayload, CreateProjectApiKeyResponse, GetOrganizationBalanceResponse, GetOrganizationLimitsResponse, GetOrganizationMonthlyUsagePayload, GetOrganizationMonthlyUsageResponse, GetOrganizationProjectsResponse, GetOrganizationResponse, GetOrganizationUsageSummaryResponse, GetProjectApiKeysResponse, OrganizationProjectEntry, OrganizationUsageSummaryProject, ProjectApiKeyEntry, ProjectMonthlyUsageEntry, RegionLimitsEntry, RealtimeEvent, RealtimeSTTConfig, RealtimeTTSConfig, RealtimeTTSEvent, RealtimeTTSTextMessage, TtsTimestamps, Headers, WebhookAuthConfig, WebhookEvent"
 ---
 
 ---
@@ -628,6 +628,7 @@ Describes a Soniox transcription model.
 | `supports_endpoint_sensitivity` | `bool` | If model supports the 'endpoint_sensitivity' option. |
 | `supports_endpoint_latency_adjustment` | `bool` | If model supports the 'endpoint_latency_adjustment_level' option. |
 | `endpoint_latency_adjustment_max_level` | `int` | Maximum endpoint_latency_adjustment_level the model accepts (0 means unsupported). |
+| `supports_agent_text_input` | `bool` | If model supports the 'enable_agent_text_input' option. |
 | `translation_targets` | `list[TranslationTarget]` | List of supported one-way translation targets. If list is empty, check for one_way_translation field. |
 | `two_way_translation_pairs` | `list[str]` | List of supported two-way translation pairs. If list is empty, check for one_way_translation field. |
 | `one_way_translation` | `str \| None` | When contains string 'all_languages', any language from languages can be used |
@@ -1150,6 +1151,7 @@ A single usage-log entry describing one API request.
 | `end_time` | `datetime` | When the request ended. |
 | `input_text_tokens` | `int` | - |
 | `input_audio_tokens` | `int` | - |
+| `input_agent_text_tokens` | `int` | - |
 | `input_audio_duration_ms` | `int` | - |
 | `output_text_tokens` | `int` | - |
 | `output_audio_tokens` | `int` | - |
@@ -1158,6 +1160,7 @@ A single usage-log entry describing one API request.
 | `input_cost_usd` | `str` | - |
 | `input_text_cost_usd` | `str` | - |
 | `input_audio_cost_usd` | `str` | - |
+| `input_agent_text_cost_usd` | `str` | - |
 | `output_cost_usd` | `str` | - |
 | `output_text_cost_usd` | `str` | - |
 | `output_audio_cost_usd` | `str` | - |
@@ -1237,13 +1240,18 @@ present, so days without usage are zeros.
 | `total_input_cost_usd` | `str` | - |
 | `total_output_cost_usd` | `str` | - |
 | `total_duration_cost_usd` | `str` | - |
+| `total_api_cost_usd` | `str` | - |
+| `total_playground_cost_usd` | `str` | - |
 | `cost_usd` | `list[str]` | - |
 | `input_cost_usd` | `list[str]` | - |
 | `output_cost_usd` | `list[str]` | - |
 | `duration_cost_usd` | `list[str]` | - |
+| `api_cost_usd` | `list[str]` | - |
+| `playground_cost_usd` | `list[str]` | - |
 | `total_num_requests` | `int` | - |
 | `total_input_text_tokens` | `int` | - |
 | `total_input_audio_tokens` | `int` | - |
+| `total_input_agent_text_tokens` | `int` | - |
 | `total_input_audio_duration_ms` | `int` | - |
 | `total_output_text_tokens` | `int` | - |
 | `total_output_audio_tokens` | `int` | - |
@@ -1252,6 +1260,7 @@ present, so days without usage are zeros.
 | `num_requests` | `list[int]` | - |
 | `input_text_tokens` | `list[int]` | - |
 | `input_audio_tokens` | `list[int]` | - |
+| `input_agent_text_tokens` | `list[int]` | - |
 | `input_audio_duration_ms` | `list[int]` | - |
 | `output_text_tokens` | `list[int]` | - |
 | `output_audio_tokens` | `list[int]` | - |
@@ -1304,6 +1313,310 @@ VoiceModelStatus = Literal["not_computed", "processing", "ready", "failed"]
 ```
 
 Readiness of a voice for a given model. Must be 'ready' to use the voice with that model.
+
+---
+
+<a id="apikeypermission"></a>
+
+## ApiKeyPermission
+
+```python
+ApiKeyPermission = Literal[
+    "stt_rt:write",
+    "stt_async:read",
+    "stt_async:write",
+    "files:read",
+    "files:write",
+    "tts_rt:write",
+    "voices:read",
+    "voices:write",
+    "voice_agent:read",
+    "voice_agent:write",
+    "usage:read",
+    "models:read",
+    "temporary_keys:write",
+    "legacy:write",
+]
+```
+
+API key permission as `resource:level`; write includes read.
+
+---
+
+## CreateProjectApiKeyPayload
+
+Payload for creating an API key in a project.
+
+<a id="createprojectapikeypayload-properties"></a>
+
+### Properties
+
+| Property | Type | Description |
+| ------ | ------ | ------ |
+| `name` | `str` | Name of the model. |
+| `permissions` | `list[ApiKeyPermission]` | - |
+
+---
+
+## CreateProjectApiKeyResponse
+
+A newly created API key. The only response that carries the secret.
+
+<a id="createprojectapikeyresponse-properties"></a>
+
+### Properties
+
+| Property | Type | Description |
+| ------ | ------ | ------ |
+| `id` | `str` | Unique identifier of the voice. |
+| `key` | `str` | The secret. Returned once, at creation, and never again. |
+| `key_prefix` | `str` | Leading characters of the key, enough to recognize it in a list. |
+| `name` | `str \| None` | Name of the model. |
+| `permissions` | `list[ApiKeyPermission]` | - |
+| `created_at` | `datetime` | UTC timestamp indicating when the voice was created. |
+| `created_by` | `str` | - |
+| `created_by_key_id` | `str` | API key that created this one, or None when a person did. |
+
+---
+
+## GetOrganizationBalanceResponse
+
+Prepaid balance and payment settings for the organization.
+
+<a id="getorganizationbalanceresponse-properties"></a>
+
+### Properties
+
+| Property | Type | Description |
+| ------ | ------ | ------ |
+| `available_balance_usd` | `str` | Balance left to spend: paid credit plus whatever free credit remains. |
+| `free_balance_usd` | `str` | - |
+| `used_balance_usd` | `str` | - |
+| `invoice_billing_enabled` | `bool` | True when usage is invoiced rather than drawn from the balance. |
+| `balance_exhausted` | `bool` | True when the balance can no longer cover requests. |
+| `autopay_enabled` | `bool` | - |
+| `autopay_threshold_usd` | `str \| None` | Balance at which autopay tops up, or None when autopay is off. |
+| `autopay_amount_usd` | `str \| None` | Amount each autopay charge adds, or None when autopay is off. |
+| `has_payment_method` | `bool` | - |
+| `has_payment_error` | `bool` | - |
+
+---
+
+## GetOrganizationLimitsResponse
+
+Budget and per-region limits for the organization.
+
+<a id="getorganizationlimitsresponse-properties"></a>
+
+### Properties
+
+| Property | Type | Description |
+| ------ | ------ | ------ |
+| `monthly_budget_usd` | `str` | Project budget, or None when the project has none of its own. |
+| `monthly_budget_max_usd` | `str` | - |
+| `monthly_budget_notification_usd` | `str \| None` | Spend at which a notification is sent, or None when none is configured. |
+| `regions` | `list[RegionLimitsEntry]` | Rate and quota limits configured for one region. |
+
+---
+
+## GetOrganizationMonthlyUsagePayload
+
+Parameters accepted by the organization monthly usage endpoint.
+
+<a id="getorganizationmonthlyusagepayload-properties"></a>
+
+### Properties
+
+| Property | Type | Description |
+| ------ | ------ | ------ |
+| `month` | `str \| None` | Calendar month as ``YYYY-MM``, UTC. None means the current month. |
+
+---
+
+## GetOrganizationMonthlyUsageResponse
+
+A calendar month of organization usage, split per project.
+
+<a id="getorganizationmonthlyusageresponse-properties"></a>
+
+### Properties
+
+| Property | Type | Description |
+| ------ | ------ | ------ |
+| `month` | `str` | Month covered, as ``YYYY-MM`` in UTC. |
+| `usage_usd` | `str` | - |
+| `free_usage_usd` | `str` | - |
+| `invoiced_usage_usd` | `str` | - |
+| `api_usage_usd` | `str` | - |
+| `playground_usage_usd` | `str` | - |
+| `monthly_budget_usd` | `str \| None` | Project budget, or None when the project has none of its own. |
+| `monthly_budget_notification_usd` | `str \| None` | Spend at which a notification is sent, or None when none is configured. |
+| `remaining_budget_usd` | `str \| None` | Budget left for the month, or None when no budget is set. |
+| `budget_exhausted` | `bool \| None` | True once the budget is spent; None when no budget is set. |
+| `projects` | `list[ProjectMonthlyUsageEntry]` | One project's share of a month's organization usage. |
+
+---
+
+## GetOrganizationProjectsResponse
+
+Every project in the organization.
+
+<a id="getorganizationprojectsresponse-properties"></a>
+
+### Properties
+
+| Property | Type | Description |
+| ------ | ------ | ------ |
+| `projects` | `list[OrganizationProjectEntry]` | A project in the organization. |
+
+---
+
+## GetOrganizationResponse
+
+Identity of the organization the API key belongs to.
+
+<a id="getorganizationresponse-properties"></a>
+
+### Properties
+
+| Property | Type | Description |
+| ------ | ------ | ------ |
+| `id` | `str` | Unique identifier of the voice. |
+| `name` | `str` | Name of the model. |
+| `created_at` | `datetime` | UTC timestamp indicating when the voice was created. |
+
+---
+
+## GetOrganizationUsageSummaryResponse
+
+Daily cost and activity for the organization, per project.
+
+<a id="getorganizationusagesummaryresponse-properties"></a>
+
+### Properties
+
+| Property | Type | Description |
+| ------ | ------ | ------ |
+| `total` | `UsageSummaryEntry` | Totals across every project. Its ``model`` is None. |
+| `projects` | `list[OrganizationUsageSummaryProject]` | One project's daily usage inside an organization summary. |
+
+---
+
+## GetProjectApiKeysResponse
+
+Every API key of one project.
+
+<a id="getprojectapikeysresponse-properties"></a>
+
+### Properties
+
+| Property | Type | Description |
+| ------ | ------ | ------ |
+| `api_keys` | `list[ProjectApiKeyEntry]` | An API key of a project, without the secret. |
+
+---
+
+## OrganizationProjectEntry
+
+A project in the organization.
+
+<a id="organizationprojectentry-properties"></a>
+
+### Properties
+
+| Property | Type | Description |
+| ------ | ------ | ------ |
+| `id` | `str` | Unique identifier of the voice. |
+| `name` | `str` | Name of the model. |
+| `description` | `str` | Description of the voice. |
+| `region` | `str` | - |
+| `created_at` | `datetime` | UTC timestamp indicating when the voice was created. |
+
+---
+
+## OrganizationUsageSummaryProject
+
+One project's daily usage inside an organization summary.
+
+<a id="organizationusagesummaryproject-properties"></a>
+
+### Properties
+
+| Property | Type | Description |
+| ------ | ------ | ------ |
+| `id` | `str` | Unique identifier of the voice. |
+| `name` | `str` | Name of the model. |
+| `total` | `UsageSummaryEntry` | Totals across the project's models. Its ``model`` is None. |
+| `models` | `list[UsageSummaryEntry]` | One entry per model that recorded usage in the project. |
+
+---
+
+## ProjectApiKeyEntry
+
+An API key of a project, without the secret.
+
+<a id="projectapikeyentry-properties"></a>
+
+### Properties
+
+| Property | Type | Description |
+| ------ | ------ | ------ |
+| `id` | `str` | Unique identifier of the voice. |
+| `key_prefix` | `str` | Leading characters of the key, enough to recognize it in a list. |
+| `name` | `str \| None` | Name of the model. |
+| `permissions` | `list[ApiKeyPermission]` | - |
+| `created_at` | `datetime` | UTC timestamp indicating when the voice was created. |
+| `created_by` | `str` | - |
+| `created_by_key_id` | `str \| None` | API key that created this one, or None when a person did. |
+
+---
+
+## ProjectMonthlyUsageEntry
+
+One project's share of a month's organization usage.
+
+<a id="projectmonthlyusageentry-properties"></a>
+
+### Properties
+
+| Property | Type | Description |
+| ------ | ------ | ------ |
+| `id` | `str` | Unique identifier of the voice. |
+| `name` | `str` | Name of the model. |
+| `usage_usd` | `str` | - |
+| `free_usage_usd` | `str` | - |
+| `invoiced_usage_usd` | `str` | - |
+| `api_usage_usd` | `str` | - |
+| `playground_usage_usd` | `str` | - |
+| `monthly_budget_usd` | `str \| None` | Project budget, or None when the project has none of its own. |
+
+---
+
+## RegionLimitsEntry
+
+Rate and quota limits configured for one region.
+
+<a id="regionlimitsentry-properties"></a>
+
+### Properties
+
+| Property | Type | Description |
+| ------ | ------ | ------ |
+| `region` | `str` | - |
+| `transcribe_rpm` | `str` | - |
+| `transcribe_concurrent` | `int` | Maximum concurrent realtime STT sessions, or None if unlimited. |
+| `tts_rpm` | `str` | - |
+| `tts_concurrent` | `int` | Maximum concurrent realtime TTS sessions, or None if unlimited. |
+| `transcribe_async_rpm` | `str` | - |
+| `transcribe_async_concurrent` | `int` | - |
+| `transcribe_async_total_num_files` | `int` | - |
+| `transcribe_async_pending_num_files` | `int` | - |
+| `files_rpm` | `str` | - |
+| `files_total_size_gb` | `str` | - |
+| `files_total_count` | `int` | - |
+| `voices_rpm` | `str` | - |
+| `voices_total_count` | `int` | - |
+| `webhooks_concurrent` | `int` | - |
 
 ---
 
@@ -1364,6 +1677,7 @@ Configuration for initiating a realtime transcription session.
 | `enable_speaker_diarization` | `bool \| None` | Enable speaker identification. |
 | `enable_language_identification` | `bool \| None` | Enable automatic language detection. |
 | `enable_endpoint_detection` | `bool \| None` | Enable endpoint detection for utterance boundaries. |
+| `enable_agent_text_input` | `bool \| None` | Accept `send_agent_text()` on this session, so words your agent speaks are recognized when the user says them back. The model must support it (`Model.supports_agent_text_input`), or the server refuses the session. |
 | `max_endpoint_delay_ms` | `int \| None` | Maximum delay between the end of speech and returned endpoint. Allowed values for maximum delay are between 500ms and 3000ms. The default value is 2000ms |
 | `endpoint_sensitivity` | `float \| None` | Adjusts how likely the model is to emit an endpoint. Higher values make endpoints more likely (finalizing sooner); lower values make them less likely. Allowed values are between -1.0 and 1.0; the default is 0.0. Introduced in the Soniox v5 model; earlier models reject it. |
 | `endpoint_latency_adjustment_level` | `int \| None` | Fine-tunes the latency/accuracy trade-off of endpoint detection. Allowed values are integers from 0 to 3. |

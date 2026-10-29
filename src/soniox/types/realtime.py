@@ -85,6 +85,13 @@ class RealtimeSTTConfig(BaseModel):
     enable_endpoint_detection: bool | None = None
     """Enable endpoint detection for utterance boundaries."""
 
+    enable_agent_text_input: bool | None = None
+    """
+    Accept `send_agent_text()` on this session, so words your agent speaks are
+    recognized when the user says them back. The model must support it
+    (`Model.supports_agent_text_input`), or the server refuses the session.
+    """
+
     max_endpoint_delay_ms: int | None = Field(default=None, ge=500, le=3000)
     """
     Maximum delay between the end of speech and returned endpoint.

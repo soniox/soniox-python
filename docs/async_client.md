@@ -1,7 +1,7 @@
 ---
 title: "Async Client"
 description: "Soniox Python SDK - Async Client Reference"
-keywords: "AsyncSonioxClient, AsyncFilesAPI, AsyncSttAPI, AsyncTtsAPI, AsyncTtsModelsAPI, AsyncVoicesAPI, AsyncModelsAPI, AsyncUsageLogsAPI, AsyncUsageAPI, AsyncConcurrencyLimitsAPI, AsyncAuthAPI, AsyncSonioxWebhooksAPI"
+keywords: "AsyncSonioxClient, AsyncFilesAPI, AsyncSttAPI, AsyncTtsAPI, AsyncTtsModelsAPI, AsyncVoicesAPI, AsyncModelsAPI, AsyncUsageLogsAPI, AsyncUsageAPI, AsyncConcurrencyLimitsAPI, AsyncOrganizationAPI, AsyncAuthAPI, AsyncSonioxWebhooksAPI"
 ---
 
 ---
@@ -53,6 +53,7 @@ AsyncSonioxClient(api_key: str | None = None, api_base_url: str | None = None, w
 | `tts_models` | `AsyncTtsModelsAPI` | Text-to-Speech model listing API namespace. |
 | `voices` | `AsyncVoicesAPI` | Voice cloning, shared voice listing and voice management API namespace. |
 | `usage_logs` | `AsyncUsageLogsAPI` | Per-request usage log API namespace. |
+| `organization` | `AsyncOrganizationAPI` | Organization administration API namespace. Needs an organization API key. |
 | `usage` | `AsyncUsageAPI` | Usage and cost summary API namespace. |
 | `concurrency_limits` | `AsyncConcurrencyLimitsAPI` | Concurrency limit API namespace. |
 | `auth` | `AsyncAuthAPI` | Authentication API namespace. |
@@ -1948,6 +1949,266 @@ Performs a GET request to ``/concurrent-streams-history``.
 **Returns**
 
 `GetConcurrentStreamsHistoryResponse`
+
+**Raises**
+
+- `SonioxAPIError` When the API returns an error.
+
+---
+
+## AsyncOrganizationAPI
+
+Organization-wide administration.
+
+Every call here needs an organization API key, not a project key. It travels in
+the same ``Authorization`` header, so pass it as ``api_key`` on the client.
+
+<a id="asyncorganizationapi-constructor"></a>
+
+### Constructor
+
+```python
+AsyncOrganizationAPI(client: AsyncSonioxClient)
+```
+
+**Parameters**
+
+| Parameter | Type | Description |
+| ------ | ------ | ------ |
+| `client` | `AsyncSonioxClient` | Soniox client instance. |
+
+**Returns**
+
+`None`
+
+<a id="asyncorganizationapi-get"></a>
+
+### get()
+
+```python
+get() -> GetOrganizationResponse
+```
+
+Get the organization the API key belongs to.
+
+Performs a GET request to ``/organization``.
+
+**Returns**
+
+`GetOrganizationResponse`
+
+**Raises**
+
+- `SonioxAPIError` When the API returns an error.
+
+***
+
+<a id="asyncorganizationapi-balance"></a>
+
+### balance()
+
+```python
+balance() -> GetOrganizationBalanceResponse
+```
+
+Get the prepaid balance and payment settings.
+
+Performs a GET request to ``/organization/balance``.
+
+**Returns**
+
+`GetOrganizationBalanceResponse`
+
+**Raises**
+
+- `SonioxAPIError` When the API returns an error.
+
+***
+
+<a id="asyncorganizationapi-limits"></a>
+
+### limits()
+
+```python
+limits() -> GetOrganizationLimitsResponse
+```
+
+Get the monthly budget and the per-region rate and quota limits.
+
+Performs a GET request to ``/organization/limits``.
+
+**Returns**
+
+`GetOrganizationLimitsResponse`
+
+**Raises**
+
+- `SonioxAPIError` When the API returns an error.
+
+***
+
+<a id="asyncorganizationapi-monthly_usage"></a>
+
+### monthly_usage()
+
+```python
+monthly_usage(month: str | None = None) -> GetOrganizationMonthlyUsageResponse
+```
+
+Get one calendar month of usage, split per project.
+
+Performs a GET request to ``/organization/usage/monthly``.
+
+**Parameters**
+
+| Parameter | Type | Description |
+| ------ | ------ | ------ |
+| `month` | `str \| None` | Calendar month as ``YYYY-MM``, UTC. Defaults to the current month. |
+
+**Returns**
+
+`GetOrganizationMonthlyUsageResponse`
+
+**Raises**
+
+- `SonioxAPIError` When the API returns an error.
+
+***
+
+<a id="asyncorganizationapi-usage_summary"></a>
+
+### usage_summary()
+
+```python
+usage_summary(start_time: str, end_time: str) -> GetOrganizationUsageSummaryResponse
+```
+
+Return daily cost and activity for the organization, per project.
+
+Performs a GET request to ``/organization/usage/summary``.
+
+**Parameters**
+
+| Parameter | Type | Description |
+| ------ | ------ | ------ |
+| `start_time` | `str` | Start of the window (inclusive), ISO 8601 UTC. |
+| `end_time` | `str` | End of the window (exclusive), ISO 8601 UTC. A UTC day is included when the window covers any part of it, so an ``end_time`` at exactly midnight leaves out its own day. |
+
+**Returns**
+
+`GetOrganizationUsageSummaryResponse`
+
+**Raises**
+
+- `SonioxAPIError` When the API returns an error.
+
+***
+
+<a id="asyncorganizationapi-projects"></a>
+
+### projects()
+
+```python
+projects() -> GetOrganizationProjectsResponse
+```
+
+List every project in the organization.
+
+Performs a GET request to ``/organization/projects``.
+
+**Returns**
+
+`GetOrganizationProjectsResponse`
+
+**Raises**
+
+- `SonioxAPIError` When the API returns an error.
+
+***
+
+<a id="asyncorganizationapi-list_project_api_keys"></a>
+
+### list_project_api_keys()
+
+```python
+list_project_api_keys(project_id: str) -> GetProjectApiKeysResponse
+```
+
+List a project's API keys, without their secrets.
+
+Performs a GET request to ``/organization/projects/{project_id}/api-keys``.
+
+**Parameters**
+
+| Parameter | Type | Description |
+| ------ | ------ | ------ |
+| `project_id` | `str` | Project the key belongs to. |
+
+**Returns**
+
+`GetProjectApiKeysResponse`
+
+**Raises**
+
+- `SonioxAPIError` When the API returns an error.
+
+***
+
+<a id="asyncorganizationapi-create_project_api_key"></a>
+
+### create_project_api_key()
+
+```python
+create_project_api_key(project_id: str, *, name: str, permissions: list[ApiKeyPermission]) -> CreateProjectApiKeyResponse
+```
+
+Create an API key in a project.
+
+Performs a POST request to ``/organization/projects/{project_id}/api-keys``.
+
+The response is the only place the secret appears; it is not retrievable later.
+
+**Parameters**
+
+| Parameter | Type | Description |
+| ------ | ------ | ------ |
+| `project_id` | `str` | Project the key belongs to. |
+| `name` | `str` | Name shown for the key in the console. |
+| `permissions` | `list[ApiKeyPermission]` | Permissions the key grants, as ``resource:level``. |
+
+**Returns**
+
+`CreateProjectApiKeyResponse`
+
+**Raises**
+
+- `SonioxAPIError` When the API returns an error.
+
+***
+
+<a id="asyncorganizationapi-delete_project_api_key"></a>
+
+### delete_project_api_key()
+
+```python
+delete_project_api_key(project_id: str, key_id: str) -> None
+```
+
+Delete a project's API key.
+
+Performs a DELETE request to
+``/organization/projects/{project_id}/api-keys/{key_id}``.
+
+**Parameters**
+
+| Parameter | Type | Description |
+| ------ | ------ | ------ |
+| `project_id` | `str` | Project the key belongs to. |
+| `key_id` | `str` | Key identifier. |
+
+**Returns**
+
+`None`
 
 **Raises**
 

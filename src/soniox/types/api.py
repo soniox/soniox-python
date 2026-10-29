@@ -67,6 +67,24 @@ RealtimeSTTAudioFormat = Literal["auto"] | RealtimeSTTHeaderFormat | RealtimeSTT
 
 UsageLogsSort = Literal["end_time_asc", "end_time_desc"]
 
+ApiKeyPermission = Literal[
+    "stt_rt:write",
+    "stt_async:read",
+    "stt_async:write",
+    "files:read",
+    "files:write",
+    "tts_rt:write",
+    "voices:read",
+    "voices:write",
+    "voice_agent:read",
+    "voice_agent:write",
+    "usage:read",
+    "models:read",
+    "temporary_keys:write",
+    "legacy:write",
+]
+"""API key permission as `resource:level`; write includes read."""
+
 ConcurrentStreamKind = Literal["stt", "tts"]
 """Stream kind: `stt` for Speech-to-Text sessions, `tts` for Text-to-Speech streams."""
 
@@ -649,6 +667,9 @@ class Model(BaseModel):
     endpoint_latency_adjustment_max_level: int = 0
     """Maximum endpoint_latency_adjustment_level the model accepts (0 means unsupported)."""
 
+    supports_agent_text_input: bool = False
+    """If model supports the 'enable_agent_text_input' option."""
+
     translation_targets: list[TranslationTarget]
     """List of supported one-way translation targets. If list is empty, check for one_way_translation field."""
 
@@ -931,6 +952,7 @@ class UsageLogEntry(BaseModel):
 
     input_text_tokens: int
     input_audio_tokens: int
+    input_agent_text_tokens: int = 0
     input_audio_duration_ms: int
     output_text_tokens: int
     output_audio_tokens: int
@@ -940,6 +962,7 @@ class UsageLogEntry(BaseModel):
     input_cost_usd: str
     input_text_cost_usd: str
     input_audio_cost_usd: str
+    input_agent_text_cost_usd: str = "0"
     output_cost_usd: str
     output_text_cost_usd: str
     output_audio_cost_usd: str
@@ -982,15 +1005,20 @@ class UsageSummaryEntry(BaseModel):
     total_input_cost_usd: str
     total_output_cost_usd: str
     total_duration_cost_usd: str
+    total_api_cost_usd: str
+    total_playground_cost_usd: str
 
     cost_usd: list[str]
     input_cost_usd: list[str]
     output_cost_usd: list[str]
     duration_cost_usd: list[str]
+    api_cost_usd: list[str]
+    playground_cost_usd: list[str]
 
     total_num_requests: int
     total_input_text_tokens: int
     total_input_audio_tokens: int
+    total_input_agent_text_tokens: int = 0
     total_input_audio_duration_ms: int
     total_output_text_tokens: int
     total_output_audio_tokens: int
@@ -1000,6 +1028,7 @@ class UsageSummaryEntry(BaseModel):
     num_requests: list[int]
     input_text_tokens: list[int]
     input_audio_tokens: list[int]
+    input_agent_text_tokens: list[int] = Field(default=[])
     input_audio_duration_ms: list[int]
     output_text_tokens: list[int]
     output_audio_tokens: list[int]
@@ -1108,3 +1137,209 @@ class GetConcurrentStreamsHistoryResponse(BaseModel):
     entries: list[ConcurrentStreamsHistoryEntry]
     """Aggregates ordered by ``period_start`` ascending. Every period in the window is
     present with no gaps; periods without activity have every field set to 0."""
+
+
+class GetOrganizationResponse(BaseModel):
+    """Identity of the organization the API key belongs to."""
+
+    id: str
+    name: str
+    created_at: datetime
+
+
+class GetOrganizationBalanceResponse(BaseModel):
+    """Prepaid balance and payment settings for the organization."""
+
+    available_balance_usd: str
+    """Balance left to spend: paid credit plus whatever free credit remains."""
+
+    free_balance_usd: str
+    used_balance_usd: str
+
+    invoice_billing_enabled: bool
+    """True when usage is invoiced rather than drawn from the balance."""
+
+    balance_exhausted: bool
+    """True when the balance can no longer cover requests."""
+
+    autopay_enabled: bool
+
+    autopay_threshold_usd: str | None
+    """Balance at which autopay tops up, or None when autopay is off."""
+
+    autopay_amount_usd: str | None
+    """Amount each autopay charge adds, or None when autopay is off."""
+
+    has_payment_method: bool
+    has_payment_error: bool
+
+
+class RegionLimitsEntry(BaseModel):
+    """Rate and quota limits configured for one region."""
+
+    region: str
+
+    transcribe_rpm: str
+    transcribe_concurrent: int
+
+    tts_rpm: str
+    tts_concurrent: int
+
+    transcribe_async_rpm: str
+    transcribe_async_concurrent: int
+    transcribe_async_total_num_files: int
+    transcribe_async_pending_num_files: int
+
+    files_rpm: str
+    files_total_size_gb: str
+    files_total_count: int
+
+    voices_rpm: str
+    voices_total_count: int
+
+    webhooks_concurrent: int
+
+
+class GetOrganizationLimitsResponse(BaseModel):
+    """Budget and per-region limits for the organization."""
+
+    monthly_budget_usd: str
+    monthly_budget_max_usd: str
+
+    monthly_budget_notification_usd: str | None
+    """Spend at which a notification is sent, or None when none is configured."""
+
+    regions: list[RegionLimitsEntry]
+
+
+class ProjectMonthlyUsageEntry(BaseModel):
+    """One project's share of a month's organization usage."""
+
+    id: str
+    name: str
+
+    usage_usd: str
+    free_usage_usd: str
+    invoiced_usage_usd: str
+    api_usage_usd: str
+    playground_usage_usd: str
+
+    monthly_budget_usd: str | None
+    """Project budget, or None when the project has none of its own."""
+
+
+class GetOrganizationMonthlyUsagePayload(BaseModel):
+    """Parameters accepted by the organization monthly usage endpoint."""
+
+    month: str | None = None
+    """Calendar month as ``YYYY-MM``, UTC. None means the current month."""
+
+
+class GetOrganizationMonthlyUsageResponse(BaseModel):
+    """A calendar month of organization usage, split per project."""
+
+    month: str
+    """Month covered, as ``YYYY-MM`` in UTC."""
+
+    usage_usd: str
+    free_usage_usd: str
+    invoiced_usage_usd: str
+    api_usage_usd: str
+    playground_usage_usd: str
+
+    monthly_budget_usd: str | None
+    monthly_budget_notification_usd: str | None
+
+    remaining_budget_usd: str | None
+    """Budget left for the month, or None when no budget is set."""
+
+    budget_exhausted: bool | None
+    """True once the budget is spent; None when no budget is set."""
+
+    projects: list[ProjectMonthlyUsageEntry]
+
+
+class OrganizationUsageSummaryProject(BaseModel):
+    """One project's daily usage inside an organization summary."""
+
+    id: str
+    name: str
+
+    total: UsageSummaryEntry
+    """Totals across the project's models. Its ``model`` is None."""
+
+    models: list[UsageSummaryEntry]
+    """One entry per model that recorded usage in the project."""
+
+
+class GetOrganizationUsageSummaryResponse(BaseModel):
+    """Daily cost and activity for the organization, per project."""
+
+    total: UsageSummaryEntry
+    """Totals across every project. Its ``model`` is None."""
+
+    projects: list[OrganizationUsageSummaryProject]
+
+
+class OrganizationProjectEntry(BaseModel):
+    """A project in the organization."""
+
+    id: str
+    name: str
+    description: str
+    region: str
+    created_at: datetime
+
+
+class GetOrganizationProjectsResponse(BaseModel):
+    """Every project in the organization."""
+
+    projects: list[OrganizationProjectEntry]
+
+
+class ProjectApiKeyEntry(BaseModel):
+    """An API key of a project, without the secret."""
+
+    id: str
+
+    key_prefix: str
+    """Leading characters of the key, enough to recognize it in a list."""
+
+    name: str | None
+
+    permissions: list[ApiKeyPermission]
+
+    created_at: datetime
+    created_by: str
+
+    created_by_key_id: str | None
+    """API key that created this one, or None when a person did."""
+
+
+class GetProjectApiKeysResponse(BaseModel):
+    """Every API key of one project."""
+
+    api_keys: list[ProjectApiKeyEntry]
+
+
+class CreateProjectApiKeyPayload(BaseModel):
+    """Payload for creating an API key in a project."""
+
+    name: str
+    permissions: list[ApiKeyPermission]
+
+
+class CreateProjectApiKeyResponse(BaseModel):
+    """A newly created API key. The only response that carries the secret."""
+
+    id: str
+
+    key: str
+    """The secret. Returned once, at creation, and never again."""
+
+    key_prefix: str
+    name: str | None
+    permissions: list[ApiKeyPermission]
+    created_at: datetime
+    created_by: str
+    created_by_key_id: str

@@ -173,6 +173,52 @@ SDK_BINDINGS: dict[str, SdkBinding] = {
         ),
         expect_params={"period_sec": "3600", "kind": "stt"},
     ),
+    "get_organization": SdkBinding(
+        sync_call=lambda c: c.organization.get(),
+        async_call=lambda c: c.organization.get(),
+    ),
+    "get_organization_balance": SdkBinding(
+        sync_call=lambda c: c.organization.balance(),
+        async_call=lambda c: c.organization.balance(),
+    ),
+    "get_organization_limits": SdkBinding(
+        sync_call=lambda c: c.organization.limits(),
+        async_call=lambda c: c.organization.limits(),
+    ),
+    "get_organization_monthly_usage": SdkBinding(
+        sync_call=lambda c: c.organization.monthly_usage(),
+        async_call=lambda c: c.organization.monthly_usage(),
+    ),
+    "get_organization_usage_summary": SdkBinding(
+        sync_call=lambda c: c.organization.usage_summary(
+            start_time="2026-01-01T00:00:00Z", end_time="2026-02-01T00:00:00Z"
+        ),
+        async_call=lambda c: c.organization.usage_summary(
+            start_time="2026-01-01T00:00:00Z", end_time="2026-02-01T00:00:00Z"
+        ),
+        expect_params={"start_time": "2026-01-01T00:00:00Z", "end_time": "2026-02-01T00:00:00Z"},
+    ),
+    "get_organization_projects": SdkBinding(
+        sync_call=lambda c: c.organization.projects(),
+        async_call=lambda c: c.organization.projects(),
+    ),
+    "get_organization_project_api_keys": SdkBinding(
+        sync_call=lambda c: c.organization.list_project_api_keys(_ID),
+        async_call=lambda c: c.organization.list_project_api_keys(_ID),
+    ),
+    "create_organization_project_api_key": SdkBinding(
+        sync_call=lambda c: c.organization.create_project_api_key(
+            _ID, name="ci", permissions=["models:read"]
+        ),
+        async_call=lambda c: c.organization.create_project_api_key(
+            _ID, name="ci", permissions=["models:read"]
+        ),
+        expect_json={"name": "ci", "permissions": ["models:read"]},
+    ),
+    "delete_organization_project_api_key": SdkBinding(
+        sync_call=lambda c: c.organization.delete_project_api_key(_ID, _ID),
+        async_call=lambda c: c.organization.delete_project_api_key(_ID, _ID),
+    ),
     "create_temporary_api_key": SdkBinding(
         sync_call=lambda c: c.auth.create_temporary_api_key(usage_type="transcribe_websocket"),
         async_call=lambda c: c.auth.create_temporary_api_key(usage_type="transcribe_websocket"),
@@ -193,6 +239,11 @@ _FULL_CONFIG = CreateTranscriptionConfig(
 )
 
 SDK_BINDINGS_FULL: dict[str, SdkBinding] = {
+    "get_organization_monthly_usage": SdkBinding(
+        sync_call=lambda c: c.organization.monthly_usage("2026-01"),
+        async_call=lambda c: c.organization.monthly_usage("2026-01"),
+        expect_params={"month": "2026-01"},
+    ),
     "get_files": SdkBinding(
         sync_call=lambda c: c.files.list(limit=10, cursor="page-token"),
         async_call=lambda c: c.files.list(limit=10, cursor="page-token"),
