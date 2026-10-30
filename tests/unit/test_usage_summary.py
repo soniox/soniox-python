@@ -59,7 +59,7 @@ def _entry(model: str | None) -> dict:
 def _response(*, models: list[str] | None = None) -> dict:
     return {
         "total": _entry(None),
-        "models": [_entry(m) for m in (models if models is not None else ["stt-async-v5"])],
+        "models": [_entry(m) for m in (models if models is not None else ["stt-async-mock"])],
     }
 
 
@@ -85,7 +85,7 @@ def test_summary_parses_entries(client: SonioxClient) -> None:
     assert [d.isoformat() for d in result.total.days] == ["2026-04-01", "2026-04-02"]
     # Per-day lists stay index-aligned with days.
     assert len(result.total.cost_usd) == len(result.total.days)
-    assert result.models[0].model == "stt-async-v5"
+    assert result.models[0].model == "stt-async-mock"
 
 
 @respx.mock

@@ -8,13 +8,10 @@ from soniox.utils import render_tokens, start_audio_thread, throttle_audio
 DEMO_FILE = Path(__file__).resolve().parents[2] / "assets" / "coffee_shop.mp3"
 MODEL = "stt-rt-v6"  # a model whose Model.supports_agent_text_input is true
 
-# What the agent says while the user's audio keeps streaming. In a real agent
-# this is your Text-to-Speech output, sent as it plays rather than when it was
-# generated: Soniox places agent text by its position among the audio frames,
-# so text sent early lands in the wrong place. Our own realtime Text-to-Speech
-# gives you the alignment for free - each event's `timestamps.characters` are
-# the characters of that audio chunk, so sending them as you hand the chunk to
-# the speaker is both correctly timed and the text that was really spoken.
+# What the agent says while the user's audio keeps streaming. A real agent sends
+# its Text-to-Speech output 500ms to 1s before the caller hears it, paced by how
+# much has really been played - Soniox places each piece where it sits among the
+# audio frames. See soniox.com/docs/stt/rt/agent-text-input.
 AGENT_REPLY = ["We have a flat white", " and a cortado today."]
 SPEAKING_PACE_SEC = 0.6
 
@@ -28,12 +25,13 @@ def main() -> None:
         start_audio_thread(session, throttle_audio(DEMO_FILE, delay_seconds=0.1))
 
         for part in AGENT_REPLY:
-            # end_of_segment=False while the reply is still being spoken.
-            session.send_agent_text(part, end_of_segment=False)
+            # Mid-turn, which is what end_of_segment defaults to.
+            session.send_agent_text(part)
             time.sleep(SPEAKING_PACE_SEC)
-        # An empty text closes the segment. Do this when the voice stops, including
-        # when the user barged in - then only the text they actually heard was sent.
-        session.send_agent_text("")
+        # Every turn ends with end_of_segment - on its own here, or on the last
+        # piece of text. Do this when the voice stops, including when the user
+        # barged in: then only the text they actually heard was sent.
+        session.send_agent_text("", end_of_segment=True)
 
         for event in session.receive_events():
             for token in event.tokens:

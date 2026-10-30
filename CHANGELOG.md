@@ -65,7 +65,7 @@ Examples:
 
 - `enable_agent_text_input` on `RealtimeSTTConfig` and `session.send_agent_text(text, end_of_segment=...)` (sync and async), which tell Soniox what your agent is saying so those words are recognized when the user says them back. The model must report `supports_agent_text_input`.
 - `supports_agent_text_input` on `Model`, and the agent-text token and cost fields on `UsageLogEntry` and `UsageSummaryEntry`.
-- `examples/soniox_client/agent_text_example.py` and its async counterpart, plus `agent_text_mic_example.py` for the live microphone and speaker loop, and a README section on timing agent text to playback and where echo cancellation belongs.
+- `examples/soniox_client/agent_text_example.py` and its async counterpart, and a README section on timing agent text to playback and where echo cancellation belongs.
 - `client.organization` (sync and async): the organization's identity, balance, limits, monthly usage, usage summary and projects, plus listing, creating and deleting a project's API keys. These endpoints need an organization API key, not a project key.
 - `examples/soniox_client/organization_example.py` and its async counterpart.
 

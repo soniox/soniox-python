@@ -108,7 +108,7 @@ from soniox.utils import render_tokens, throttle_audio, start_audio_thread
 DEMO_FILE = "path_to_your_audio_file"
 
 client = SonioxClient()
-config = RealtimeSTTConfig(model="stt-rt-v5", audio_format="mp3")
+config = RealtimeSTTConfig(model="stt-rt-v6", audio_format="mp3")
 final_tokens: list[Token] = []
 non_final_tokens: list[Token] = []
 
@@ -145,47 +145,56 @@ config = RealtimeSTTConfig(
     enable_agent_text_input=True,
 )
 
-tts_config = RealtimeTTSConfig(
-    model="tts-rt-v2",
-    voice="Adrian",
-    language="en",
-    audio_format="pcm_s16le",
-    sample_rate=24000,
-    return_timestamps=True,
-)
+LEAD_SEC = 0.7  # send each piece 700ms before the caller hears it
 
-with (
-    client.realtime.stt.connect(config=config) as session,
-    client.realtime.tts.connect(config=tts_config) as tts,
-    sd.RawOutputStream(samplerate=24000, channels=1, dtype="int16") as speaker,
-):
-    # Microphone audio goes in with session.send_byte_chunk(chunk) on its own thread.
-    tts.send_text_chunks("We have a flat white and a cortado today.")
-    for event in tts.receive_events():
-        chunk = event.audio_bytes()
-        if chunk is None:
-            continue
-        speaker.write(chunk)                       # blocks until the audio is taken
-        spoken = "".join(event.timestamps.characters) if event.timestamps else ""
-        session.send_agent_text(spoken, end_of_segment=False)
 
-    session.send_agent_text("")                    # closes the segment
+def send_due(session, characters, start_times, sent, position_sec):
+    """Send the characters the caller is about to hear, and nothing beyond them."""
+    horizon = position_sec + LEAD_SEC
+    due = sent
+    while due < len(characters) and start_times[due] <= horizon:
+        due += 1
+    if due > sent:
+        session.send_agent_text("".join(characters[sent:due]))  # mid-turn by default
+    return due
+
+
+# After each chunk of caller audio. Keep the returned cursor, or every piece is
+# sent again on the next call.
+sent = send_due(session, characters, start_times, sent, position_sec)
 ```
 
-Soniox places the text by **where it sits among the audio frames**, so send each piece as it
-plays, not when it was generated - sending the whole reply up front puts it in the wrong place.
-Realtime TTS gives you the alignment for free with `return_timestamps`: each event's
-`timestamps.characters` are the characters of that audio chunk, so the chunk you just handed to
-the speaker and its text belong together. An empty text closes the segment, which is also how
-you handle a barge-in - stop writing audio, close the segment, and only the words the user
-actually heard were sent.
+Agent text carries no timestamps: Soniox places each piece **where it sits among the audio
+frames**. So follow the playback - not the LLM, which writes the reply far faster than it is
+spoken, and not the TTS, which generates audio faster than real time. Call `send_due()` right
+after each chunk of caller audio, with `position_sec` as the smaller of the wall clock since
+playback began and the audio the speaker was actually given, so the text cannot run ahead of a
+slow TTS.
+
+Realtime TTS supplies the alignment with `return_timestamps`: grow `characters` and
+`start_times` from each event's `timestamps` - the character times run from the start of the
+stream, so they already say when the caller hears each one.
+
+Close every turn with `end_of_segment=True`, on the last piece of text or on its own. A barge-in
+is the same call: stop the playback, send what was already heard but not sent, close the turn,
+and drop the rest of the reply - the caller never heard it.
+
+Two threads share `characters`, `start_times` and `sent` - one fills them from the
+Text-to-Speech, the other sends - so they need a lock, and the turn has to close exactly once.
+The mic example below has that part written out.
+
+Send only what the agent says out loud, and clean the reply **before** it reaches the
+Text-to-Speech - then the timestamps describe text that is already clean. Soniox TTS drops
+emoji and collapses whitespace, but it passes markdown, SSML and expression tags like
+`[laughs]` through untouched, so anything your model writes that is not meant to be spoken
+has to be stripped by you on the way in.
 
 Echo cancellation is the other half and it is not the SDK's: it belongs to the platform. Use a
 headset with hardware AEC, or on Linux `pactl load-module module-echo-cancel` and record from
 the source it creates. Agent text covers what cancellation cannot - it is never perfect, and the
 user will often repeat the agent's words back.
 
-Run the full example at [`examples/soniox_client/agent_text_example.py`](https://github.com/soniox/soniox-python/blob/main/examples/soniox_client/agent_text_example.py) or async version at [`examples/async_soniox_client/agent_text_example.py`](https://github.com/soniox/soniox-python/blob/main/examples/async_soniox_client/agent_text_example.py). For the real loop - a live microphone, realtime TTS on the speakers and the agent's text timed to playback - see [`examples/soniox_client/agent_text_mic_example.py`](https://github.com/soniox/soniox-python/blob/main/examples/soniox_client/agent_text_mic_example.py) (needs `pip install sounddevice`).
+Run the full example at [`examples/soniox_client/agent_text_example.py`](https://github.com/soniox/soniox-python/blob/main/examples/soniox_client/agent_text_example.py) or async version at [`examples/async_soniox_client/agent_text_example.py`](https://github.com/soniox/soniox-python/blob/main/examples/async_soniox_client/agent_text_example.py).
 
 4. **Realtime TTS streaming**: send text chunks and write audio to a file as it arrives.
 

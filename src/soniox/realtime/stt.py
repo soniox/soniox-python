@@ -257,20 +257,25 @@ class RealtimeSTTSession:
         """
         self.send_control_message(RealtimeControlType.FINALIZE)
 
-    def send_agent_text(self, text: str, *, end_of_segment: bool = True) -> None:
+    def send_agent_text(self, text: str, *, end_of_segment: bool = False) -> None:
         """
         Send text your agent is speaking, so Soniox recognizes those words when
         the user says them back.
 
         Soniox places the text by its position among the audio frames, so send
-        it while the matching speech is playing, not when it was generated. A
-        segment is one stretch of agent speech: send its parts with
-        `end_of_segment=False` and close it with `end_of_segment=True`, for
-        which an empty `text` is enough.
+        each piece a little before the caller hears it - 500ms to 1s ahead of
+        playback - paced by how much of the reply has actually been played, not
+        by how fast the model or the Text-to-Speech produced it.
+
+        A segment is one agent turn. Close every turn with
+        `end_of_segment=True`, either on the last piece of text or on its own.
+        Do the same when the caller interrupts: send whatever was already
+        played, close the segment, and drop the rest of the reply.
 
         Args:
-            text: What the agent is saying. Empty text only closes a segment.
-            end_of_segment: Whether this is the last text of this segment.
+            text: The next piece of what the agent is saying, spaces included -
+                Soniox joins the pieces exactly as sent. May be empty.
+            end_of_segment: Whether the agent's turn ends here.
 
         Raises:
             SonioxValidationError:

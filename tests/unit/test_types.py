@@ -50,7 +50,7 @@ def test_structured_context_general_keeps_typed_list_unchanged() -> None:
 
 def test_raw_format_requires_sample_rate_and_channels() -> None:
     with pytest.raises(ValueError) as exc:
-        RealtimeSTTConfig(model="stt-rt-v5", audio_format="pcm_s16le")
+        RealtimeSTTConfig(model="stt-rt-mock", audio_format="pcm_s16le")
     msg = str(exc.value)
     assert "sample_rate" in msg
     assert "num_channels" in msg
@@ -58,18 +58,18 @@ def test_raw_format_requires_sample_rate_and_channels() -> None:
 
 def test_raw_format_requires_sample_rate_only() -> None:
     with pytest.raises(ValueError) as exc:
-        RealtimeSTTConfig(model="stt-rt-v5", audio_format="pcm_s16le", num_channels=1)
+        RealtimeSTTConfig(model="stt-rt-mock", audio_format="pcm_s16le", num_channels=1)
     assert "sample_rate" in str(exc.value)
 
 
 def test_raw_format_requires_num_channels_only() -> None:
     with pytest.raises(ValueError) as exc:
-        RealtimeSTTConfig(model="stt-rt-v5", audio_format="pcm_s16le", sample_rate=16000)
+        RealtimeSTTConfig(model="stt-rt-mock", audio_format="pcm_s16le", sample_rate=16000)
     assert "num_channels" in str(exc.value)
 
 
 def test_raw_format_with_both_succeeds() -> None:
-    cfg = RealtimeSTTConfig(model="stt-rt-v5", audio_format="pcm_s16le", sample_rate=16000, num_channels=1)
+    cfg = RealtimeSTTConfig(model="stt-rt-mock", audio_format="pcm_s16le", sample_rate=16000, num_channels=1)
     assert cfg.audio_format == "pcm_s16le"
     assert cfg.sample_rate == 16000
     assert cfg.num_channels == 1
@@ -77,13 +77,13 @@ def test_raw_format_with_both_succeeds() -> None:
 
 def test_endpoint_latency_adjustment_level_accepts_0_to_3() -> None:
     for level in (0, 3):
-        cfg = RealtimeSTTConfig(model="stt-rt-v5", endpoint_latency_adjustment_level=level)
+        cfg = RealtimeSTTConfig(model="stt-rt-mock", endpoint_latency_adjustment_level=level)
         assert cfg.endpoint_latency_adjustment_level == level
 
 
 def test_endpoint_latency_adjustment_level_rejects_out_of_range() -> None:
     with pytest.raises(ValueError):
-        RealtimeSTTConfig(model="stt-rt-v5", endpoint_latency_adjustment_level=4)
+        RealtimeSTTConfig(model="stt-rt-mock", endpoint_latency_adjustment_level=4)
 
 
 # ---------------------------------------------------------------------------
@@ -94,7 +94,7 @@ def test_endpoint_latency_adjustment_level_rejects_out_of_range() -> None:
 @pytest.mark.parametrize("speed", [0.7, 1.0, 1.3])
 def test_tts_speed_accepts_in_range(speed: float) -> None:
     assert CreateTtsConfig(speed=speed).speed == speed
-    assert RealtimeTTSConfig(stream_id="s", model="tts-rt-v1", language="en", voice="Adrian",
+    assert RealtimeTTSConfig(stream_id="s", model="tts-rt-mock", language="en", voice="Adrian",
                              audio_format="wav", speed=speed).speed == speed
 
 

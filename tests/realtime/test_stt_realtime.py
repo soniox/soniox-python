@@ -159,16 +159,16 @@ def test_keepalive_emits_control_message(client: SonioxClient) -> None:
 
 
 def test_agent_text_rides_between_the_audio_chunks(client: SonioxClient) -> None:
-    """Soniox places agent text by its position among the audio, so order is the contract."""
+    """Order is the contract, and mid-turn - end_of_segment false - is the default."""
     ws = MockWebSocket()
     ws.close_after_recv()
     config = RealtimeSTTConfig(model="v1", enable_agent_text_input=True)
     with patch("soniox.realtime.stt.sync_ws_connect", return_value=ws):
         with client.realtime.stt.connect(config=config) as session:
             session.send_byte_chunk(b"before")
-            session.send_agent_text("the bakery opens at seven", end_of_segment=False)
+            session.send_agent_text("the bakery opens at seven")
             session.send_byte_chunk(b"after")
-            session.send_agent_text("")
+            session.send_agent_text("", end_of_segment=True)
             session.finish()
 
     assert ws.sent_messages[1:5] == [
@@ -475,9 +475,9 @@ async def test_async_agent_text_rides_between_the_audio_chunks(
             config=RealtimeSTTConfig(model="v1", enable_agent_text_input=True)
         ) as session:
             await session.send_byte_chunk(b"before")
-            await session.send_agent_text("let me check", end_of_segment=False)
+            await session.send_agent_text("let me check")
             await session.send_byte_chunk(b"after")
-            await session.send_agent_text("")
+            await session.send_agent_text("", end_of_segment=True)
             await session.finish()
 
     assert ws.sent_messages[1:5] == [

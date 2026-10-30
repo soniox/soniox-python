@@ -18,7 +18,7 @@ _VOICE = {
     "filename": "clip.mp3",
     "created_at": "2026-01-01T00:00:00Z",
     "models": [
-        {"model": "tts-rt-v1", "status": "ready", "error_type": None, "error_message": None}
+        {"model": "tts-rt-mock", "status": "ready", "error_type": None, "error_message": None}
     ],
 }
 
@@ -87,9 +87,9 @@ def test_recompute_sends_model_in_body(client: SonioxClient) -> None:
         return_value=Response(200, json=_VOICE)
     )
 
-    client.voices.recompute("v-123", model="tts-rt-v1")
+    client.voices.recompute("v-123", model="tts-rt-mock")
 
-    assert json.loads(route.calls.last.request.content) == {"model": "tts-rt-v1"}
+    assert json.loads(route.calls.last.request.content) == {"model": "tts-rt-mock"}
 
 
 @respx.mock
@@ -122,4 +122,4 @@ async def test_async_create_and_get(async_client: AsyncSonioxClient) -> None:
     fetched = await async_client.voices.get("v-123")
 
     assert created.id == fetched.id == "v-123"
-    assert fetched.models[0].model == "tts-rt-v1"
+    assert fetched.models[0].model == "tts-rt-mock"
