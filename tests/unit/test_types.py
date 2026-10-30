@@ -123,3 +123,32 @@ def test_realtime_tts_event_parses_timestamps() -> None:
 def test_realtime_tts_event_without_timestamps_is_none() -> None:
     event = RealtimeTTSEvent.validate_event(json.dumps({"stream_id": "s", "audio": "AAAA"}))
     assert event.timestamps is None
+
+
+def test_endpoints_come_from_the_environment_when_not_passed(monkeypatch):
+    """A deployment can be selected without touching code."""
+    from soniox.client import SonioxClient
+
+    monkeypatch.setenv("SONIOX_API_KEY", "env-key")
+    monkeypatch.setenv("SONIOX_API_BASE_URL", "https://api.example.com/v1")
+    monkeypatch.setenv("SONIOX_WS_URL", "wss://stt.example.com/transcribe-websocket")
+    monkeypatch.setenv("SONIOX_TTS_API_URL", "https://tts.example.com")
+    monkeypatch.setenv("SONIOX_TTS_WS_URL", "wss://tts.example.com/tts-websocket")
+
+    client = SonioxClient()
+
+    assert client.api_key == "env-key"
+    assert client.api_base_url == "https://api.example.com/v1"
+    assert client.websocket_base_url == "wss://stt.example.com/transcribe-websocket"
+    assert client.tts_api_base_url == "https://tts.example.com"
+    assert client.tts_websocket_base_url == "wss://tts.example.com/tts-websocket"
+
+
+def test_endpoint_arguments_win_over_the_environment(monkeypatch):
+    from soniox.client import SonioxClient
+
+    monkeypatch.setenv("SONIOX_API_BASE_URL", "https://env.example.com/v1")
+
+    client = SonioxClient(api_key="k", api_base_url="https://arg.example.com/v1")
+
+    assert client.api_base_url == "https://arg.example.com/v1"

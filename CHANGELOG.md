@@ -63,6 +63,7 @@ Examples:
 
 ### Added
 
+- `SONIOX_API_BASE_URL`, `SONIOX_WS_URL`, `SONIOX_TTS_API_URL` and `SONIOX_TTS_WS_URL`: both clients read every endpoint from the environment, so a deployment can be selected without changing code. A constructor argument still wins.
 - `enable_agent_text_input` on `RealtimeSTTConfig` and `session.send_agent_text(text, end_of_segment=...)` (sync and async), which tell Soniox what your agent is saying so those words are recognized when the user says them back. The model must report `supports_agent_text_input`.
 - `supports_agent_text_input` on `Model`, and the agent-text token and cost fields on `UsageLogEntry` and `UsageSummaryEntry`.
 - `examples/soniox_client/agent_text_example.py` and its async counterpart, and a README section on timing agent text to playback and where echo cancellation belongs.

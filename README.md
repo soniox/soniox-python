@@ -21,6 +21,16 @@ export SONIOX_API_KEY=<your-key>
 
 Get your API key from the [Soniox Console](https://console.soniox.com) and inject it once per shell session. Both clients read `SONIOX_API_KEY` by default, but you can override it per-client if needed.
 
+Every endpoint can come from the environment too, so a client can be pointed at another deployment without touching code. A constructor argument always wins over the variable.
+
+| Variable | Overrides | Default |
+| --- | --- | --- |
+| `SONIOX_API_KEY` | `api_key` | - |
+| `SONIOX_API_BASE_URL` | `api_base_url` | `https://api.soniox.com/v1` |
+| `SONIOX_WS_URL` | `websocket_base_url` | `wss://stt-rt.soniox.com/transcribe-websocket` |
+| `SONIOX_TTS_API_URL` | `tts_api_base_url` | `https://tts-rt.soniox.com` |
+| `SONIOX_TTS_WS_URL` | `tts_websocket_base_url` | `wss://tts-rt.soniox.com/tts-websocket` |
+
 > **Avoid Python 3.13.6** - it has a regression in `ssl` that hangs realtime STT/TTS (CPython issue [#137583](https://github.com/python/cpython/issues/137583)). Use any other 3.10-3.13.x.
 
 ## Quick run (STT + TTS, REST + realtime)

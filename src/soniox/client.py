@@ -45,7 +45,13 @@ _DEFAULT_TIMEOUT_SEC = 30.0
 
 
 class _BaseSonioxClient:
-    """Shared configuration holder for sync and async Soniox clients."""
+    """Shared configuration holder for sync and async Soniox clients.
+
+    Each endpoint falls back to an environment variable before the default, so
+    a deployment can be selected without touching code: `SONIOX_API_KEY`,
+    `SONIOX_API_BASE_URL`, `SONIOX_WS_URL`, `SONIOX_TTS_API_URL` and
+    `SONIOX_TTS_WS_URL`. An argument always wins over the environment.
+    """
 
     def __init__(
         self,
@@ -63,10 +69,18 @@ class _BaseSonioxClient:
         if not api_key:
             raise SonioxValidationError("Please provide api_key")
         self.api_key = api_key
-        self.api_base_url = api_base_url or _DEFAULT_API_BASE_URL
-        self.websocket_base_url = websocket_base_url or _DEFAULT_WEBSOCKET_BASE_URL
-        self.tts_api_base_url = tts_api_base_url or _DEFAULT_TTS_API_BASE_URL
-        self.tts_websocket_base_url = tts_websocket_base_url or _DEFAULT_TTS_WEBSOCKET_BASE_URL
+        self.api_base_url = api_base_url or os.environ.get(
+            "SONIOX_API_BASE_URL", _DEFAULT_API_BASE_URL
+        )
+        self.websocket_base_url = websocket_base_url or os.environ.get(
+            "SONIOX_WS_URL", _DEFAULT_WEBSOCKET_BASE_URL
+        )
+        self.tts_api_base_url = tts_api_base_url or os.environ.get(
+            "SONIOX_TTS_API_URL", _DEFAULT_TTS_API_BASE_URL
+        )
+        self.tts_websocket_base_url = tts_websocket_base_url or os.environ.get(
+            "SONIOX_TTS_WS_URL", _DEFAULT_TTS_WEBSOCKET_BASE_URL
+        )
         self.timeout_sec = timeout_sec if timeout_sec is not None else _DEFAULT_TIMEOUT_SEC
         self.webhook_secret = webhook_secret
         self.webhook_signature_header = webhook_signature_header
