@@ -1,7 +1,7 @@
 ---
 title: "Types"
 description: "Soniox Python SDK - Types Reference"
-keywords: "Token, ApiError, ApiErrorValidationError, CreateTemporaryApiKeyPayload, CreateTemporaryApiKeyResponse, CreateTtsPayload, ConcurrencyCurrentValues, ConcurrencyLimitValues, ConcurrencyScopeValues, CreateTtsConfig, CreateTranscriptionPayload, CreateTranscriptionConfig, File, GetConcurrencyLimitsResponse, GetFilesCountResponse, GetFilesPayload, GetFilesResponse, GetModelsResponse, GetSharedVoicesPayload, GetSharedVoicesResponse, GetTTSModelsResponse, GetTtsModelsResponse, GetTranscriptionsCountResponse, GetTranscriptionsPayload, GetTranscriptionsResponse, GetUsageLogsPayload, GetUsageLogsResponse, GetConcurrentStreamsHistoryPayload, GetConcurrentStreamsHistoryResponse, GetUsageSummaryPayload, GetUsageSummaryResponse, GetVoicesCountResponse, GetVoicesPayload, GetVoicesResponse, Language, LanguageCode, SupportedLanguage, Model, RealtimeSTTAudioFormat, RealtimeSTTHeaderFormat, RealtimeSTTRawFormat, RecomputeVoicePayload, StructuredContext, StructuredContextGeneralInput, StructuredContextGeneralItem, StructuredContextInput, StructuredContextTranslationTerm, StructuredContextTranslationTermsInput, Transcription, TranscriptionStatus, TranscriptionTranscript, TranslationConfig, TranslationConfigInput, TranslationTarget, TranslationType, TTSModel, TTSVoice, TTSVoiceAge, TTSVoiceDetails, TtsAudioFormat, TtsBitrate, TtsModel, TtsSampleRate, TtsVoice, TtsVoiceAge, TtsVoiceDetails, TtsVoiceGender, TemporaryApiKeyUsageType, UploadFilePayload, UsageLogEntry, ConcurrentStreamKind, ConcurrentStreamsHistoryEntry, ConcurrentStreamsPeriodSec, UsageLogsSort, UsageSummaryEntry, Voice, VoiceModel, VoiceModelStatus, ApiKeyPermission, CreateProjectApiKeyPayload, CreateProjectApiKeyResponse, GetOrganizationBalanceResponse, GetOrganizationLimitsResponse, GetOrganizationMonthlyUsagePayload, GetOrganizationMonthlyUsageResponse, GetOrganizationProjectsResponse, GetOrganizationResponse, GetOrganizationUsageSummaryResponse, GetProjectApiKeysResponse, OrganizationProjectEntry, OrganizationUsageSummaryProject, ProjectApiKeyEntry, ProjectMonthlyUsageEntry, RegionLimitsEntry, RealtimeEvent, RealtimeSTTConfig, RealtimeTTSConfig, RealtimeTTSEvent, RealtimeTTSTextMessage, TtsTimestamps, Headers, WebhookAuthConfig, WebhookEvent"
+keywords: "Token, ApiError, ApiErrorValidationError, CreateTemporaryApiKeyPayload, CreateTemporaryApiKeyResponse, CreateTtsPayload, ConcurrencyCurrentValues, ConcurrencyLimitValues, ConcurrencyScopeValues, CreateTtsConfig, CreateTranscriptionPayload, CreateTranscriptionConfig, File, GetConcurrencyLimitsResponse, GetFilesCountResponse, GetFilesPayload, GetFilesResponse, GetModelsResponse, GetSharedVoicesPayload, GetSharedVoicesResponse, GetTTSModelsResponse, GetTtsModelsResponse, GetTranscriptionsCountResponse, GetTranscriptionsPayload, GetTranscriptionsResponse, GetUsageLogsPayload, GetUsageLogsResponse, GetConcurrentStreamsHistoryPayload, GetConcurrentStreamsHistoryResponse, GetUsageSummaryPayload, GetUsageSummaryResponse, GetVoicesCountResponse, GetVoicesPayload, GetVoicesResponse, Language, LanguageCode, SupportedLanguage, Model, RealtimeSTTAudioFormat, RealtimeSTTHeaderFormat, RealtimeSTTRawFormat, RecomputeVoicePayload, StructuredContext, StructuredContextGeneralInput, StructuredContextGeneralItem, StructuredContextInput, StructuredContextTranslationTerm, StructuredContextTranslationTermsInput, Transcription, TranscriptionStatus, TranscriptionTranscript, TranslationConfig, TranslationConfigInput, TranslationTarget, TranslationType, TTSModel, TTSVoice, TTSVoiceAge, TTSVoiceDetails, TtsAudioFormat, TtsBitrate, TtsModel, TtsSampleRate, TtsVoice, TtsVoiceAge, TtsVoiceDetails, TtsVoiceGender, TemporaryApiKeyUsageType, UploadFilePayload, UsageLogEntry, ConcurrentStreamKind, ConcurrentStreamsHistoryEntry, ConcurrentStreamsPeriodSec, UsageLogsSort, UsageSummaryEntry, Voice, VoiceModel, VoiceModelStatus, ApiKeyPermission, CreateProjectApiKeyPayload, CreateProjectApiKeyResponse, GetOrganizationBalanceResponse, GetOrganizationLimitsResponse, GetOrganizationMonthlyUsagePayload, GetOrganizationMonthlyUsageResponse, GetOrganizationProjectsResponse, GetOrganizationResponse, GetOrganizationUsageSummaryResponse, GetProjectApiKeysResponse, OrganizationProjectEntry, OrganizationUsageSummaryProject, ProjectApiKeyEntry, ProjectMonthlyUsageEntry, RegionLimitsEntry, TOKEN_TEXT_END, TOKEN_TEXT_FIN, RealtimeEvent, RealtimeSTTConfig, RealtimeTTSConfig, RealtimeTTSEvent, RealtimeTTSTextMessage, TtsTimestamps, Headers, WebhookAuthConfig, WebhookEvent"
 ---
 
 ---
@@ -1617,6 +1617,26 @@ Rate and quota limits configured for one region.
 | `voices_rpm` | `str` | - |
 | `voices_total_count` | `int` | - |
 | `webhooks_concurrent` | `int` | - |
+
+---
+
+<a id="token_text_end"></a>
+
+## TOKEN_TEXT_END
+
+```python
+TOKEN_TEXT_END = "<end>"
+```
+
+---
+
+<a id="token_text_fin"></a>
+
+## TOKEN_TEXT_FIN
+
+```python
+TOKEN_TEXT_FIN = "<fin>"
+```
 
 ---
 
