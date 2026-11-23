@@ -83,7 +83,7 @@ class AsyncRealtimeSTTSession:
         self._ws = None
         self._last_message: RealtimeEvent | None = None
         self._paused = False
-        self._for_calleralive: KeepaliveTask | None = None
+        self._keepalive: KeepaliveTask | None = None
         # Whether the end-of-audio message has gone out.
         self._audio_ended = False
         self._over: Ending | None = None
@@ -182,9 +182,9 @@ class AsyncRealtimeSTTSession:
         if self._ping is not None:
             await self._ping.stop()
             self._ping = None
-        if self._for_calleralive is not None:
-            await self._for_calleralive.stop()
-            self._for_calleralive = None
+        if self._keepalive is not None:
+            await self._keepalive.stop()
+            self._keepalive = None
         self._paused = False
         if self._receiving is not None:
             self._receiving.cancel()
@@ -431,9 +431,8 @@ class AsyncRealtimeSTTSession:
                 # a terminal frame ends it, and then there is nothing to take
                 # over and `_continue_stream` says so.
                 return (await self._continue_stream()) or b""
-            # The server answers pings from here, and the takeover worked.
-            state.stream_started = True
-            state.resumes_without_a_frame = 0
+            # A frame is the proof of life the window is counted from.
+            state.heard_from_server()
             return message.encode("utf-8") if isinstance(message, str) else message
 
     def parse_event(self, raw: str | bytes) -> RealtimeEvent:
@@ -670,9 +669,7 @@ class AsyncRealtimeSTTSession:
         self._over = Ending.ENDED
         raise SonioxRealtimeError("The stream was not continued before its window closed")
 
-    async def _dial_once(
-        self, url: str, state: Reconnect, attempt_ends: float
-    ) -> bytes | None:
+    async def _dial_once(self, url: str, state: Reconnect, attempt_ends: float) -> bytes | None:
         """
         Present the token on one new connection, and adopt it if it is accepted.
 
@@ -748,11 +745,7 @@ class AsyncRealtimeSTTSession:
             self._over = Ending.TAKEN
             return raw.encode("utf-8") if isinstance(raw, str) else raw
 
-        if (
-            reply.type != "reconnected"
-            or not reply.reconnect_token
-            or reply.last_request is None
-        ):
+        if reply.type != "reconnected" or not reply.reconnect_token or reply.last_request is None:
             # No count means no telling what the server has, and it
             # transcribes resent audio again rather than noticing. Abandoned rather than
             # closed: a close handshake on a refused socket can stall.
@@ -864,8 +857,8 @@ class AsyncRealtimeSTTSession:
         if self._ping is None:
             # A ping already holds the stream open, so a session that pings
             # needs no keepalive beside it.
-            self._for_calleralive = KeepaliveTask(self.keep_alive, KEEP_ALIVE_INTERVAL_SEC)
-            self._for_calleralive.start()
+            self._keepalive = KeepaliveTask(self.keep_alive, KEEP_ALIVE_INTERVAL_SEC)
+            self._keepalive.start()
 
     async def resume(self) -> None:
         """
@@ -880,9 +873,9 @@ class AsyncRealtimeSTTSession:
         self._require_stream()
         if not self._paused:
             return
-        if self._for_calleralive is not None:
-            await self._for_calleralive.stop()
-            self._for_calleralive = None
+        if self._keepalive is not None:
+            await self._keepalive.stop()
+            self._keepalive = None
         self._paused = False
 
     enter = __aenter__

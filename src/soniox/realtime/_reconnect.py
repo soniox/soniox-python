@@ -142,6 +142,23 @@ class Reconnect:
         while self._unconfirmed and self._unconfirmed[0][0] <= confirmed:
             self._unconfirmed.popleft()
 
+    def heard_from_server(self) -> None:
+        """
+        Note that the server was reading this connection just now.
+
+        A frame it sent proves it, and proves it better than a pong does: a
+        pong is a message like any other, so it queues behind the audio
+        already sent and goes stale on a caller who is ahead of the server -
+        while the window this moves is the only thing that decides whether a
+        dropped stream is still worth dialling for.
+
+        The resend log is not trimmed here. Only a pong says *which* messages
+        arrived, and a stream that is behind has not read the rest yet.
+        """
+        self.acked_at = time.monotonic()
+        self.stream_started = True
+        self.resumes_without_a_frame = 0
+
     def pong_overdue(self, timeout_sec: float) -> bool:
         """Whether a ping has gone unanswered long enough to call the connection lost."""
         if not self.stream_started:

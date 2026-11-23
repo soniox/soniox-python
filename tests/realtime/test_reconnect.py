@@ -548,7 +548,7 @@ def test_pings_are_not_counted_as_messages_to_resend(client: SonioxClient) -> No
     assert [m for m in resumed.sent_messages if isinstance(m, bytes)] == [b"audio"]
 
 
-def test_a_pinging_session_does_not_also_send_for_calleralives(client: SonioxClient) -> None:
+def test_a_pinging_session_does_not_also_send_keepalives(client: SonioxClient) -> None:
     """One timer, not two: a ping already holds the stream open.
 
     The docs say so outright, and a paused session that pings was starting a
@@ -562,7 +562,7 @@ def test_a_pinging_session_does_not_also_send_for_calleralives(client: SonioxCli
         with client.realtime.stt.connect(config=CONFIG) as session:
             session.pause(finalize=False)
             assert session.paused
-            keepalive = session._for_calleralive  # pyright: ignore[reportPrivateUsage]
+            keepalive = session._keepalive  # pyright: ignore[reportPrivateUsage]
             ping = session._ping  # pyright: ignore[reportPrivateUsage]
             session.resume()
 
@@ -1213,6 +1213,7 @@ def test_closing_while_a_read_waits_is_the_end_of_the_events(client: SonioxClien
         session = client.realtime.stt.connect(config=CONFIG)
         session._ping_interval_sec = 1.0  # pyright: ignore[reportPrivateUsage]
         session.enter()
+
         def close_once_the_read_is_waiting() -> None:
             time.sleep(0.2)
             session.close()
@@ -1332,9 +1333,7 @@ def test_a_stream_a_newer_connection_holds_is_not_dialled_again(
         }
     )
 
-    with patch(
-        "soniox.realtime.stt.sync_ws_connect", side_effect=[dropped, replaced]
-    ) as connect:
+    with patch("soniox.realtime.stt.sync_ws_connect", side_effect=[dropped, replaced]) as connect:
         with client.realtime.stt.connect(config=CONFIG) as session:
             received = list(session.receive_events())
             assert session._over is Ending.TAKEN  # pyright: ignore[reportPrivateUsage]
@@ -1630,7 +1629,6 @@ async def test_a_pong_confirms_the_messages_the_server_has_async(
     assert state.resend_after(0, "token-2") == [b"second"]
 
 
-
 def test_a_stream_that_never_answers_is_not_continued_for_ever(
     client: SonioxClient,
 ) -> None:
@@ -1736,9 +1734,7 @@ async def test_a_reply_with_no_count_is_a_refusal_async(
     dropped.push_recv_error(ConnectionClosed(None, None))
     countless.push_recv({"type": "reconnected", "reconnect_token": "token-2"})
 
-    with patch(
-        "soniox.realtime.async_stt.async_ws_connect", side_effect=[dropped, countless]
-    ):
+    with patch("soniox.realtime.async_stt.async_ws_connect", side_effect=[dropped, countless]):
         async with async_client.realtime.stt.connect(config=CONFIG) as session:
             await session.send_byte_chunk(b"first")
             with pytest.raises(SonioxRealtimeError, match="could not be continued"):
@@ -1944,3 +1940,44 @@ def test_the_reconnect_token_is_not_handed_to_the_caller(client: SonioxClient) -
     state = session._reconnect  # pyright: ignore[reportPrivateUsage]
     assert state is not None
     assert state.token == "token-2"
+
+
+def test_a_stream_the_server_is_behind_on_is_still_continued(client: SonioxClient) -> None:
+    """A pong is a message like any other, so it waits behind the audio.
+
+    A caller feeding a file is ahead of the server, which reads its socket at
+    about the pace it transcribes - so the last pong can be minutes old while
+    results arrive steadily. Counting the window from the pong alone gives up
+    on a stream that was never in trouble, and the caller loses the rest of
+    the transcript with no error to explain it.
+    """
+    dropped, resumed = MockWebSocket(), MockWebSocket()
+    dropped.push_recv(RECONNECT)
+    dropped.push_recv(_tokens("one", 1))
+    dropped.push_recv(_tokens("two", 2))
+    dropped.push_recv_error(ConnectionClosed(None, None))
+    resumed.push_recv({"type": "reconnected", "reconnect_token": "token-2", "last_request": 0})
+    resumed.push_recv(_tokens("three", 3))
+    resumed.push_recv({"finished": True})
+    resumed.close_after_recv()
+    config = CONFIG.model_copy(update={"idle_timeout_ms": 3000})
+
+    with patch("soniox.realtime.stt.sync_ws_connect", side_effect=[dropped, resumed]) as connect:
+        with client.realtime.stt.connect(config=config) as session:
+            state = session._reconnect  # pyright: ignore[reportPrivateUsage]
+            assert state is not None
+            received = [session.receive_event()]
+
+            # The last pong is now older than the whole window: the ping went
+            # out behind audio the server has not read yet. The frame read
+            # below is what says the connection is alive after all.
+            state.acked_at = time.monotonic() - 60
+            received.append(session.receive_event())
+            received.extend(session.receive_events())
+
+    assert connect.call_count == 2, "the stream was given up on without a single dial"
+    assert [token.text for event in received if event for token in event.tokens] == [
+        "one",
+        "two",
+        "three",
+    ]
