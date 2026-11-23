@@ -9,6 +9,13 @@ from ..errors import SonioxValidationError
 KEEP_ALIVE_INTERVAL_SEC: float = 5.0
 DEFAULT_CONNECT_TIMEOUT_SEC: float = 10.0
 
+DEFAULT_IDLE_TIMEOUT_MS: int = 20000
+"""
+The server's idle timeout when the start request does not ask for one.
+
+It is also how long a stream waits to be continued, counted from when the
+server notices the connection failed - on a silent drop, our last message.
+"""
 
 def auth_headers(api_key: str) -> dict[str, str]:
     """

@@ -1650,11 +1650,18 @@ Event payload received from the realtime STT websocket.
 
 | Property | Type | Description |
 | ------ | ------ | ------ |
+| `type` | `str \| None` | Protocol message type, for messages that are not a transcription result. |
+| `seq` | `int \| None` | Position of this response in the stream, when reconnect is enabled. |
+| `id` | `int \| None` | The id of the ping this pong answers. |
+| `reconnect_token` | `str \| None` | Token that lets a new connection continue this stream. |
+| `reconnect_url` | `str \| None` | URL to connect to when continuing this stream. |
+| `last_request` | `int \| None` | How many of our messages the server received, in a `reconnected` message. |
 | `tokens` | `list[Token]` | Tokens in this result. |
 | `final_audio_proc_ms` | `int \| None` | Milliseconds of audio that have been finalized. |
 | `total_audio_proc_ms` | `int \| None` | Total milliseconds of audio processed. |
 | `finished` | `bool` | Whether this is the final result (session ending). |
 | `error_code` | `int \| None` | Error code if the realtime operation failed. |
+| `error_type` | `str \| None` | Which error this is.  `connection_replaced` means a newer connection continued the stream. The stream continues there, so this is the end of this session but not of the stream. |
 | `error_message` | `str \| None` | Human-readable description of the error. |
 
 <a id="realtimeevent-validate_event"></a>
@@ -1698,6 +1705,8 @@ Configuration for initiating a realtime transcription session.
 | `enable_language_identification` | `bool \| None` | Enable automatic language detection. |
 | `enable_endpoint_detection` | `bool \| None` | Enable endpoint detection for utterance boundaries. |
 | `enable_agent_text_input` | `bool \| None` | Accept `send_agent_text()` on this session, so words your agent speaks are recognized when the user says them back. The model must support it (`Model.supports_agent_text_input`), or the server refuses the session. |
+| `enable_reconnect` | `bool \| None` | Let the session continue on a new connection when this one drops, without losing or repeating any part of the transcript.  The session then pings the server to notice a drop within seconds, and keeps the messages a pong has not confirmed so it can send them again. A `reconnected` event among the results says a drop was recovered from; a caller that would rather stop there can close the session. |
+| `idle_timeout_ms` | `int \| None` | How long the server keeps the session when nothing arrives, in milliseconds. Between 3000 and 20000; the default is 20000.  With `enable_reconnect` it is also how long the stream waits to be taken over after a drop, and the session paces its pings by it. |
 | `max_endpoint_delay_ms` | `int \| None` | Maximum delay between the end of speech and returned endpoint. Allowed values for maximum delay are between 500ms and 3000ms. The default value is 2000ms |
 | `endpoint_sensitivity` | `float \| None` | Adjusts how likely the model is to emit an endpoint. Higher values make endpoints more likely (finalizing sooner); lower values make them less likely. Allowed values are between -1.0 and 1.0; the default is 0.0. Introduced in the Soniox v5 model; earlier models reject it. |
 | `endpoint_latency_adjustment_level` | `int \| None` | Fine-tunes the latency/accuracy trade-off of endpoint detection. Allowed values are integers from 0 to 3. |

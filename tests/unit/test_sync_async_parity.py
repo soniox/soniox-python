@@ -13,11 +13,17 @@ coroutine or async generator - catches "copy-pasted from sync and forgot
 
 from __future__ import annotations
 
+import ast
+import difflib
 import inspect
+import re
+from dataclasses import dataclass, field
+from pathlib import Path
 from typing import Any
 
 import pytest
 
+import soniox.realtime
 from soniox.api.async_auth import AsyncAuthAPI
 from soniox.api.async_files import AsyncFilesAPI
 from soniox.api.async_models import AsyncModelsAPI
@@ -31,8 +37,6 @@ from soniox.api.webhooks import SonioxWebhooksAPI
 from soniox.client import AsyncSonioxClient, SonioxClient
 from soniox.realtime.async_stt import AsyncRealtimeSTTClient, AsyncRealtimeSTTSession
 from soniox.realtime.stt import RealtimeSTTClient, RealtimeSTTSession
-
-from dataclasses import dataclass, field
 
 
 @dataclass(frozen=True)
@@ -136,3 +140,70 @@ def test_async_methods_are_actually_async(pair: ParityPair) -> None:
     assert not offenders, (
         f"{pair.async_cls.__name__} has public method(s) that aren't async: {offenders}"
     )
+
+
+# The two realtime STT sessions are hand-written mirrors of each other, and the
+# reconnect protocol is the most intricate thing in either. A fix that lands in
+# one and not the other is a wrong transcript on the half that missed it, so
+# these methods are compared body for body.
+MIRRORED_METHODS: tuple[str, ...] = (
+    "_can_resume",
+    "_continue_stream",
+    "_dial_once",
+    "_end_a_stream_with_no_socket",
+    "_for_caller",
+)
+
+# Written one way in the sync session and another in the async one, for reasons
+# that are not drift: a different library call for the same act, or a different
+# way to wait. Everything else must match.
+SPELLINGS: tuple[tuple[str, str], ...] = (
+    ("async def", "def"),
+    ("await ", ""),
+    ("async with", "with"),
+    ("asyncio.sleep", "time.sleep"),
+    ("async_ws_connect", "sync_ws_connect"),
+    ("ws.transport.abort()", "ws.close_socket()"),
+    # The async half has no thread to race, so it takes no lock to read the
+    # ping log; the sync half must.
+    ("with self._lock:\n    overdue", "overdue"),
+)
+
+# A bounded read: the sync socket takes a timeout, the async one is wrapped.
+BOUNDED_READ = re.compile(r"asyncio\.wait_for\(ws\.recv\(\), (.+)\)")
+
+
+def _normalised_method(path: Path, name: str) -> str:
+    """One method's body, in a form the two halves can be compared in.
+
+    `ast.unparse` throws away comments, docstrings and line wrapping, which are
+    all free to differ, and leaves the code itself in one canonical spelling.
+    """
+    tree = ast.parse(path.read_text())
+    for node in ast.walk(tree):
+        if isinstance(node, (ast.FunctionDef, ast.AsyncFunctionDef)) and node.name == name:
+            body = node.body[1:] if ast.get_docstring(node) else node.body
+            source = "\n".join(ast.unparse(statement) for statement in body)
+            for mine, theirs in SPELLINGS:
+                source = source.replace(mine, theirs)
+            return BOUNDED_READ.sub(r"ws.recv(timeout=\1)", source)
+    raise AssertionError(f"{name} is not in {path.name}")
+
+
+@pytest.mark.parametrize("name", MIRRORED_METHODS)
+def test_the_reconnect_halves_have_not_drifted(name: str) -> None:
+    realtime = Path(soniox.realtime.__file__).parent
+    sync = _normalised_method(realtime / "stt.py", name)
+    asynchronous = _normalised_method(realtime / "async_stt.py", name)
+
+    if sync != asynchronous:
+        drift = "\n".join(
+            difflib.unified_diff(
+                sync.splitlines(),
+                asynchronous.splitlines(),
+                fromfile=f"stt.py {name}",
+                tofile=f"async_stt.py {name}",
+                lineterm="",
+            )
+        )
+        raise AssertionError(f"the two halves of {name} no longer agree:\n{drift}")

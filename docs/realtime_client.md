@@ -450,12 +450,25 @@ recv_bytes() -> bytes
 
 Receive a raw message from the WebSocket connection.
 
+Reconnect belongs to `receive_event`, which records the token the
+server sends: a session driven through it replaces a lost connection
+here, so this only returns empty once the stream itself is over, and a
+continued stream returns the server's `reconnected` message. Called alone
+this is the plain socket and a drop ends the stream, because nothing
+recorded the token. The token message and the pongs come through as
+they are; `receive_event` is what keeps those to itself.
+
 **Returns**
 
 `bytes`
 
 The received message as bytes. An empty bytes object indicates
 that the connection has been closed.
+
+**Raises**
+
+- `SonioxRealtimeError` If the session is not connected, or if the connection dropped
+and the stream could not be continued.
 
 ***
 
@@ -501,7 +514,7 @@ The next RealtimeEvent, or None if the connection has closed.
 
 **Raises**
 
-- `SonioxRealtimeError` If the session is not connected.
+- `SonioxRealtimeError` If the session was never connected.
 
 ***
 
@@ -860,12 +873,25 @@ recv_bytes() -> bytes
 
 Receive a raw message from the WebSocket connection.
 
+Reconnect belongs to `receive_event`, which records the token the
+server sends: a session driven through it replaces a lost connection
+here, so this only returns empty once the stream itself is over, and a
+continued stream returns the server's `reconnected` message. Called alone
+this is the plain socket and a drop ends the stream, because nothing
+recorded the token. The token message and the pongs come through as
+they are; `receive_event` is what keeps those to itself.
+
 **Returns**
 
 `bytes`
 
 The received message as bytes. An empty bytes object indicates
 that the connection has been closed.
+
+**Raises**
+
+- `SonioxRealtimeError` If the session is not connected, or if the connection dropped
+and the stream could not be continued.
 
 ***
 
@@ -911,7 +937,7 @@ The next RealtimeEvent, or None if the connection has closed.
 
 **Raises**
 
-- `SonioxRealtimeError` If the session is not connected.
+- `SonioxRealtimeError` If the session was never connected.
 
 ***
 

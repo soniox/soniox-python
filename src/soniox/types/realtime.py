@@ -28,6 +28,24 @@ class RealtimeEvent(BaseModel):
 
     model_config = ConfigDict(extra="allow")
 
+    type: str | None = None
+    """Protocol message type, for messages that are not a transcription result."""
+
+    seq: int | None = None
+    """Position of this response in the stream, when reconnect is enabled."""
+
+    id: int | None = None
+    """The id of the ping this pong answers."""
+
+    reconnect_token: str | None = None
+    """Token that lets a new connection continue this stream."""
+
+    reconnect_url: str | None = None
+    """URL to connect to when continuing this stream."""
+
+    last_request: int | None = None
+    """How many of our messages the server received, in a `reconnected` message."""
+
     tokens: list[Token] = Field(default=[])
     """Tokens in this result."""
 
@@ -42,6 +60,15 @@ class RealtimeEvent(BaseModel):
 
     error_code: int | None = None
     """Error code if the realtime operation failed."""
+
+    error_type: str | None = None
+    """
+    Which error this is.
+
+    `connection_replaced` means a newer connection continued the stream. The
+    stream continues there, so this is the end of this session but not of the
+    stream.
+    """
 
     error_message: str | None = None
     """Human-readable description of the error."""
@@ -90,6 +117,26 @@ class RealtimeSTTConfig(BaseModel):
     Accept `send_agent_text()` on this session, so words your agent speaks are
     recognized when the user says them back. The model must support it
     (`Model.supports_agent_text_input`), or the server refuses the session.
+    """
+
+    enable_reconnect: bool | None = None
+    """
+    Let the session continue on a new connection when this one drops, without
+    losing or repeating any part of the transcript.
+
+    The session then pings the server to notice a drop within seconds, and keeps
+    the messages a pong has not confirmed so it can send them again. A
+    `reconnected` event among the results says a drop was recovered from; a
+    caller that would rather stop there can close the session.
+    """
+
+    idle_timeout_ms: int | None = Field(default=None, ge=3000, le=20000)
+    """
+    How long the server keeps the session when nothing arrives, in
+    milliseconds. Between 3000 and 20000; the default is 20000.
+
+    With `enable_reconnect` it is also how long the stream waits to be taken
+    over after a drop, and the session paces its pings by it.
     """
 
     max_endpoint_delay_ms: int | None = Field(default=None, ge=500, le=3000)

@@ -63,11 +63,19 @@ Examples:
 
 ### Added
 
+- `idle_timeout_ms` on `RealtimeSTTConfig`: how long the server keeps the session when nothing arrives, between 3000 and 20000 milliseconds. With `enable_reconnect` it is also how long the stream waits to be continued, and shortening it below 8000 shortens the session's pings to match.
+- `enable_reconnect` on `RealtimeSTTConfig`: a realtime STT session continues on a new connection when one drops, without losing or repeating any part of the transcript. The session pings the server to notice a drop within seconds and sends again what the server did not receive. A `reconnected` event among the results says a drop was recovered from, and `RealtimeEvent` carries `error_type` so a stream a newer connection has taken over can be told apart from one that ended.
+  Audio and control messages sent while the session is between connections are kept and go out once the stream has been continued. Attempts are bounded by the window the stream has left and spaced by a jittered wait, so one hung connection cannot use up the window and sessions dropped at the same moment do not all return together. A drop after the audio has ended is continued too, so the final results are not lost.
+
 ### Changed
 
 ### Deprecated
 
 ### Fixed
+
+- Closing a realtime STT session now closes the connection, which is what tells the server the stream is over. A session that only let the socket go left the stream waiting out its idle timeout, and that wait is billed and holds a concurrent request slot.
+- Calling `finish()` again, or closing a realtime STT session after it, no longer sends the end-of-audio message a second time.
+- A realtime STT session no longer takes an `error_code` of zero for an error.
 
 ### Removed
 

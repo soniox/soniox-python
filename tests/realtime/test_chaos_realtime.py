@@ -136,6 +136,7 @@ def test_server_error_event_surfaces_to_consumer(client: SonioxClient) -> None:
     raising."""
     ws = MockWebSocket()
     ws.push_recv({"error_code": 429, "error_message": "rate limited"})
+    ws.close_after_recv()
 
     with patch("soniox.realtime.stt.sync_ws_connect", return_value=ws):
         with client.realtime.stt.connect(config=CONFIG) as session:
@@ -149,6 +150,7 @@ async def test_server_error_event_surfaces_to_consumer_async(
 ) -> None:
     ws = AsyncMockWebSocket()
     ws.push_recv({"error_code": 429, "error_message": "rate limited"})
+    ws.close_after_recv()
 
     with patch("soniox.realtime.async_stt.async_ws_connect", return_value=ws):
         async with async_client.realtime.stt.connect(config=CONFIG) as session:
