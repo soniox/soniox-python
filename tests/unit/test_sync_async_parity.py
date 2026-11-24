@@ -23,7 +23,6 @@ from typing import Any
 
 import pytest
 
-import soniox.realtime
 from soniox.api.async_auth import AsyncAuthAPI
 from soniox.api.async_files import AsyncFilesAPI
 from soniox.api.async_models import AsyncModelsAPI
@@ -96,9 +95,7 @@ API_PAIRS: list[ParityPair] = [
 
 def _public_callables(cls: type) -> set[str]:
     return {
-        name
-        for name in dir(cls)
-        if not name.startswith("_") and callable(getattr(cls, name, None))
+        name for name in dir(cls) if not name.startswith("_") and callable(getattr(cls, name, None))
     }
 
 
@@ -192,7 +189,10 @@ def _normalised_method(path: Path, name: str) -> str:
 
 @pytest.mark.parametrize("name", MIRRORED_METHODS)
 def test_the_reconnect_halves_have_not_drifted(name: str) -> None:
-    realtime = Path(soniox.realtime.__file__).parent
+    # The files in this checkout, not wherever the package is installed: an
+    # older copy on the path would fail this for the wrong reason, or pass it
+    # while the two halves in front of you have drifted apart.
+    realtime = Path(__file__).resolve().parents[2] / "src" / "soniox" / "realtime"
     sync = _normalised_method(realtime / "stt.py", name)
     asynchronous = _normalised_method(realtime / "async_stt.py", name)
 
